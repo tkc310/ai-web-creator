@@ -1,0 +1,28 @@
+# 要保守構成（Astro の一部 SSR、EmDash）のサイトで使う。
+# 更新のプルリクエストは、2週間ごとの保守ルーティン（site-maintenance スキル）が確認してマージする。
+# Node.js 本体と Workers の compatibility_date は Dependabot の対象外なので、runtime-update スキルで更新する。
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 10
+    labels: [dependencies]
+    groups:
+      # マイナー・パッチは1つにまとめ、メジャー更新は個別のプルリクエストにする
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      timezone: Asia/Tokyo
+    labels: [dependencies]
+    groups:
+      actions:
+        patterns: ["*"]

@@ -45,12 +45,48 @@ wrangler.jsonc   … assets.directory は "./dist"
 - 記事一覧、記事ページ、タグ一覧は Content Collections から生成する
 - `draft: true` の記事はビルドに含めない
 - llms.txt はビルド時に記事一覧から生成するページ（`src/pages/llms.txt.ts`）にしてもよい
+- アダプターは入れない（B-1）。全ページがビルド時に HTML になり、`dist/` を静的アセットとして配信する
+
+### 一部のページだけ SSR にする場合（B-2）
+
+stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行います。
+
+1. `npx astro add cloudflare` でアダプターを追加する
+2. SSR にするファイルだけに `export const prerender = false` を書く。ほかのページはそのまま SSG で出力される
+3. 使わない機能は無効にする。セッションを使わないなら `session: false`。画像の変換は Cloudflare Images を使わず、ビルド時に変換する設定（`imageService: 'compile'`）にする（課金や設定の増加を避けるため）
+4. `wrangler.jsonc` はアダプターのドキュメントに従う。Astro 6 以降は `main` に `@astrojs/cloudflare/entrypoints/server` を指定し、静的アセットの設定はアダプターが行う
+5. SSR のページの動作を、ビルドしたものを `wrangler dev` などで実際に呼び出して確認する
+6. site-maintenance スキルの「要保守構成の初期設定」を行う
+
+```js
+// astro.config.mjs（B-2 の例）
+import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  site: 'https://example.co.jp',
+  integrations: [sitemap()],
+  adapter: cloudflare({ imageService: 'compile' }),
+  session: false,
+});
+```
+
+```ts
+// src/pages/api/contact.ts（この1ファイルだけ SSR）
+export const prerender = false;
+export async function POST({ request }) {
+  // 入力の検証、送信回数の制限、メール送信
+}
+```
+
+設定の名前はアダプターのバージョンで変わることがあるため、作業時に Astro の公式ドキュメントで確認します。
 
 ## C. EmDash
 
 EmDash の公式ドキュメントに従ってセットアップします。テンプレートを選び、Cloudflare 上に Workers、D1、R2 を作成します。作成時は課金の有無をオーナーに確認します。テーマのデザインは B と同じ方針で作ります。
 
-## wrangler.jsonc の例（A・B 共通）
+## wrangler.jsonc の例（A・B-1 共通）
 
 ```jsonc
 {
@@ -64,3 +100,5 @@ EmDash の公式ドキュメントに従ってセットアップします。テ�
 ```
 
 `compatibility_date` は作成した日付にします。
+
+リポジトリの直下に `.node-version`（templates/node-version.txt をコピー）を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。

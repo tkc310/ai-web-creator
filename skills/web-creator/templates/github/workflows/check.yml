@@ -1,0 +1,29 @@
+# プルリクエスト（Dependabot の更新、保守ルーティンの修正など）で、ビルドが通るかだけを確認する。
+# 要保守構成（Astro の一部 SSR、EmDash）のサイトで使う。静的だけのサイトには置かなくてよい。
+name: check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: ビルド
+        run: |
+          npm ci
+          npm run build

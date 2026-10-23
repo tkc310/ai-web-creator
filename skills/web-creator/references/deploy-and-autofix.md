@@ -15,7 +15,11 @@
 
 ## 初回の設定
 
-1. サイトのリポジトリに templates/github/workflows/ の2ファイルを `.github/workflows/` として、templates/gitignore.txt を `.gitignore` としてコピーする
+1. サイトのリポジトリに次をコピーする
+   - templates/github/workflows/deploy.yml と autofix.yml → `.github/workflows/`
+   - templates/gitignore.txt → `.gitignore`
+   - templates/node-version.txt → `.node-version`（Node.js のバージョン。runtime-update スキルの基準で、作成時点の LTS 版にする）
+   - 要保守構成（Astro の一部 SSR、EmDash）の場合は、site-maintenance スキルの「要保守構成の初期設定」も行う
 2. `wrangler.jsonc` を置く（build.md の例）
 3. GitHub の Secrets に次の3つが登録されていることを確認する（値の登録はオーナーが行う。account-setup.md）
    - `CLOUDFLARE_API_TOKEN`
@@ -63,4 +67,5 @@ autofix が動いた場合は、次にオーナーと話すときに「◯日に
 
 - 依存パッケージは `package-lock.json` で固定し、更新は月に1回までにまとめて行う
 - 記事の追加では、エージェントが push の前に手元でビルドを通す
-- Node.js のバージョンは deploy.yml とそろえる（22）。Node.js 22 のサポートは2027年4月に終わるため、その前に新しいバージョンへ上げる作業を SITE.md の予定に書いておく
+- Node.js のバージョンは `.node-version` の1か所で決める。ワークフローは `node-version-file` でこのファイルを読む
+- 静的だけのサイトでは保守ルーティンを動かさないため、使っている Node.js のサポート終了日を SITE.md の予定に書いておき、その半年前にオーナーへ更新を提案する（runtime-update スキル）

@@ -32,7 +32,8 @@ description: ITに詳しくない人の代わりに、コーポレートサイ�
 4. デザインと制作  … 3案を見せて選んでもらい、作る（references/build.md）
 5. 公開前の健康診断 … Lighthouse と SEO・AIO（references/quality-gate.md）
 6. 公開            … GitHub → Cloudflare（references/deploy-and-autofix.md）
-7. 運用            … 更新、質問、自動修正（site-content-update スキル）
+7. 保守の設定      … 要保守構成のときだけ（site-maintenance スキル）
+8. 運用            … 更新、質問、自動修正（site-content-update スキル）
 ```
 
 既存サイトからの引っ越しは、1と2の間で references/migration.md を読みます。
@@ -71,6 +72,7 @@ description: ITに詳しくない人の代わりに、コーポレートサイ�
 開発はすべてエージェントのクラウド環境で行い、成果物は GitHub のリポジトリに保存します。オーナーのパソコンに開発ツールを入れてもらうことはしません。
 
 - 1サイト = 1リポジトリ。リポジトリは非公開（private）で作り、名前はドメインかサイト名にします。
+- Astro は SSG（ビルド時に全ページを HTML にする）を前提にします。アクセスのたびに処理が必要なページがある場合だけ、そのページを SSR にします（references/stack-selection.md）。SSR か EmDash を使う構成は「要保守構成」として、2週間ごとの保守ルーティンを設定します。
 - 公開は GitHub Actions から Cloudflare Workers（静的アセット）に行います。Cloudflare Pages は新規には使いません（Workers の方が機能が広く、Cloudflare もそちらへの移行を案内しているため）。
 - 変更は main ブランチへのコミットで公開されます。大きな変更（デザインの刷新、ページ構成の変更）だけは、ブランチでプレビューを作って見せてから main に入れます。
 
@@ -102,6 +104,7 @@ description: ITに詳しくない人の代わりに、コーポレートサイ�
 デプロイが失敗しにくいことを、検査の多さより優先します。
 
 - CI で行うのは「ビルドが通るか」だけです。リンターやテストは CI に入れず、エージェントが作業中に手元で実行します。
+- 要保守構成のサイトでは、Dependabot などのプルリクエストに対しても、同じくビルドだけを確認する check ワークフローを置きます。
 - デプロイが失敗したら、autofix ワークフローが Claude を起動して直し、再デプロイします。直せなかった場合は GitHub の Issue でオーナーに知らせます。失敗している間も、前回公開したサイトはそのまま表示されています。
 - 詳細とワークフローのひな形は references/deploy-and-autofix.md と templates/ にあります。
 

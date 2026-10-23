@@ -36,6 +36,8 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 |---|---|
 | [skills/web-creator](skills/web-creator/SKILL.md) | サイト制作の全体を進めるスキル。ヒアリング、技術の選定、アカウントの準備、デザインと制作、公開前の品質チェック、公開、自動修正 |
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude のドキュメントから原稿を読み取って公開する |
+| [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。Dependabot の更新を2週間に1回レビュー・修正・マージする |
+| [skills/runtime-update](skills/runtime-update/SKILL.md) | Dependabot が扱わない Node.js のメジャーバージョンと Workers の compatibility_date の更新 |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 
 ## 設計の方針
@@ -48,7 +50,20 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 - お知らせやブログがある複数ページのサイト: Astro（ほとんどのサイトはこれになる）
 - 毎日更新するメディアや、書き手が管理画面を必要とするサイト: EmDash
 
+Astro は SSG（ビルド時に全ページを HTML にする）を前提にします。お問い合わせの送信処理のように、アクセスのたびに処理が必要なページがある場合だけ、そのページを SSR にします。
+
 EmDash は本体やプラグインの更新、データベースの管理といった運用が発生するため、ほかの方法で足りない場合だけ選びます。
+
+### 要保守構成は2週間ごとに自動で保守する
+
+Astro で一部のページを SSR にした場合と EmDash を使う場合は、公開されたサイトで依存パッケージのコードが動くため、「要保守構成」として扱います。
+
+- Dependabot が npm のパッケージと GitHub Actions の更新をプルリクエストにする
+- Claude のスケジュールタスク（旧称: ルーティン）が毎月1日と15日に動き、更新をレビューし、壊れていれば直して、問題なければマージする（[site-maintenance](skills/site-maintenance/SKILL.md)）
+- Dependabot が扱わない Node.js のメジャーバージョンと Workers の compatibility_date は、同じルーティンの中で Claude が基準に従って更新する（[runtime-update](skills/runtime-update/SKILL.md)）
+- データベースの構造が変わる更新、有料プランが必要になる更新、ライセンスが変わる更新は、自動ではマージせずオーナーに確認する
+
+静的だけのサイトは、公開されたサイトで依存パッケージが動かないため、この保守を設定しません。
 
 ### 開発はクラウドで行い、公開は GitHub と Cloudflare で行う
 
@@ -67,7 +82,7 @@ EmDash は本体やプラグインの更新、データベースの管理とい�
 
 ### デプロイを失敗しにくくし、失敗しても自動で直す
 
-CI で確認するのは「ビルドが通るか」だけです。リンターやテストはエージェントが作業中に実行します。デプロイが失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。失敗しても、Cloudflare 上の前回のサイトはそのまま表示されます。
+CI で確認するのは「ビルドが通るか」だけです（要保守構成では、プルリクエストでも同じ確認をする）。リンターやテストはエージェントが作業中に実行します。デプロイが失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。失敗しても、Cloudflare 上の前回のサイトはそのまま表示されます。
 
 ### 公開前に品質を測る
 
@@ -92,8 +107,13 @@ skills/
 │   │   ├── deploy-and-autofix.md
 │   │   └── migration.md         … CMS やノーコードツールからの引っ越し
 │   ├── scripts/run_lighthouse.sh
-│   └── templates/               … SITE.md、AGENTS.md、ワークフロー、llms.txt、JSON-LD など
-└── site-content-update/
+│   └── templates/               … SITE.md、AGENTS.md、ワークフロー、dependabot.yml、llms.txt、JSON-LD など
+├── site-content-update/
+│   └── SKILL.md
+├── site-maintenance/
+│   ├── SKILL.md
+│   └── references/              … ルーティンの作り方とプロンプト
+└── runtime-update/
     └── SKILL.md
 ```
 
@@ -101,6 +121,7 @@ skills/
 
 - 料金やサービスの仕様は変わります。スキルの中の数値は作成時点のもので、エージェントは作業時に最新の情報を確認します
 - 自動修正のワークフローを使うには、GitHub Actions から Claude を呼ぶための鍵（`CLAUDE_CODE_OAUTH_TOKEN` または `ANTHROPIC_API_KEY`）が必要です
+- 保守ルーティンは Claude のスケジュールタスクで動くため、Claude の利用量を使います（Pro 以上のプランで利用できます）
 
 ## フィードバック
 
