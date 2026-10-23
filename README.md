@@ -20,7 +20,7 @@ GitHub の tkc310/ai-web-creator にあるスキル（skills フォルダ）を�
 質問は選択肢をつけて、一度に5つまでにしてください。
 ```
 
-Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後は管理画面を開く必要がなく、お知らせやブログは要点を箇条書きで送るだけで、Claude が下書きと校正をして公開します。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
+Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後は管理画面を開く必要がなく、お知らせやブログは要点を箇条書きで送るだけで、Claude が下書きと校正をして公開します。公開前の変更は、Claude のアーティファクトで HTML のプレビューを見せてから公開します。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
 
 ## 使うモデル
 

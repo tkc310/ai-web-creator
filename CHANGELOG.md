@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-24（6）
+
+- feat(skills): 公開前の変更を、Claude のアーティファクトで HTML のプレビューとして見せる手順を追加（web-creator/references/preview.md）
+- feat(skills): ビルドしたページやサーバーのページを、CSS・画像・フォントを埋め込んだ1つの HTML にまとめる scripts/make_preview.py を追加。スマホと PC の表示切り替え、複数ページのタブ表示に対応
+- docs: site-content-update、web-creator、使い方ガイド、プロンプト集、SITE.md のテンプレートをプレビューの手順に合わせて更新
+
 ## 2026-10-24（5）
 
 - feat(skills): 使うモデルを Claude Opus 5.5 に統一し、計画とデザインは effort high、構築は effort medium に使い分けるようにした。web-creator は high、site-content-update・site-maintenance・runtime-update は medium を frontmatter で指定
