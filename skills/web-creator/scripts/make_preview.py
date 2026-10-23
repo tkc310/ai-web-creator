@@ -268,6 +268,7 @@ def main() -> None:
     ap.add_argument("--out", default="preview.html")
     ap.add_argument("--label", default="", help="プレビューの見出し（例: お知らせ「年末年始の休業」）")
     ap.add_argument("--names", nargs="*", help="複数ページのときのタブの名前")
+    ap.add_argument("--standalone", action="store_true", help="ブラウザで直接開ける完全な HTML にする（アーティファクトを使わない場合）")
     args = ap.parse_args()
 
     loader = Loader(pathlib.Path(args.root).resolve() if args.root else None)
@@ -294,6 +295,8 @@ def main() -> None:
         label=label, tabs=tabs, notes=notes,
         pages_json=json.dumps(pages, ensure_ascii=False).replace("</", "<\\/"),
     )
+    if args.standalone:
+        out = '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">' + out + "</body></html>"
     data = out.encode("utf-8")
     if len(data) > MAX_BYTES:
         sys.exit(f"プレビューが大きすぎます（{len(data) / 1024 / 1024:.1f}MB）。画像を縮小するか、ページを分けてください")

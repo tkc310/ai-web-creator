@@ -8,6 +8,7 @@ ITに詳しくない人が、Claude と対話するだけで、安全でデザ�
 
 - [Claude のアカウント登録ガイド](docs/claude-account.md): アカウントの作り方、有料プラン、最初にしておく設定、GitHub とのつなぎ方
 - [スキルとプロンプトの使い方](docs/how-to-use.md): 相談から制作、公開、運用までの進め方
+- [Cursor や ChatGPT で使う](docs/other-agents.md): Claude 以外のエージェントでスキルを読み込む方法と、Claude にしかない機能の置き換え
 
 ## 使い方
 

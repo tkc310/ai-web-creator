@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-24（7）
+
+- feat: Cursor と ChatGPT（Codex）でもスキルを読み込めるよう、`.agents/skills/` と `.claude/skills/` から `skills/` へのリンクを追加
+- docs: Cursor や ChatGPT で使う方法と、Claude にしかない機能の置き換えをまとめた docs/other-agents.md を追加し、README からリンク
+- feat(skills): make_preview.py に、ブラウザで直接開ける HTML を作る `--standalone` を追加。プレビューと保守ルーティンに、機能がない場合の代わりの手順を追記
+- docs(skills): 特定のノーコードサービス名を一般的な表現に変更
+
 ## 2026-10-24（6）
 
 - feat(skills): 公開前の変更を、Claude のアーティファクトで HTML のプレビューとして見せる手順を追加（web-creator/references/preview.md）

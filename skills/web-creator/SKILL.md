@@ -1,6 +1,6 @@
 ---
 name: web-creator
-description: ITに詳しくない人の代わりに、コーポレートサイト・LP・ブログ・メディアサイトを対話しながら企画、制作、公開、運用まで行うスキル。「ホームページを作りたい」「会社のサイトを作って」「LPを作って」「WordPressやSTUDIOから引っ越したい」「サイトを直して」「サイトについて質問」といった依頼では、技術用語が出てこなくても必ずこのスキルを使う。GitHubとCloudflareを使い、技術選定（HTML / Astro / EmDash）、アカウント準備、デザイン、Lighthouse計測、SEO・AIO対策、デプロイ失敗時の自動修正まで面倒を見る。
+description: ITに詳しくない人の代わりに、コーポレートサイト・LP・ブログ・メディアサイトを対話しながら企画、制作、公開、運用まで行うスキル。「ホームページを作りたい」「会社のサイトを作って」「LPを作って」「今の CMS やノーコードツールのサイトから引っ越したい」「サイトを直して」「サイトについて質問」といった依頼では、技術用語が出てこなくても必ずこのスキルを使う。GitHubとCloudflareを使い、技術選定（HTML / Astro / EmDash）、アカウント準備、デザイン、Lighthouse計測、SEO・AIO対策、デプロイ失敗時の自動修正まで面倒を見る。
 model: claude-opus-5-5
 effort: high
 ---
@@ -56,6 +56,10 @@ effort: high
 - サブエージェントが使えない環境では、構築に入る前に、オーナーに「モデルの選択で Opus 5.5 の effort を medium にしてください」と一文で頼みます。設定できない場合は、そのまま進めてかまいません
 - サイトのリポジトリには templates/claude/settings.json を `.claude/settings.json` としてコピーし、公開後の更新や保守の会話が Opus 5.5・effort medium で始まるようにします
 - Claude のチャット（段階1）では、オーナーにモデルの一覧から Opus 5.5 を選んでもらいます
+
+## Claude 以外のエージェントで使う場合
+
+このスキルは Claude での利用を前提にしていますが、Cursor や ChatGPT（Codex）でも読み込めます。アーティファクト、スケジュールタスク、ブラウザの操作、GitHub Actions での自動修正など、使っているエージェントにない機能は、docs/other-agents.md の代わりの手順に読み替えます。frontmatter の `model` と `effort` は Claude 用の指定です。
 
 ## オーナーとの話し方
 
