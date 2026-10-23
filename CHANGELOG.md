@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-24（10）
+
+- docs: 改善ループのためのログの仕組み（docs/logs/）を追加。AGENTS.md に、直す前にログを読み、直したらログを書く決まりを追加し、README からリンク
+
 ## 2026-10-24（9）
 
 - docs(skills): account-setup の Cloudflare の見出しを「サイトの公開先」に変更
