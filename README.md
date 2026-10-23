@@ -86,7 +86,7 @@ skills/
 │   │   ├── build.md
 │   │   ├── quality-gate.md
 │   │   ├── deploy-and-autofix.md
-│   │   └── migration.md         … WordPress や STUDIO からの引っ越し
+│   │   └── migration.md         … CMS やノーコードツールからの引っ越し
 │   ├── scripts/run_lighthouse.sh
 │   └── templates/               … SITE.md、AGENTS.md、ワークフロー、llms.txt、JSON-LD など
 └── site-content-update/
