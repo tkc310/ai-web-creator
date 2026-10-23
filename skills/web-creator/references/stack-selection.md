@@ -52,7 +52,7 @@ SSR を使うときの決まり:
 - `@astrojs/cloudflare` アダプターを追加し、SSR にするページ（またはエンドポイント）だけに `export const prerender = false` を書く。サイト全体を `output: 'server'` にはしない
 - アダプターを入れると、配信が「ファイルを置くだけ」から「Cloudflare Workers のコードが動く」構成に変わる。Workers の無料枠（1日あたりのリクエスト数、1回あたりの CPU 時間）の範囲に収まるかを確認し、オーナーに伝える
 - SSR のページでは、入力値の検証、送信回数の制限、秘密の値（メール送信用のキーなど）を `wrangler secret` で扱うことを必ず行う。秘密の値の登録はオーナーが行う
-- SSR を使う構成は「要保守構成」になる。site-maintenance スキルに従い、Dependabot と2週間ごとの保守ルーティンを設定する（設定しないまま公開しない）
+- SSR を使う構成は「要保守構成」になる。site-maintenance スキルに従い、2週間ごとの保守ルーティンを設定する（設定しないまま公開しない）
 - 更新: エージェントが Markdown を追加・編集する（site-content-update スキル）
 - 補足: Astro は2026年1月に Cloudflare に買収されましたが、MIT ライセンスのオープンソースのままで、Cloudflare 以外にも公開できる方針が示されています
 
@@ -65,7 +65,7 @@ SSR を使うときの決まり:
 - 管理画面のほか、サイトごとに MCP サーバーが用意されるので、エージェントからも記事を操作できます
 - サンドボックス化したプラグインを使う場合は Workers の有料プラン（月5ドル〜）が必要です。プラグインを使わなければ無料枠で動かせる場合があります
 
-C を選んだ場合も「要保守構成」です。site-maintenance スキルに従い、Dependabot と2週間ごとの保守ルーティンを設定します。
+C を選んだ場合も「要保守構成」です。site-maintenance スキルに従い、2週間ごとの保守ルーティンを設定します。
 
 ### C を最終手段にする理由
 
@@ -88,9 +88,9 @@ C を選んだ場合は、2週間ごとに Claude が更新を確認して反映
 
 | 構成 | 区分 | 保守 |
 |---|---|---|
-| A. HTML | 静的 | 不要（Node.js のサポート期限だけ SITE.md の予定に書く） |
-| B-1. Astro（SSG のみ） | 静的 | 不要（同上） |
-| B-2. Astro（一部 SSR） | 要保守 | Dependabot ＋ 2週間ごとの保守ルーティン（site-maintenance） |
+| A. HTML | 静的 | 月1回の振り返りで、GitHub Actions の更新を確かめる |
+| B-1. Astro（SSG のみ） | 静的 | 月1回の振り返り（site-review）で、Node.js、pnpm、依存パッケージを最新にする（runtime-update） |
+| B-2. Astro（一部 SSR） | 要保守 | 2週間ごとの保守ルーティン（site-maintenance）で最新にする（runtime-update） |
 | C. EmDash | 要保守 | 同上。データベースの構造が変わる更新はオーナーに確認 |
 
 区分は SITE.md の「技術」に書きます。

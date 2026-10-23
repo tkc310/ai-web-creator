@@ -6,7 +6,7 @@
   python3 make_preview.py dist/news/2026-10-holiday/index.html --root dist --out preview.html \
       --label "お知らせ「年末年始の休業」"
 
-  # 起動中のサーバーから（SSR のページ、EmDash。例: npm run preview や wrangler dev を起動しておく）
+  # 起動中のサーバーから（SSR のページ、EmDash。例: pnpm run preview や wrangler dev を起動しておく）
   python3 make_preview.py http://localhost:4321/news/2026-10-holiday/ --out preview.html --label "..."
 
   # 複数のページやデザイン案をタブで切り替えて見せる

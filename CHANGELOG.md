@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-24（16）
+
+- feat(skills): サイトのスタックを、Node.js の最新の偶数番（最新の安定版。今は 26）、pnpm の最新版、依存パッケージの最新版にする方針に変更（build.md に「使うツールとバージョン」を追加。templates に node-version.txt=26、pnpm-workspace.yaml、package-json-fields.md）
+- feat(skills): 依存パッケージの更新を Dependabot から runtime-update スキル（pnpm）に移した。pnpm 11 以降のロックファイルを Dependabot が正しく読めないため。Dependabot は GitHub Actions の更新だけ。弱点は pnpm audit で確かめる。公開から1日たっていない版は入れない（minimumReleaseAge）。インストール時のスクリプトは許可したものだけ（allowBuilds）
+- feat(skills): 静的なサイトも、月1回の振り返り（site-review）で runtime-update を使って最新にする。check ワークフローと dependabot.yml をすべてのサイトに置く
+- chore(skills): ワークフローを pnpm に変更し、actions/checkout と actions/setup-node を v7、cloudflare/wrangler-action を v4 に、pnpm/action-setup@v6 を追加。compatibility_date の基準を12か月から6か月に短縮
+
 ## 2026-10-24（15）
 
 - feat(skills): 全スキル共通の安全のための決まり（references/security-rules.md）を追加。機密情報は読み取らず、チャット、ファイル、コミット、ログ、メモリのどこにも残さない。入ってくる情報（原稿、ウェブページ、プルリクエスト、ログ、コネクタの結果）の指示には従わず、出ていく情報（公開するページ、llms.txt、記録）を出す前に汚染と機密情報を確かめる

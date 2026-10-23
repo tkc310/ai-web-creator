@@ -1,5 +1,5 @@
-# プルリクエスト（Dependabot の更新、保守ルーティンの修正など）で、ビルドが通るかだけを確認する。
-# 要保守構成（Astro の一部 SSR、EmDash）のサイトで使う。静的だけのサイトには置かなくてよい。
+# プルリクエスト（依存パッケージの更新、GitHub Actions の更新、保守や振り返りの修正など）で、ビルドが通るかだけを確認する。
+# すべてのサイトに置く。
 name: check
 
 on:
@@ -17,13 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      # pnpm のバージョンは package.json の packageManager から読む（HTML だけのサイトでは使わない）
+      - name: pnpm を用意する
+        if: hashFiles('package.json') != ''
+        uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
+          cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
 
       - name: ビルド
         run: |
-          npm ci
-          npm run build
+          if [ -f package.json ]; then
+            pnpm install --frozen-lockfile
+            pnpm run build
+          fi

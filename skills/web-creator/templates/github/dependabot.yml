@@ -1,22 +1,9 @@
-# 要保守構成（Astro の一部 SSR、EmDash）のサイトで使う。
-# 更新のプルリクエストは、2週間ごとの保守ルーティン（site-maintenance スキル）が確認してマージする。
-# Node.js 本体と Workers の compatibility_date は Dependabot の対象外なので、runtime-update スキルで更新する。
+# GitHub Actions のバージョン（actions/checkout など）の更新だけを、Dependabot に任せる。
+# 依存パッケージ（pnpm）、pnpm 本体、Node.js、Workers の compatibility_date は、Claude が runtime-update スキルで更新する。
+# （pnpm 11 以降のロックファイルを Dependabot が正しく読めない問題があるため。2026年10月時点）
+# 更新のプルリクエストは、要保守構成は2週間ごとの保守ルーティン、静的なサイトは月1回の振り返りが確認してマージする。
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-      time: "06:00"
-      timezone: Asia/Tokyo
-    open-pull-requests-limit: 10
-    labels: [dependencies]
-    groups:
-      # マイナー・パッチは1つにまとめ、メジャー更新は個別のプルリクエストにする
-      minor-and-patch:
-        update-types: [minor, patch]
-
   - package-ecosystem: github-actions
     directory: /
     schedule:

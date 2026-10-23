@@ -19,23 +19,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      # pnpm のバージョンは package.json の packageManager から読む（HTML だけのサイトでは使わない）
+      - name: pnpm を用意する
+        if: hashFiles('package.json') != ''
+        uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
+          cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
 
       - name: ビルド
         run: |
           if [ -f package.json ]; then
-            npm ci
-            npm run build
+            pnpm install --frozen-lockfile
+            pnpm run build
           else
             echo "HTML だけのサイトなのでビルドは不要です"
           fi
 
       - name: 公開
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

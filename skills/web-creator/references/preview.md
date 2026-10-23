@@ -16,7 +16,7 @@ SITE.md で「確認なしで公開してよい」とされた種類の変更は
 
 ## 作り方
 
-1. ビルドする（`npm run build`）。SSR のページや EmDash の場合は、`npm run preview`、`wrangler dev` など、ページを返すサーバーを起動する
+1. ビルドする（`pnpm run build`）。SSR のページや EmDash の場合は、`pnpm run preview`、`wrangler dev` など、ページを返すサーバーを起動する
 2. scripts/make_preview.py で、ページを1つの HTML にまとめる
 
 ```bash

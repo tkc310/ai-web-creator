@@ -19,6 +19,18 @@
 - 色のコントラスト比は 4.5:1 以上。画像には内容を説明する alt を付ける
 - お問い合わせ: ヒアリングで選んだ方法（Google フォームのリンク / 埋め込み / 自前のフォーム / 置かない）で作る。手順は references/forms.md
 
+## 使うツールとバージョン
+
+作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（runtime-update スキルの「最新版の調べ方」）。
+
+- Node.js: 最新の偶数番のバージョン（最新の安定版）。`.node-version` に書く（templates/node-version.txt）。奇数番は Astro が対応していないので使わない
+- pnpm: 最新版。`package.json` の `packageManager` に書く（templates/package-json-fields.md）
+- 依存パッケージ: 最新版。`pnpm create astro@latest`、`pnpm add <パッケージ>@latest` で入れる。npm と yarn は使わない
+- pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から1日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
+- GitHub Actions: templates/github/ のワークフローと dependabot.yml（GitHub Actions の更新だけ）を、すべてのサイトに置く
+
+HTML だけのサイト（A）は package.json を置かないので、pnpm と依存パッケージはありません。フォームを自前で作る場合など、Workers のコードを持つときだけ package.json を置きます。
+
 ## A. HTML / CSS / JavaScript
 
 ```
@@ -51,7 +63,7 @@ wrangler.jsonc   … assets.directory は "./dist"
 
 stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行います。
 
-1. `npx astro add cloudflare` でアダプターを追加する
+1. `pnpm astro add cloudflare` でアダプターを追加する
 2. SSR にするファイルだけに `export const prerender = false` を書く。ほかのページはそのまま SSG で出力される
 3. 使わない機能は無効にする。セッションを使わないなら `session: false`。画像の変換は Cloudflare Images を使わず、ビルド時に変換する設定（`imageService: 'compile'`）にする（課金や設定の増加を避けるため）
 4. `wrangler.jsonc` はアダプターのドキュメントに従う。Astro 6 以降は `main` に `@astrojs/cloudflare/entrypoints/server` を指定し、静的アセットの設定はアダプターが行う

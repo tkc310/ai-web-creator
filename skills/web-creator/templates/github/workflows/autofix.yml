@@ -32,14 +32,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 20
 
-      - uses: actions/setup-node@v4
+      - name: pnpm を用意する
+        if: hashFiles('package.json') != ''
+        uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
+          cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
 
       - name: 失敗したときのログを保存
         env:
@@ -63,7 +68,7 @@ jobs:
             2. ログから失敗の原因を特定する
             3. 直前のコミット（git log -5、git diff HEAD~1）の内容に原因があれば、意図を保ったまま最小限の変更で直す
                例: 記事の frontmatter の書き間違い、存在しない画像へのリンク、閉じ忘れたタグ
-            4. npm run build（package.json がある場合）が通ることを確認する
+            4. pnpm install --frozen-lockfile と pnpm run build（package.json がある場合）が通ることを確認する
             5. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）
             6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
 
@@ -79,13 +84,13 @@ jobs:
             --model claude-opus-5-5
             --effort medium
             --max-turns 30
-            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(npm ci),Bash(npm run build),Bash(git log:*),Bash(git diff:*),Bash(git status),Bash(python3 scripts/check_text.py:*)"
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(pnpm install --frozen-lockfile),Bash(pnpm run build),Bash(git log:*),Bash(git diff:*),Bash(git status),Bash(python3 scripts/check_text.py:*)"
 
       - name: ビルドを確認
         run: |
           if [ -f package.json ]; then
-            npm ci
-            npm run build
+            pnpm install --frozen-lockfile
+            pnpm run build
           fi
 
       - name: 修正をコミット
@@ -111,7 +116,7 @@ jobs:
           fi
 
       - name: 公開
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -85,7 +85,7 @@ SITE.md に「原稿はいつも校正してよい」とあれば、原稿はす
    - EmDash: サイトの MCP サーバー経由で下書きとして登録し、公開はオーナーの了承を得てから行う
 6. 確認する
    - 変更したファイル（記事、llms.txt、構造化データを含む）を `python3 scripts/check_text.py` で調べ、原稿の汚染や機密情報が写っていないことを確かめる
-   - `npm run build` が通る
+   - `pnpm run build` が通る（package.json がある場合）
    - 記事ページを、web-creator の scripts/make_preview.py で1つの HTML にまとめ、Claude のアーティファクトとして公開してオーナーに見せる（web-creator の references/preview.md）。スマホと PC の見え方は、プレビューの中で切り替えられる
    - SITE.md にプレビュー用のアーティファクトの URL があれば、そこに公開し直す
    - 構造化データ（BlogPosting / NewsArticle）の日付と画像が正しい

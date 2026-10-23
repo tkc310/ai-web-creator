@@ -99,7 +99,7 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
    - HTML だけのサイト: `html-worker.ts` を `src/worker.ts` に、`contact-handler.ts` を `src/contact-handler.ts` に置く
    - `wrangler-contact.jsonc` の設定を wrangler.jsonc に足す（`send_email` の接続、`vars`、HTML の場合は `run_worker_first`）
    - `contact-form.html` をお問い合わせページに入れ、`/contact/thanks/`（送信完了のページ）と、`?error=` の理由ごとの案内文を作る
-9. エージェント: ローカルで `npm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
+9. エージェント: ローカルで `pnpm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
 10. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる
 11. エージェント: 要保守構成の設定を行う（site-maintenance スキルの初期設定）。SITE.md の「技術」の区分を「要保守」にし、SSR のページに `/api/contact` を書く
 

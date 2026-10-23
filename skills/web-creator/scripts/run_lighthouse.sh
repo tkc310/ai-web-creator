@@ -28,7 +28,7 @@ mkdir -p lighthouse-reports
 for url in "$@"; do
   name=$(echo "$url" | sed -E 's#https?://##; s#[^A-Za-z0-9]+#_#g; s#_$##')
   out="lighthouse-reports/${name}.json"
-  npx --yes lighthouse "$url" \
+  pnpm dlx lighthouse@latest "$url" \
     --quiet \
     --only-categories=performance,accessibility,best-practices,seo \
     --output=json --output-path="$out" \
