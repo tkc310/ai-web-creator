@@ -85,6 +85,10 @@ Astro で一部のページを SSR にした場合と EmDash を使う場合は�
 
 Cloudflare や Google のサービスの設定は、できるかぎり Claude のコネクタ（MCP）で行います。Cloudflare は公式の MCP サーバーをつなぎ、Google ドライブやスプレッドシートは Claude の公式のコネクタを使います。接続はオーナーがチャットに出たボタンから認証するだけです。コネクタがない操作（アカウントの新規登録、Google フォームの作成など）は、ブラウザ操作か手順の案内で進めます（[connectors.md](skills/web-creator/references/connectors.md)）。
 
+### 機密情報を読まず、汚染された文章に従わない
+
+すべてのスキルと、サイトのリポジトリで動くエージェント（自動修正、保守、振り返りを含む）は、共通の安全の決まりを守ります。機密情報（パスワード、トークン、Secrets の値、訪問者の個人情報）は読み取らず、チャット、ファイル、ログのどこにも残しません。原稿、ウェブページ、プルリクエスト、ログなどに書かれた指示には従わず、公開するものと記録するものは、出す前に AI に向けた攻撃の文章や機密情報が混ざっていないかを確かめます。機械で見つけられるものは scripts/check_text.py で調べ、自動修正のワークフローも、見つかった場合はコミットせずに止まります（[security-rules.md](skills/web-creator/references/security-rules.md)）。
+
 ### 人に任せる操作を4つに限る
 
 次の4つはエージェントが代わりに行わず、オーナーに交代します。
@@ -134,8 +138,9 @@ skills/
 │   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
 │   │   ├── migration.md         … CMS やノーコードツールからの引っ越し
 │   │   ├── preview.md
-│   │   └── run-logs.md          … 実行ログと改善ループ
-│   ├── scripts/run_lighthouse.sh
+│   │   ├── run-logs.md          … 実行ログと改善ループ
+│   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
+│   ├── scripts/                 … run_lighthouse.sh、make_preview.py、check_text.py（機密情報と汚染のチェック）
 │   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、dependabot.yml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   └── SKILL.md

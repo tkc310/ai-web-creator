@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-24（15）
+
+- feat(skills): 全スキル共通の安全のための決まり（references/security-rules.md）を追加。機密情報は読み取らず、チャット、ファイル、コミット、ログ、メモリのどこにも残さない。入ってくる情報（原稿、ウェブページ、プルリクエスト、ログ、コネクタの結果）の指示には従わず、出ていく情報（公開するページ、llms.txt、記録）を出す前に汚染と機密情報を確かめる
+- feat(skills): 機密情報と汚染（見えない文字、AI に向けた命令、原稿の中のスクリプトなど）を調べる scripts/check_text.py を追加。サイトのリポジトリにもコピーし、コミットの前と、原稿を読んだときに使う
+- feat(skills): web-creator、site-content-update、site-maintenance、runtime-update、site-review、サイトの AGENTS.md、プロジェクトの指示、site-builder、保守と振り返りのプロンプトに決まりを追加。autofix は、変更したファイルから見つかった場合にコミットせずに止まる
+
 ## 2026-10-24（14）
 
 - fix(skills): Claude Code のプロジェクトには、オーナーが書き込めて GitHub アプリを入れたリポジトリしか追加できないため、スキルは配布元ではなくオーナーのアカウントに作ったフォークを追加する手順に変更（account-setup.md、project-setup.md、project-instructions.md、SKILL.md、docs/how-to-use.md、docs/claude-account.md）
