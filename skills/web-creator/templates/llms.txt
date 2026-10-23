@@ -1,0 +1,19 @@
+# <会社名・サイト名>
+
+> <何をしている会社か、誰向けか、どこにあるかを1〜2文で>
+
+<補足: 営業時間、対応地域、問い合わせ方法など、AI に正しく伝えたいことを数行で>
+
+## 主なページ
+
+- [会社概要](https://example.co.jp/about/): 所在地、代表者、沿革
+- [サービス](https://example.co.jp/services/): 提供しているサービスと料金の目安
+- [お問い合わせ](https://example.co.jp/contact/): 問い合わせ方法
+
+## お知らせ・ブログ
+
+- [お知らせ一覧](https://example.co.jp/news/)
+
+## Optional
+
+- [採用情報](https://example.co.jp/recruit/)

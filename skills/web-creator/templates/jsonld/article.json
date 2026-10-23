@@ -1,0 +1,12 @@
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "記事のタイトル（ページの h1 と同じ）",
+  "description": "記事の要約（meta description と同じ）",
+  "image": ["https://example.co.jp/images/news/sample-1200x630.webp"],
+  "datePublished": "2026-10-23T09:00:00+09:00",
+  "dateModified": "2026-10-23T09:00:00+09:00",
+  "author": { "@type": "Organization", "name": "株式会社サンプル", "url": "https://example.co.jp/" },
+  "publisher": { "@type": "Organization", "name": "株式会社サンプル", "logo": { "@type": "ImageObject", "url": "https://example.co.jp/logo.png" } },
+  "mainEntityOfPage": "https://example.co.jp/news/sample/"
+}

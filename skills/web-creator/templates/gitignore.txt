@@ -1,0 +1,10 @@
+# サイトのリポジトリに .gitignore として置く
+node_modules/
+dist/
+.astro/
+.wrangler/
+lighthouse-reports/
+.autofix-failed.log
+.env
+.env.*
+.DS_Store
