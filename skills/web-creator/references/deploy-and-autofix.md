@@ -19,6 +19,7 @@
    - templates/github/workflows/deploy.yml と autofix.yml → `.github/workflows/`
    - templates/gitignore.txt → `.gitignore`
    - templates/node-version.txt → `.node-version`（Node.js のバージョン。runtime-update スキルの基準で、作成時点の LTS 版にする）
+   - templates/claude/settings.json → `.claude/settings.json`、templates/claude/agents/site-builder.md → `.claude/agents/site-builder.md`（使うモデルの設定。SKILL.md の「使うモデル」）
    - 要保守構成（Astro の一部 SSR、EmDash）の場合は、site-maintenance スキルの「要保守構成の初期設定」も行う
 2. `wrangler.jsonc` を置く（build.md の例）
 3. GitHub の Secrets に次の3つが登録されていることを確認する（値の登録はオーナーが行う。account-setup.md）

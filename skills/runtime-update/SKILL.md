@@ -1,6 +1,8 @@
 ---
 name: runtime-update
 description: サイトのリポジトリで、Dependabot が更新しない実行環境（Node.js のメジャーバージョンと、Cloudflare Workers の compatibility_date）を確認して更新するスキル。site-maintenance の保守ルーティンから呼ばれる。「Node.js を上げて」「ランタイムを更新して」「Node のサポート期限を確認して」と言われたときにも使う。
+model: claude-opus-5-5
+effort: medium
 ---
 
 # runtime-update

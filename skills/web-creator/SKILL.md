@@ -1,6 +1,8 @@
 ---
 name: web-creator
 description: ITに詳しくない人の代わりに、コーポレートサイト・LP・ブログ・メディアサイトを対話しながら企画、制作、公開、運用まで行うスキル。「ホームページを作りたい」「会社のサイトを作って」「LPを作って」「WordPressやSTUDIOから引っ越したい」「サイトを直して」「サイトについて質問」といった依頼では、技術用語が出てこなくても必ずこのスキルを使う。GitHubとCloudflareを使い、技術選定（HTML / Astro / EmDash）、アカウント準備、デザイン、Lighthouse計測、SEO・AIO対策、デプロイ失敗時の自動修正まで面倒を見る。
+model: claude-opus-5-5
+effort: high
 ---
 
 # web-creator
@@ -39,6 +41,21 @@ description: ITに詳しくない人の代わりに、コーポレートサイ�
 既存サイトからの引っ越しは、1と2の間で references/migration.md を読みます。
 
 各ステップの詳細は references/ にあります。ステップに入るときに該当ファイルだけを読み、全部を先に読み込まないでください。
+
+## 使うモデル
+
+モデルは Claude Opus 5.5 を使い、考える深さ（effort）を作業の種類で使い分けます。
+
+| 作業 | effort | 例 |
+|---|---|---|
+| 計画とデザイン | high | ヒアリングの整理、技術の選定、ページ構成、デザイン案、引っ越しの計画、品質チェックで見つかった問題の原因の分析 |
+| 構築 | medium | ページの実装、記事の追加、修正、公開作業、保守 |
+
+- このスキルの frontmatter は `effort: high` にしています。計画とデザインはこのスキルの中で行います
+- 構築は、サブエージェント `site-builder`（templates/claude/agents/site-builder.md。Opus 5.5、effort medium）に任せます。サイトのリポジトリの `.claude/agents/` にコピーしておき、ページの実装や修正の作業は `site-builder` に渡します。渡すときは、決めた仕様（ページ構成、デザインの決まり、使う部品）を具体的に書きます
+- サブエージェントが使えない環境では、構築に入る前に、オーナーに「モデルの選択で Opus 5.5 の effort を medium にしてください」と一文で頼みます。設定できない場合は、そのまま進めてかまいません
+- サイトのリポジトリには templates/claude/settings.json を `.claude/settings.json` としてコピーし、公開後の更新や保守の会話が Opus 5.5・effort medium で始まるようにします
+- Claude のチャット（段階1）では、オーナーにモデルの一覧から Opus 5.5 を選んでもらいます
 
 ## オーナーとの話し方
 

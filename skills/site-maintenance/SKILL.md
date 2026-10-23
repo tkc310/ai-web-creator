@@ -1,6 +1,8 @@
 ---
 name: site-maintenance
 description: 要保守構成のサイト（Astro で一部のページを SSR にしたもの、EmDash）の依存パッケージとランタイムを、2週間に1回のルーティンで更新するスキル。Dependabot のプルリクエストをレビューし、壊れていれば直し、問題なければマージして公開を確認する。「保守ルーティン」「依存パッケージの更新を確認して」「Dependabot の PR を片付けて」「保守の設定をして」と言われたとき、または web-creator で要保守構成のサイトを公開するときに使う。
+model: claude-opus-5-5
+effort: medium
 ---
 
 # site-maintenance

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-24（5）
+
+- feat(skills): 使うモデルを Claude Opus 5.5 に統一し、計画とデザインは effort high、構築は effort medium に使い分けるようにした。web-creator は high、site-content-update・site-maintenance・runtime-update は medium を frontmatter で指定
+- feat(templates): 構築用サブエージェント site-builder（Opus 5.5、effort medium）と、サイトのリポジトリ用の .claude/settings.json を追加
+- feat(templates): autofix.yml で `--model claude-opus-5-5 --effort medium` を指定
+- docs: README、使い方ガイド、保守ルーティンの作り方に使うモデルを追記
+
 ## 2026-10-24（4）
 
 - feat(skills): site-content-update に、箇条書きの要点から記事の下書きを作る手順と、校正の基準を追加。原稿を「要点 / 校正あり / そのまま」の3種類に分けて扱う

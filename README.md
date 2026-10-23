@@ -22,6 +22,10 @@ GitHub の tkc310/ai-web-creator にあるスキル（skills フォルダ）を�
 
 Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後は管理画面を開く必要がなく、お知らせやブログは要点を箇条書きで送るだけで、Claude が下書きと校正をして公開します。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
 
+## 使うモデル
+
+Claude Opus 5.5 を使います。計画とデザインは effort high、構築（制作、更新、保守、自動修正）は effort medium にしています。設定はスキルの frontmatter、サブエージェントの定義（templates/claude/agents/site-builder.md）、サイトのリポジトリの `.claude/settings.json`、自動修正ワークフローの引数で行います。
+
 ## 対応しないもの
 
 会社や店の紹介サイト、LP、ブログ、メディアのような「情報を見せるサイト」が対象です。ネットショップ（EC）や決済が必要なサービス、会員機能のような複雑な仕組みが必要なアプリケーションには対応していません。その場合も、制作会社に渡す見本や仕様書づくりには使えます。
