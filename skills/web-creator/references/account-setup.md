@@ -1,6 +1,8 @@
 # アカウント準備
 
-サイトを公開するには、GitHub と Cloudflare のアカウントが必要です。Claude のアカウント作成は別記事で案内しているため、ここでは扱いません。
+サイトを公開するには、GitHub と Cloudflare のアカウントが必要です。Claude のアカウント作成は、このリポジトリの docs/claude-account.md で案内しています。
+
+オーナーは登録や設定の方法を知らない前提で、画面ごとに対話しながら教えます。オーナーが分からない画面のスクリーンショットを貼ったら、どこを押すか、何を入れるかを具体的に答えます。
 
 ## 基本方針
 
@@ -31,7 +33,12 @@
 2. オーナー: メールアドレス、パスワード、ユーザー名を入力し、パズル認証と確認コードを入力する
 3. エージェント: プランは Free のままにする（非公開リポジトリも無料で作れる）
 4. オーナー: 2段階認証を設定する（Settings → Password and authentication。認証アプリを推奨）
-5. エージェント: Claude から GitHub に接続する手順を案内する（Claude の設定画面で GitHub を連携し、サイト用のリポジトリへのアクセスを許可する）
+5. エージェント: サイト用の空の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。Private を選ぶ
+6. オーナー: 「Create repository」を押す
+7. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
+8. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをサイトのリポジトリにインストールする（権限の許可にあたるため、オーナーが行う）
+
+非公開のリポジトリで Claude Code が作業するには、Claude の GitHub アプリのインストールが必要です。公開リポジトリ（tkc310/ai-web-creator など）は、インストールしなくても読み込めます。
 
 ## 2. Cloudflare（世界中に配る配送センター）
 
@@ -57,7 +64,7 @@
 
 ## 3. 自動修正用の Claude の鍵（任意・おすすめ）
 
-デプロイ失敗時に自動で直すには、GitHub Actions から Claude を呼ぶための鍵が必要です。autofix.yml は GitHub が用意するトークン（GITHUB_TOKEN）でコミットするため、Claude の GitHub アプリのインストールは不要です。
+デプロイ失敗時に自動で直すには、GitHub Actions から Claude を呼ぶための鍵が必要です。autofix.yml のコミットは GitHub が用意するトークン（GITHUB_TOKEN）で行うため、この用途のためだけに追加の権限は要りません。
 
 1. エージェント: 鍵の発行方法を案内する（Pro / Max プランなら Claude Code の `claude setup-token` で発行する鍵、それ以外は Claude Console の API キー）
 2. オーナー: 発行した鍵を、`CLAUDE_CODE_OAUTH_TOKEN`（API キーの場合は `ANTHROPIC_API_KEY`）として GitHub の Secrets に登録する

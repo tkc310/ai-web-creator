@@ -4,9 +4,14 @@
 
 ITに詳しくない人が、Claude と対話するだけで、安全でデザインのよいサイトを持てるようにすることを目指しています。
 
+## はじめての方へ
+
+- [Claude のアカウント登録ガイド](docs/claude-account.md): アカウントの作り方、有料プラン、最初にしておく設定、GitHub とのつなぎ方
+- [スキルとプロンプトの使い方](docs/how-to-use.md): 相談から制作、公開、運用までの進め方
+
 ## 使い方
 
-Claude（有料プラン）に次の文章を送ります。
+Claude（有料プラン）のチャットに次の文章を送ります。
 
 ```
 GitHub の tkc310/ai-web-creator にあるスキル（skills フォルダ）を読み込んで、
@@ -15,7 +20,7 @@ GitHub の tkc310/ai-web-creator にあるスキル（skills フォルダ）を�
 質問は選択肢をつけて、一度に5つまでにしてください。
 ```
 
-Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
+Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
 
 ## 対応しないもの
 
