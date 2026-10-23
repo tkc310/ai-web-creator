@@ -10,8 +10,16 @@
   2. 色を sRGB にそろえる（ICC プロファイルは削除する）
   3. 横幅を指定のサイズ以下に縮小する（元より大きくはしない）
   4. AVIF と WebP に変換して圧縮する（AVIF を優先し、対応しないブラウザには WebP を出す）
+     処理の負担が大きい場合は変換を省き、元の形式（JPEG / PNG）のまま圧縮する（--mode を参照）
   5. 1枚目から、記事のアイキャッチと OG 画像用の 1200×630 の WebP を作る（--og を付けた場合）
   6. 変換後の大きさと、<picture> の HTML の例を表示する
+
+--mode:
+  auto（既定）: 変換する。ただし、画像が20枚を超える場合、変換の合計時間が --budget 秒（既定 60）を超えた場合、
+                1枚の変換が8秒を超えた場合は、それ以降を original に切り替える
+  convert     : 必ず AVIF と WebP に変換する
+  original    : 変換せず、元の形式で圧縮する（JPEG は品質82のプログレッシブ、透過のある画像は PNG）
+メタ情報の削除と縮小は、どのモードでも必ず行う。
 
 必要なもの: Pillow（AVIF に対応したもの。11.2 以降が目安）。iPhone の HEIC を読むには pillow-heif。
 """
@@ -20,6 +28,7 @@ import html
 import io
 import pathlib
 import sys
+import time
 
 from PIL import Image, ImageCms, ImageOps, features
 
@@ -61,7 +70,11 @@ def clean(im: Image.Image) -> Image.Image:
 
 
 def save(im: Image.Image, path: pathlib.Path, fmt: str) -> int:
-    if fmt == "AVIF":
+    if fmt == "JPEG":
+        im.convert("RGB").save(path, "JPEG", quality=82, optimize=True, progressive=True)
+    elif fmt == "PNG":
+        im.save(path, "PNG", optimize=True)
+    elif fmt == "AVIF":
         im.save(path, "AVIF", quality=AVIF_QUALITY, speed=6)
     else:
         im.save(path, "WEBP", quality=WEBP_QUALITY, method=6)
@@ -87,6 +100,8 @@ def main() -> None:
     ap.add_argument("--widths", nargs="+", type=int, default=[800, 1600])
     ap.add_argument("--alt", nargs="*", default=[], help="画像ごとの説明（alt）。HTML の例に使う")
     ap.add_argument("--og", action="store_true", help="1枚目から OG 画像（1200×630）を作る")
+    ap.add_argument("--mode", choices=["auto", "convert", "original"], default="auto")
+    ap.add_argument("--budget", type=float, default=60, help="auto のとき、変換にかけてよい合計秒数")
     args = ap.parse_args()
 
     if not features.check("avif"):
@@ -95,7 +110,16 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     Image.MAX_IMAGE_PIXELS = MAX_PIXELS
 
+    mode = args.mode
+    if mode == "auto" and len(args.images) > 20:
+        mode = "original"
+        print("画像が20枚を超えるため、WebP・AVIF への変換は省きます", file=sys.stderr)
+    spent = 0.0
+
     for i, src in enumerate(args.images, 1):
+        if mode == "auto" and spent > args.budget:
+            mode = "original"
+            print(f"変換の時間が {args.budget:.0f} 秒を超えたため、残りは変換を省きます", file=sys.stderr)
         p = pathlib.Path(src)
         if p.suffix.lower() in (".heic", ".heif") and not HEIF:
             sys.exit(f"{p.name}: HEIC を読むには pillow-heif が必要です（pip install pillow-heif）")
@@ -105,17 +129,30 @@ def main() -> None:
             im = clean(raw)
         base = f"{args.name}-{i}"
         made = []
+        t0 = time.time()
+        if mode == "original":
+            formats = [("PNG", "png")] if im.mode == "RGBA" else [("JPEG", "jpg")]
+        else:
+            formats = [(f, e) for f, e in (("AVIF", "avif"), ("WEBP", "webp")) if f != "AVIF" or features.check("avif")]
         for w in sorted(set(args.widths)):
             r = resize(im, w)
-            for fmt, ext in (("AVIF", "avif"), ("WEBP", "webp")):
-                if fmt == "AVIF" and not features.check("avif"):
-                    continue
+            for fmt, ext in formats:
                 dst = out / f"{base}-{r.width}.{ext}"
                 size = save(r, dst, fmt)
                 made.append((dst, r.width, r.height, size))
+        took = time.time() - t0
+        if mode != "original":
+            spent += took
+            if mode == "auto" and took > 8:
+                mode = "original"
+                print(f"{p.name} の変換に {took:.1f} 秒かかったため、残りは変換を省きます", file=sys.stderr)
         if i == 1 and args.og:
-            dst = out / f"{args.name}-og.webp"
-            og_crop(im).save(dst, "WEBP", quality=WEBP_QUALITY, method=6)
+            if mode == "original":
+                dst = out / f"{args.name}-og.jpg"
+                og_crop(im).save(dst, "JPEG", quality=82, optimize=True, progressive=True)
+            else:
+                dst = out / f"{args.name}-og.webp"
+                og_crop(im).save(dst, "WEBP", quality=WEBP_QUALITY, method=6)
             made.append((dst, 1200, 630, dst.stat().st_size))
 
         print(f"\n{p.name}: 元 {before / 1024:.0f}KB（{im.width}×{im.height}）、メタ情報を削除")
@@ -127,6 +164,13 @@ def main() -> None:
         rel = lambda d: "/" + str(d).split("public/", 1)[-1] if "public/" in str(d) else str(d)
         avifs = [(d, w) for d, w, h, s in made if d.suffix == ".avif"]
         webps = [(d, w, h) for d, w, h, s in made if d.suffix == ".webp" and "-og" not in d.name]
+        origs = [(d, w, h) for d, w, h, s in made if d.suffix in (".jpg", ".png") and "-og" not in d.name]
+        if origs:
+            largest = origs[-1]
+            print(f'  <img src="{rel(largest[0])}" srcset="{", ".join(f"{rel(d)} {w}w" for d, w, h in origs)}" '
+                  f'sizes="(max-width: 800px) 100vw, 800px" alt="{alt}" width="{largest[1]}" height="{largest[2]}" '
+                  'loading="lazy" decoding="async">')
+            continue
         largest = webps[-1]
         sizes = '(max-width: 800px) 100vw, 800px'
         lines = ["<picture>"]
