@@ -46,6 +46,19 @@
 
 公開されているリポジトリ（このリポジトリなど）は、GitHub アプリを入れなくても読み込めます。非公開のリポジトリは、GitHub アプリを入れたものだけで作業できます。
 
+## 5. ほかのサービスとつなぐ（必要になったとき）
+
+Claude は「コネクタ」という機能で、Cloudflare や Google のサービスを直接操作できます。必要な場面になると Claude が案内するので、先に設定しておく必要はありません。
+
+| つなぐサービス | 使う場面 | つなぎ方 |
+|---|---|---|
+| Cloudflare | DNS、公開の設定、お問い合わせフォームの設定 | Claude の「Customize」→「Connectors」→「Add custom connector」で、URL に `https://mcp.cloudflare.com/mcp` を入れて追加し、Cloudflare の画面で許可する権限を選ぶ |
+| Google ドライブ、Google ドキュメント | 原稿を Google ドキュメントで渡すとき | Claude がチャットに出す接続のボタンを押し、Google の画面で許可する |
+| Google スプレッドシート | Google フォームの回答を Claude にまとめてもらうとき | 同上 |
+| ムームードメイン | ドメインを取るとき（.jp など） | 同上 |
+
+許可する権限は、必要なものだけにします。使わなくなったコネクタは、同じ画面で外せます。Claude のディレクトリにないサービスをつなぐ「カスタムコネクタ」は、信頼できる会社の公式のものだけを追加してください。
+
 ## 次にすること
 
 [スキルとプロンプトの使い方](how-to-use.md) に進みます。
@@ -56,3 +69,5 @@
 - [Claude ヘルプ: 電話番号の確認](https://support.claude.com/en/articles/8287232-verify-your-phone-number)
 - [Claude ヘルプ: スキルを使う](https://support.claude.com/en/articles/12512180-use-skills-in-claude)
 - [Claude Code: クラウドで始める](https://code.claude.com/docs/en/web-quickstart)
+- [Claude: カスタムコネクタ（英語）](https://claude.com/docs/connectors/custom/remote-mcp)
+- [Cloudflare の MCP サーバー（英語）](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)

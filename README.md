@@ -81,6 +81,10 @@ Astro で一部のページを SSR にした場合と EmDash を使う場合は�
 
 開発はエージェントのクラウド環境で行い、オーナーのパソコンには開発ツールを入れません。サイトの中身は GitHub に保存し、GitHub Actions から Cloudflare Workers に公開します。アカウントはすべてオーナーの名義で作るので、エージェントや制作者に依存しません。
 
+### サービスの操作はコネクタ（MCP）で行う
+
+Cloudflare や Google のサービスの設定は、できるかぎり Claude のコネクタ（MCP）で行います。Cloudflare は公式の MCP サーバーをつなぎ、Google ドライブやスプレッドシートは Claude の公式のコネクタを使います。接続はオーナーがチャットに出たボタンから認証するだけです。コネクタがない操作（アカウントの新規登録、Google フォームの作成など）は、ブラウザ操作か手順の案内で進めます（[connectors.md](skills/web-creator/references/connectors.md)）。
+
 ### 人に任せる操作を4つに限る
 
 次の4つはエージェントが代わりに行わず、オーナーに交代します。
@@ -122,6 +126,7 @@ skills/
 │   │   ├── hearing.md
 │   │   ├── stack-selection.md
 │   │   ├── account-setup.md
+│   │   ├── connectors.md        … Cloudflare や Google の操作に使うコネクタ（MCP）
 │   │   ├── project-setup.md     … サイトごとの Claude のプロジェクト
 │   │   ├── build.md
 │   │   ├── quality-gate.md

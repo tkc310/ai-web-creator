@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-24（13）
+
+- feat(skills): Cloudflare や Google のサービスの操作を、できるかぎりコネクタ（MCP）で行う手順を追加（references/connectors.md）。使う順番は、つながっているコネクタ、Claude の公式のコネクタ（チャットに接続のカードを出す）、サービスの公式の MCP サーバー（カスタムコネクタ）、ブラウザ操作、手順の案内
+- feat(skills): Cloudflare は公式の MCP サーバー（mcp.cloudflare.com）を使う。アカウント準備とお問い合わせフォーム（Email Sending、Turnstile）の手順をコネクタ中心に変更。API が返す秘密の値は、表に出さずに Workers の Secrets へ直接登録してよい例外を追加
+- docs: Google フォームには公式のコネクタがないため作成はブラウザ操作、回答は Google Sheets のコネクタで読む形を明記。EmDash のフォームプラグインは安定していないため除外していることを docs/forms.md に記載
+- docs: アカウント登録ガイドに「ほかのサービスとつなぐ」を追加。Cursor・ChatGPT 向けの置き換え表、プロジェクトの指示、README を更新
+
 ## 2026-10-24（12）
 
 - feat(skills): お問い合わせフォームの手順（references/forms.md）と、自前のフォームのひな形（templates/forms/）を追加。基本は Google フォーム（リンクか埋め込み）、見た目にこだわる場合だけ Cloudflare Email Sending を使う

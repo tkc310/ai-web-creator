@@ -19,12 +19,15 @@ A と B は、届いた問い合わせを Google スプレッドシートで一�
 
 1. Claude が、フォームに入れる項目（お名前、メールアドレス、お問い合わせ内容など）を提案します
 2. Google アカウントで Google フォームを作ります。Claude にブラウザを操作できる環境（Claude in Chrome、デスクトップアプリ）なら、Claude が作ります。会社の共有の Google アカウントがあれば、そちらで作ると担当者が変わっても引き継げます
+   - Google フォームには、Claude とつなぐ公式の機能（コネクタ）がまだありません。そのため、フォームはブラウザの操作で作ります
 3. 「回答」タブで、新しい回答のメール通知をオンにし、回答をスプレッドシートにも書き出す設定にします（Claude が案内します）
 4. 「送信」ボタンからリンクをコピーして、Claude に渡します
 5. Claude がサイトのお問い合わせボタンをそのリンクにつなぎます
 6. テストで1件送って、通知メールが届くことを確かめます
 
 届いた問い合わせは、通知メールから Google フォームの「回答」タブか、スプレッドシートを開いて見ます。
+
+Claude と Google スプレッドシートをつないでおくと（Claude がチャットに接続のボタンを出します）、「今週の問い合わせを一覧にして」「まだ返信していないものを教えて」と Claude に頼めます。このとき、問い合わせた人の名前や連絡先を Claude が読むことになります。
 
 ## B. Google フォームをお問い合わせページに埋め込む
 
@@ -38,7 +41,7 @@ A の手順4で、リンクの代わりに「<>」（埋め込み）の HTML を
 
 ただし、A や B よりも導入が難しく、次の点を了承したうえで選んでください。
 
-- 手順が多い。Cloudflare の設定画面での確認、秘密の鍵の貼り付け、メールアドレスの確認など、あなたの操作が何度か入ります。Claude が画面ごとに案内します
+- 手順が多い。Claude と Cloudflare をつなぐ設定、登録の確定、メールアドレスの確認など、あなたの操作が何度か入ります。Claude が順に案内します
 - メールを送る機能（Email Sending）は、執筆時点で Cloudflare のベータ版です。画面や仕様が変わることがあります
 - 料金は導入時に確かめます。自分宛ての通知だけなら無料とされていますが、無料のまま使えない場合は、Cloudflare の Workers の有料プラン（執筆時点で月5ドル）が必要です
 - サイトがアクセスのたびに処理する部分を持つので、2週間ごとの自動保守（Claude のスケジュールタスク）を設定します。Claude の利用量を少し使います
@@ -46,17 +49,21 @@ A の手順4で、リンクの代わりに「<>」（埋め込み）の HTML を
 
 ### 導入の流れ
 
-所要時間は、あなたの操作が30分くらいです。番号の頭に「あなた」とあるものだけ、あなたが操作します。
+Cloudflare の設定は、Claude と Cloudflare をつなぐ機能（Cloudflare 公式の MCP サーバー）を使って、Claude が進めます。画面をクリックで進めるより確実で、あなたの操作も少なくなります。
 
-1. Claude: Cloudflare の Email Sending に、サイトのドメインを登録する画面を開く
-2. あなた: 登録を確定する
-3. Claude: 通知を受けるメールアドレスを、Cloudflare に登録する
-4. あなた: 届いた確認メールのボタンを押す
-5. Claude: ロボットの送信を防ぐ仕組み（Turnstile）を設定する
-6. あなた: Turnstile の秘密の鍵をコピーして、Cloudflare の設定画面に貼る（Claude には渡しません）
+所要時間は、あなたの操作が15〜30分くらいです。番号の頭に「あなた」とあるものだけ、あなたが操作します。
+
+1. あなた: Claude と Cloudflare をつなぐ（まだの場合。Claude の設定の「Connectors」で追加し、Cloudflare の画面で許可する権限を選ぶ。5分くらい）
+2. Claude: 今のメールの設定を読み取り、影響がないことを確かめる
+3. Claude: Cloudflare のメール送信に、サイトのドメインを登録する。あなたは確定してよいかを聞かれるので「はい」と答える
+4. Claude: 通知を受けるメールアドレスを、Cloudflare に登録する
+5. あなた: 届いた確認メールのボタンを押す
+6. Claude: ロボットの送信を防ぐ仕組み（Turnstile）を作り、その秘密の鍵をサイトに直接登録する（鍵は画面に表示しません）
 7. Claude: フォームと、送信を受ける仕組みを作り、確認用の URL で公開する
 8. あなた: テストで1件送り、メールが届くこと、そのメールに返信すると送信した人に届くことを確かめる（迷惑メールのフォルダも見る）
 9. Claude: 本番に公開し、2週間ごとの自動保守を設定する
+
+Claude と Cloudflare をつなげない環境では、Claude がブラウザを操作するか、画面ごとの手順を案内します。その場合は、Turnstile の秘密の鍵をあなたがコピーして貼る手順が増えます。
 
 今お使いのメール（info@ など）は、そのまま使えます。
 
@@ -81,6 +88,17 @@ A の手順4で、リンクの代わりに「<>」（埋め込み）の HTML を
 
 使う場合は、Claude に「（サービス名）を使いたい」と伝えてください。運営元、データの保存場所と期間を確かめ、プライバシーポリシーへの記載とあわせて設定します。
 
+## 除外しているもの: EmDash のフォームプラグイン
+
+管理画面つきの仕組み EmDash には、公式のフォームプラグインがあります。管理画面でフォームの項目を変えられ、届いた回答の一覧や書き出しもできます。
+
+ただ、公開から日が浅く、まだ安定していないため、現時点ではこのリポジトリの選択肢から外しています。2026年10月時点ではバージョンが 0.2 で、次のような不具合の修正が続いています。
+
+- 1日1回のまとめ通知が、10月の修正まで一度も動いていなかった
+- 添付ファイルの大きさの上限が、修正まで効いていなかった
+
+EmDash で作ったサイトでも、お問い合わせフォームは A〜C のどれかで作ります。プラグインが安定したら、選択肢に加えるかを見直します。
+
 ## どの方法でも必要なこと
 
 - サイトにプライバシーポリシーのページを置き、集める情報、使い道、処理を任せる会社と国（Google や Cloudflare は米国の会社）を書きます。ひな形は Claude が作りますが、正式な文面は専門家に確認してください
@@ -94,9 +112,12 @@ A の手順4で、リンクの代わりに「<>」（埋め込み）の HTML を
 - [Cloudflare Email Service の料金（英語）](https://developers.cloudflare.com/email-service/platform/pricing/)
 - [Cloudflare Email Service のドメインの設定（英語）](https://developers.cloudflare.com/email-service/configuration/domains/)
 - [Cloudflare Turnstile（英語）](https://developers.cloudflare.com/turnstile/)
+- [Cloudflare の MCP サーバー（英語）](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)
+- [Claude: カスタムコネクタ（英語）](https://claude.com/docs/connectors/custom/remote-mcp)
 - [formrun の料金](https://form.run/home/pricing)
 - [Tally の料金（英語）](https://tally.so/pricing)
 - [Web3Forms の料金（英語）](https://web3forms.com/pricing)
 - [Formspree の料金（英語）](https://formspree.io/plans)
 - [Resend の料金（英語）](https://resend.com/pricing)
+- [EmDash のフォームプラグインの紹介（英語）](https://emdashcmseverything.com/plugins/forms/)
 - [個人情報保護委員会 FAQ（外国にある第三者への委託）](https://www.ppc.go.jp/all_faq_index/faq1-q12-1)

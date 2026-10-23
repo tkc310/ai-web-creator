@@ -25,6 +25,18 @@
 
 Google フォームはオーナーの Google アカウントで作ります。会社の共有のアカウントがあれば、そちらを勧めます（担当者が変わっても引き継げるため）。
 
+### 使うコネクタ
+
+Google フォームには、Claude の公式のコネクタも、Google 公式の MCP サーバーもありません（2026年10月時点。connectors.md）。そのため、次のように分けます。
+
+- フォームを作る: ブラウザ操作（Claude in Chrome、デスクトップアプリ内のブラウザ）。使えない環境では、画面ごとの手順を案内する。個人が公開している Google フォームの MCP サーバーは使わない
+- 回答を読む: 回答を書き出した Google スプレッドシートを、公式の Google Sheets のコネクタで読む。オーナーが「今月の問い合わせをまとめて」と頼んだときに使う
+- フォームやスプレッドシートを探す: 公式の Google Drive のコネクタ
+
+フォームの作成の前に、Google Sheets と Google Drive のコネクタがつながっているかを確かめ、つながっていなければ接続のカードを出してオーナーに認証してもらいます（connectors.md の「使う順番」）。回答の中身（問い合わせた人の個人情報）を Claude が読むことになるので、接続の前にそのことを伝えます。
+
+コネクタだけでフォームの作成から回答の確認まで済ませたいオーナーには、番外編の Tally に Claude の公式のコネクタがあることを伝えてもよい（預け先が増える注意とあわせて）。
+
 ### 作る
 
 1. Claude が質問の項目を提案する（お名前、会社名、メールアドレス、電話番号、お問い合わせ内容）。聞く項目は最小限にし、健康、口座番号、マイナンバーのような慎重に扱う情報は聞かない
@@ -52,6 +64,7 @@ Google フォームはオーナーの Google アカウントで作ります。�
 ### 回答の見方（オーナーへの説明）
 
 - 通知メールが届いたら、Google フォームの「回答」タブか、リンクしたスプレッドシートで内容を見る
+- Google Sheets のコネクタがつながっていれば、Claude に「今週の問い合わせを一覧にして」「返信していないものを教えて」と頼める
 - 古い回答は、不要になったら「回答」タブやスプレッドシートから削除する。Google に期限なく残るため
 
 ## C. 自前のフォーム（Cloudflare Email Sending）
@@ -72,22 +85,23 @@ Google フォームはオーナーの Google アカウントで作ります。�
 
 ### 手順
 
-所要時間はオーナーの操作が30分くらい。番号の頭の「オーナー」は、人に任せる4つの操作（SKILL.md）にあたるもの。
+Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.md）で行います。つながっていなければ、最初にオーナーに追加してもらいます。コネクタでできない手順（API が見つからないもの）は、ブラウザ操作に切り替えます。所要時間はオーナーの操作が15〜30分くらい。番号の頭の「オーナー」は、人に任せる4つの操作（SKILL.md）にあたるもの。
 
-1. エージェント: Cloudflare の Compute → Email Service → Email Sending で「Onboard Domain」を開き、サイトのドメインを選ぶ。追加される DNS のレコードを確かめ、受信用の MX が含まれていないことを確認する
-2. オーナー: 「Done」を押して登録を確定する
-3. エージェント: Email Routing の Destination Addresses の画面で、通知を受けるアドレスを入力する
-4. オーナー: 届いた確認メールの「Verify email address」を押す
-5. エージェント: Turnstile の画面でウィジェットを作る。ホスト名に本番のドメインと、確認用の workers.dev のドメインを入れ、モードは Managed にする。サイトキー（公開してよい値）を控える
-6. オーナー: シークレットキーをコピーし、Cloudflare の Workers のサイトの Settings → Variables and Secrets に `TURNSTILE_SECRET_KEY` という名前の Secret として貼る（エージェントには渡さない）
-7. エージェント: templates/forms/ をもとに実装する
+1. エージェント: Cloudflare のコネクタがつながっているかを確かめる。つながっていなければ、オーナーにカスタムコネクタの追加を案内する（オーナー: 追加と権限の許可）
+2. エージェント: コネクタで、ドメインの DNS の今のレコードを読み取って控える。受信用の MX の行き先（今のメールの会社）を確かめる
+3. エージェント: Email Sending にドメインを登録する。コネクタの `search()` で Email Service の API を探し、登録できればコネクタで、見つからなければブラウザで Compute → Email Service → Email Sending の「Onboard Domain」を開く。追加される DNS のレコードを確かめ、受信用の MX が含まれていないことを確認する。登録の確定は、取り消しにくい操作として説明し、オーナーの「はい」を待ってから行う
+4. エージェント: コネクタで、通知を受けるアドレスを確認済みの宛先（Destination Addresses）に登録する
+5. オーナー: 届いた確認メールの「Verify email address」を押す（どの方法でも、ここは人の操作）
+6. エージェント: コネクタで Turnstile のウィジェットを作る。ホスト名に本番のドメインと、確認用の workers.dev のドメインを入れ、モードは Managed にする。サイトキー（公開してよい値）を控える
+7. エージェント: 同じ処理の中で、返ってきたシークレットキーをサイトの Worker の Secret `TURNSTILE_SECRET_KEY` として登録する。処理の結果には登録できたかどうかだけを返し、値をチャット、ログ、リポジトリに出さない（connectors.md の「秘密の値は表に出さない」）。オーナーには、Claude が直接登録して画面には表示していないことを伝える。コネクタが使えない場合は、オーナーが Turnstile の画面でシークレットキーをコピーし、Workers の Settings → Variables and Secrets に貼る
+8. エージェント: templates/forms/ をもとに実装する
    - Astro: `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは完成済みのページのままにする（stack-selection.md の B-2）
    - HTML だけのサイト: `html-worker.ts` を `src/worker.ts` に、`contact-handler.ts` を `src/contact-handler.ts` に置く
    - `wrangler-contact.jsonc` の設定を wrangler.jsonc に足す（`send_email` の接続、`vars`、HTML の場合は `run_worker_first`）
    - `contact-form.html` をお問い合わせページに入れ、`/contact/thanks/`（送信完了のページ）と、`?error=` の理由ごとの案内文を作る
-8. エージェント: ローカルで `npm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
-9. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる
-10. エージェント: 要保守構成の設定を行う（site-maintenance スキルの初期設定）。SITE.md の「技術」の区分を「要保守」にし、SSR のページに `/api/contact` を書く
+9. エージェント: ローカルで `npm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
+10. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる
+11. エージェント: 要保守構成の設定を行う（site-maintenance スキルの初期設定）。SITE.md の「技術」の区分を「要保守」にし、SSR のページに `/api/contact` を書く
 
 ### 守ること
 
@@ -100,9 +114,13 @@ Google フォームはオーナーの Google アカウントで作ります。�
 
 | 症状 | 確かめること |
 |---|---|
-| メールが届かない | 迷惑メールのフォルダ、Destination Addresses の確認が済んでいるか、Email Sending の登録の状態、Workers のログのエラーの種類（`E_SENDER_NOT_VERIFIED`、`E_RECIPIENT_NOT_ALLOWED` など） |
+| メールが届かない | 迷惑メールのフォルダ、Destination Addresses の確認が済んでいるか、Email Sending の登録の状態、Workers のログのエラーの種類（`E_SENDER_NOT_VERIFIED`、`E_RECIPIENT_NOT_ALLOWED` など）。どれも Cloudflare のコネクタで読み取れる |
 | 送信すると「ロボット確認」のエラーになる | Turnstile のホスト名に、今のドメインが入っているか |
 | 無料プランで送れない | 料金の確かめ方に従い、有料プランにするかをオーナーに聞く |
+
+## EmDash のフォームプラグインは使わない
+
+EmDash の公式のフォームプラグイン（@emdash-cms/plugin-forms）は、公開から日が浅く安定していないため、現時点では使いません（2026年10月時点で v0.2。1日1回のまとめ通知が動かない、添付ファイルの上限が効かない、といった不具合の修正が続いている）。EmDash のサイトでも、A〜C のどれかで作ります。オーナーにプラグインを使いたいと言われたら、この理由を伝えます。site-maintenance の保守のときにプラグインの更新履歴を見て、安定したと判断できたら、このファイルと docs/forms.md を見直す提案を IMPROVEMENTS.md に書きます。
 
 ## ほかのサービスを頼まれたとき
 
