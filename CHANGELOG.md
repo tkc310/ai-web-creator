@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-24（4）
+
+- feat(skills): site-content-update に、箇条書きの要点から記事の下書きを作る手順と、校正の基準を追加。原稿を「要点 / 校正あり / そのまま」の3種類に分けて扱う
+- docs(prompts): 要点だけ伝えて記事にしてもらう文章と、校正して載せてもらう文章を追加
+- docs: README に、公開後は要点を送るだけで更新できることを追記
+
 ## 2026-10-24（3）
 
 - docs: Claude のアカウント登録ガイド（docs/claude-account.md）と、スキルとプロンプトの使い方（docs/how-to-use.md）を追加し、README からリンク
