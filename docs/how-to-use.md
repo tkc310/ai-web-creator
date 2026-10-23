@@ -46,13 +46,16 @@ Claude が選択肢つきの質問をするので、答えていきます。ロ�
 ## 段階2: Claude Code で作る
 
 1. GitHub に、サイト用の空の非公開リポジトリを作る（作り方は Claude が案内します）
-2. Claude の GitHub アプリを、そのリポジトリにインストールする（[アカウント登録ガイド](claude-account.md) の「4. GitHub とつなぐ」）
-3. claude.ai/code を開き、左のメニューの「Projects」から「New project」を押す
-4. Name に「（サイト名）のサイト」と入れ、Context に「サイトのリポジトリ」と「tkc310/ai-web-creator」の2つを追加して、「Create project」を押す
-5. プロジェクトの歯車のボタンから「Project settings」→「Memory」→「Project instructions」を開き、段階1で Claude が作ったプロジェクトの指示を貼って保存する
-6. プロジェクトの会話に、段階1の最後に Claude が作った引き継ぎ文を送る
+2. このリポジトリ（tkc310/ai-web-creator）のページで、右上の「Fork」→「Create fork」を押し、あなたの GitHub に写しを作る。Claude のプロジェクトには、あなたが書き込めるリポジトリしか追加できないためです
+3. Claude の GitHub アプリをインストールし、サイトのリポジトリと、手順2の写しの2つを選ぶ（[アカウント登録ガイド](claude-account.md) の「4. GitHub とつなぐ」）
+4. claude.ai/code を開き、左のメニューの「Projects」から「New project」を押す
+5. Name に「（サイト名）のサイト」と入れ、Context の「Add」から「サイトのリポジトリ」と「あなたのユーザー名/ai-web-creator」（手順2の写し）の2つを選んで、「Create project」を押す
+6. プロジェクトの歯車のボタンから「Project settings」→「Memory」→「Project instructions」を開き、段階1で Claude が作ったプロジェクトの指示を貼って保存する
+7. プロジェクトの会話に、段階1の最後に Claude が作った引き継ぎ文を送る
 
-Claude Code のプロジェクトは、執筆時点でベータ版です。Pro と Max プランで順に使えるようになっていて、左のメニュー（または「More」の中）に「Projects」がない場合は、まだ使えません。その場合は手順3〜6の代わりに、claude.ai/code でリポジトリの選択から「サイトのリポジトリ」と「tkc310/ai-web-creator」の2つを選び、引き継ぎ文を送ります。プロジェクトの指示の内容は、Claude が SITE.md に書いておきます。
+写しは、このリポジトリの更新を自動では受け取りません。Claude が月1回の振り返りで更新を確かめて知らせるので、そのときは写しのページで「Sync fork」→「Update branch」を押します。
+
+Claude Code のプロジェクトは、執筆時点でベータ版です。Pro と Max プランで順に使えるようになっていて、左のメニュー（または「More」の中）に「Projects」がない場合は、まだ使えません。その場合は手順4〜7の代わりに、claude.ai/code でリポジトリの選択から「サイトのリポジトリ」と「手順2の写し」の2つを選び、引き継ぎ文を送ります。プロジェクトの指示の内容は、Claude が SITE.md に書いておきます。
 
 あとは、Claude がデザインの案を見せる、公開前のチェック結果を伝える、取り消しにくい操作の前に確認する、といった場面で返事をするだけです。
 

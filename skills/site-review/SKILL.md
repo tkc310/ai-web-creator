@@ -22,6 +22,7 @@ effort: medium
 1. SITE.md を読み、「ログ」の保管期間（既定は90日）と最終振り返り日を確認する
 2. logs/IMPROVEMENTS.md を読む
 3. 前回の振り返りより後の実行ログをすべて読む
+4. スキルのフォーク（`<owner>/ai-web-creator`）を使っている場合は、配布元 tkc310/ai-web-creator と main の最新のコミットを比べる（`git ls-remote`）。配布元が進んでいれば、「4. 記録する」の手順4のオーナーへの連絡に「スキルの更新があります。写しのページで『Sync fork』→『Update branch』を押してください」と、関係のある変更を3行まで含める（web-creator の references/project-setup.md の「スキルのフォークの更新」）
 
 ### 2. 改善点を整理する
 

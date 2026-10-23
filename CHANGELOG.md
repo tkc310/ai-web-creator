@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-24（14）
+
+- fix(skills): Claude Code のプロジェクトには、オーナーが書き込めて GitHub アプリを入れたリポジトリしか追加できないため、スキルは配布元ではなくオーナーのアカウントに作ったフォークを追加する手順に変更（account-setup.md、project-setup.md、project-instructions.md、SKILL.md、docs/how-to-use.md、docs/claude-account.md）
+- feat(skills): site-review の振り返りで、フォークが配布元より遅れていないかを確かめ、「Sync fork」を案内する手順を追加
+
 ## 2026-10-24（13）
 
 - feat(skills): Cloudflare や Google のサービスの操作を、できるかぎりコネクタ（MCP）で行う手順を追加（references/connectors.md）。使う順番は、つながっているコネクタ、Claude の公式のコネクタ（チャットに接続のカードを出す）、サービスの公式の MCP サーバー（カスタムコネクタ）、ブラウザ操作、手順の案内

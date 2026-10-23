@@ -19,9 +19,9 @@ Claude Code のプロジェクトの「Project instructions」に貼る文章で
 - ドメインの管理会社: <例: Cloudflare / お名前.com / まだ持っていない>
 
 ## 作業のしかた
-- リポジトリ: <owner>/<repo>（サイト本体）と tkc310/ai-web-creator（スキル）
+- リポジトリ: <owner>/<repo>（サイト本体）と <owner>/ai-web-creator（スキル。tkc310/ai-web-creator のフォーク）
 - 作業の前に、サイトのリポジトリの SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の新しいログ3件を読んでください
-- 作業の内容に合わせて、tkc310/ai-web-creator の skills/ から SKILL.md を読んで従ってください
+- 作業の内容に合わせて、<owner>/ai-web-creator の skills/ から SKILL.md を読んで従ってください
   - 記事やお知らせの更新: site-content-update
   - それ以外の制作や修正、質問: web-creator
   - 保守: site-maintenance、振り返りとログの整理: site-review

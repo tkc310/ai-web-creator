@@ -36,10 +36,12 @@
 4. オーナー: 2段階認証を設定する（Settings → Password and authentication。認証アプリを推奨）
 5. エージェント: サイト用の空の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。Private を選ぶ
 6. オーナー: 「Create repository」を押す
-7. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
-8. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをサイトのリポジトリにインストールする（権限の許可にあたるため、オーナーが行う）
+6. エージェント: github.com/tkc310/ai-web-creator を開き、右上の「Fork」を押して「Create fork」の画面まで進める（名前はそのまま、「Copy the main branch only」はオンのまま）
+7. オーナー: 「Create fork」を押す。オーナーのアカウントに `<owner>/ai-web-creator` ができる
+8. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
+9. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。リポジトリの選択で、サイトのリポジトリと、手順7のフォークの2つを選ぶ（権限の許可にあたるため、オーナーが行う）
 
-非公開のリポジトリで Claude Code が作業するには、Claude の GitHub アプリのインストールが必要です。公開リポジトリ（tkc310/ai-web-creator など）は、インストールしなくても読み込めます。
+非公開のリポジトリで Claude Code が作業するには、Claude の GitHub アプリのインストールが必要です。Claude Code のプロジェクト（project-setup.md）には、オーナーが書き込めて GitHub アプリを入れたリポジトリしか追加できないので、スキルも配布元ではなくフォークを使います。フォークの中身はスキルとプロンプトだけで、オーナーの情報は入りません。
 
 ## 2. Cloudflare（サイトの公開先）
 
