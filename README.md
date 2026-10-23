@@ -47,6 +47,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/web-creator](skills/web-creator/SKILL.md) | サイト制作の全体を進めるスキル。ヒアリング、技術の選定、アカウントの準備、デザインと制作、公開前の品質チェック、公開、自動修正 |
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude のドキュメントから原稿を読み取って公開する |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。Dependabot の更新を2週間に1回レビュー・修正・マージする |
+| [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Dependabot が扱わない Node.js のメジャーバージョンと Workers の compatibility_date の更新 |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 
@@ -98,9 +99,17 @@ CI で確認するのは「ビルドが通るか」だけです（要保守構�
 
 Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー補助・おすすめの方法・SEO は100を目標にします。sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP を整えます。構造化データには、ページに表示している内容だけを書きます。基準の詳細は [quality-gate.md](skills/web-creator/references/quality-gate.md) にあります。
 
+### サイトごとに Claude のプロジェクトを作る
+
+制作と運用は、サイトごとに作る Claude Code のプロジェクトの中で進めます。プロジェクトの指示に、オーナーの環境（パソコン、ブラウザ、原稿の置き場所など）と作業の決まりを書いておくので、どの会話でも説明し直す必要がありません。オーナーはプロジェクトの会話に頼みごとを書くだけです。プロジェクトが使えないアカウントでは、同じ内容を SITE.md に書いて、新しいセッションから頼みます（[project-setup.md](skills/web-creator/references/project-setup.md)）。
+
 ### 公開後も引き継げるようにする
 
-サイトのリポジトリには、引き継ぎメモ（SITE.md）、オーナー向けの説明（README.md）、作業ログ（logs/）を置きます。別の日に新しい会話を始めても、エージェントは SITE.md を読んで続きから作業できます。
+サイトのリポジトリには、引き継ぎメモ（SITE.md）、オーナー向けの説明（README.md）、実行ログ（logs/）を置きます。別の日に新しい会話を始めても、エージェントは SITE.md を読んで続きから作業できます。
+
+### 実行ログで改善ループを回す
+
+エージェントが動くたびに（オーナーの依頼、自動修正、保守、振り返り）、サイトのリポジトリの logs/ に実行ログを1つ書きます。次回以降に直す価値がある点は logs/IMPROVEMENTS.md にまとめ、次の作業の前に読みます。月に1回の振り返り（[site-review](skills/site-review/SKILL.md)）で改善点を整理し、保管期間（既定90日）を過ぎたログは月ごとに要約して削除します。スキル側の改善点は、オーナーの了承を得て、個人情報を除いてからこのリポジトリの Issue に送ります（[run-logs.md](skills/web-creator/references/run-logs.md)）。
 
 ## スキルの構成
 
@@ -112,17 +121,22 @@ skills/
 │   │   ├── hearing.md
 │   │   ├── stack-selection.md
 │   │   ├── account-setup.md
+│   │   ├── project-setup.md     … サイトごとの Claude のプロジェクト
 │   │   ├── build.md
 │   │   ├── quality-gate.md
 │   │   ├── deploy-and-autofix.md
-│   │   └── migration.md         … CMS やノーコードツールからの引っ越し
+│   │   ├── migration.md         … CMS やノーコードツールからの引っ越し
+│   │   ├── preview.md
+│   │   └── run-logs.md          … 実行ログと改善ループ
 │   ├── scripts/run_lighthouse.sh
-│   └── templates/               … SITE.md、AGENTS.md、ワークフロー、dependabot.yml、llms.txt、JSON-LD など
+│   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、dependabot.yml、llms.txt、JSON-LD など
 ├── site-content-update/
 │   └── SKILL.md
 ├── site-maintenance/
 │   ├── SKILL.md
 │   └── references/              … ルーティンの作り方とプロンプト
+├── site-review/
+│   └── SKILL.md                 … 振り返りと、古いログの要約・削除
 └── runtime-update/
     └── SKILL.md
 ```

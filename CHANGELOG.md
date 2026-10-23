@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-24（11）
+
+- feat(skills): 制作と運用をサイトごとの Claude Code のプロジェクトで進める流れを追加（references/project-setup.md、templates/project-instructions.md）。ヒアリングに作業の環境の質問を、SITE.md に「作業の環境」を追加
+- feat(skills): サイトのリポジトリに実行ログを残して改善ループを回す仕組みを追加（references/run-logs.md、templates/IMPROVEMENTS.md）。ログのひな形に起動のしかた、使ったスキル、結果、エラーと対処を追加。自動修正、保守、記事の更新でもログと改善点を書くようにした
+- feat(skills): 振り返りと、古いログの要約・削除を行う site-review スキルを追加。要保守構成は毎月1日の保守に含め、静的なサイトは月1回のスケジュールタスクを勧める
+- docs: README、使い方、プロンプト集、Cursor・ChatGPT 向けの置き換え表を更新。docs/logs/ に古いログの扱いを追加
+
 ## 2026-10-24（10）
 
 - docs: 改善ループのためのログの仕組み（docs/logs/）を追加。AGENTS.md に、直す前にログを読み、直したらログを書く決まりを追加し、README からリンク

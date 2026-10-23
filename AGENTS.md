@@ -6,6 +6,7 @@
 
 - skills/web-creator/SKILL.md から読み始める。記事やお知らせの更新だけを頼まれた場合は skills/site-content-update/SKILL.md を読む
 - 保守ルーティンとして起動された場合は skills/site-maintenance/SKILL.md を読む
+- 振り返りやログの整理として起動された場合は skills/site-review/SKILL.md を読む
 - references/ と templates/ は、該当するステップに入ったときに読む
 
 ## このリポジトリを改善するエージェントへ

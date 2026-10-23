@@ -37,7 +37,7 @@ web-creator で公開するときに、一度だけ行います。
 
 ### 1. 状況を読む
 
-1. SITE.md と、logs/ の直近の保守ログを読む
+1. SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の直近の保守ログを読む
 2. 開いている Dependabot のプルリクエストを一覧にする（`gh pr list --label dependencies --state open`。`gh` が使えない場合は GitHub のツールで同じ一覧を取る）
 3. 処理の順番を決める。セキュリティ更新 → マイナー・パッチのまとめ → メジャー更新 の順
 
@@ -84,9 +84,13 @@ runtime-update スキルに従い、Node.js と Workers の `compatibility_date`
 
 ### 6. 記録する
 
-- logs/YYYY-MM-DD_maintenance.md に、確認したプルリクエスト、マージしたもの、保留したものと理由、ランタイムの確認結果を書く
+- logs/YYYY-MM-DD_maintenance.md に、確認したプルリクエスト、マージしたもの、保留したものと理由、ランタイムの確認結果を書く（web-creator の templates/log.md）。同じパッケージで2回続けてつまずいたなど、次回以降に直す価値がある点は logs/IMPROVEMENTS.md に足す
 - SITE.md の「保守」の最終実行日を更新する
 - オーナーへの連絡は、確認が必要なときと、サイトに影響があったときだけにする。何も起きなかった回は、ログだけでよい
+
+### 7. 振り返る（毎月1日の回だけ）
+
+毎月1日の回は、保守のあとに site-review スキルの手順で、改善点の整理と、古いログの要約と削除を行います。15日の回では行いません。
 
 ## 1回で扱う量
 
