@@ -8,6 +8,7 @@ ITに詳しくない人が、Claude と対話するだけで、安全でデザ�
 
 - [Claude のアカウント登録ガイド](docs/claude-account.md): アカウントの作り方、有料プラン、最初にしておく設定、GitHub とのつなぎ方
 - [スキルとプロンプトの使い方](docs/how-to-use.md): 相談から制作、公開、運用までの進め方
+- [お問い合わせフォームの作り方](docs/forms.md): Google フォーム（リンク・埋め込み）と、サイトと同じ見た目のフォーム（Cloudflare Email Sending）の導入方法。ほかのサービスの紹介と注意点
 - [Cursor や ChatGPT で使う](docs/other-agents.md): Claude 以外のエージェントでスキルを読み込む方法と、Claude にしかない機能の置き換え
 
 ## 使い方
@@ -125,11 +126,12 @@ skills/
 │   │   ├── build.md
 │   │   ├── quality-gate.md
 │   │   ├── deploy-and-autofix.md
+│   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
 │   │   ├── migration.md         … CMS やノーコードツールからの引っ越し
 │   │   ├── preview.md
 │   │   └── run-logs.md          … 実行ログと改善ループ
 │   ├── scripts/run_lighthouse.sh
-│   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、dependabot.yml、llms.txt、JSON-LD など
+│   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、dependabot.yml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   └── SKILL.md
 ├── site-maintenance/

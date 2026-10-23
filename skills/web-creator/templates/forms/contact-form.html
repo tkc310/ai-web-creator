@@ -1,0 +1,36 @@
+<!--
+  お問い合わせページのフォームの例（自前の作り方）。Astro ではこの部分を src/pages/contact.astro に入れる。
+  <サイトキー> は Turnstile のサイトキー（公開してよい値）。
+  送信後は /contact/thanks/ に移る。入力に問題があると /contact/?error=理由 に戻るので、理由ごとの案内文を表示する。
+    required: 必須の項目が空 / too_long: 長すぎる / email: メールアドレスの形 / captcha: ロボット確認 / send: 送信の失敗 / invalid: その他
+-->
+<form class="contact-form" action="/api/contact" method="post">
+  <p><label for="cf-name">お名前（必須）</label>
+    <input id="cf-name" name="name" required maxlength="100" autocomplete="name"></p>
+  <p><label for="cf-company">会社名</label>
+    <input id="cf-company" name="company" maxlength="100" autocomplete="organization"></p>
+  <p><label for="cf-email">メールアドレス（必須）</label>
+    <input id="cf-email" type="email" name="email" required maxlength="254" autocomplete="email"></p>
+  <p><label for="cf-phone">電話番号</label>
+    <input id="cf-phone" type="tel" name="phone" maxlength="30" autocomplete="tel"></p>
+  <p><label for="cf-message">お問い合わせ内容（必須）</label>
+    <textarea id="cf-message" name="message" required maxlength="5000" rows="8"></textarea></p>
+
+  <!-- ロボットだけが埋める隠し項目。人には見えず、読み上げもされない -->
+  <div class="contact-form__hp" aria-hidden="true">
+    <label for="cf-website">この欄は空のままにしてください</label>
+    <input id="cf-website" name="website" tabindex="-1" autocomplete="off">
+  </div>
+
+  <div class="cf-turnstile" data-sitekey="<サイトキー>" data-language="ja"></div>
+
+  <p class="contact-form__note">送信された内容は、お問い合わせへの回答のためだけに使います。詳しくは<a href="/privacy/">プライバシーポリシー</a>をご覧ください。</p>
+  <p><button type="submit">送信する</button></p>
+</form>
+
+<!-- Turnstile はお問い合わせページだけで読み込む（ほかのページを遅くしないため） -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<style>
+  .contact-form__hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+</style>

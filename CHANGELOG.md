@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-24（12）
+
+- feat(skills): お問い合わせフォームの手順（references/forms.md）と、自前のフォームのひな形（templates/forms/）を追加。基本は Google フォーム（リンクか埋め込み）、見た目にこだわる場合だけ Cloudflare Email Sending を使う
+- docs: お問い合わせフォームの作り方（docs/forms.md）を追加。ほかのサービスを番外編として紹介し、預け先が増える注意を記載。README とプロンプト集からリンク
+- docs(skills): ヒアリングの問い合わせの受け方を4択にし、build.md と stack-selection.md を合わせた
+
 ## 2026-10-24（11）
 
 - feat(skills): 制作と運用をサイトごとの Claude Code のプロジェクトで進める流れを追加（references/project-setup.md、templates/project-instructions.md）。ヒアリングに作業の環境の質問を、SITE.md に「作業の環境」を追加

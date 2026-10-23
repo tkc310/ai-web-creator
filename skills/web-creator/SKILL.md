@@ -31,7 +31,7 @@ effort: high
 1. ヒアリング      … 何のためのサイトかを聞く（references/hearing.md）
 2. 技術の選定      … 3択から自動で決める（references/stack-selection.md）
 3. アカウント準備  … 人がやる操作だけを任せる（references/account-setup.md）
-4. デザインと制作  … 3案を見せて選んでもらい、作る（references/build.md）
+4. デザインと制作  … 3案を見せて選んでもらい、作る（references/build.md、お問い合わせフォームは references/forms.md）
 5. 公開前の健康診断 … Lighthouse と SEO・AIO（references/quality-gate.md）
 6. 公開            … GitHub → Cloudflare（references/deploy-and-autofix.md）
 7. 保守の設定      … 要保守構成のときだけ（site-maintenance スキル）
