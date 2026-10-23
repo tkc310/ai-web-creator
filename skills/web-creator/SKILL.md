@@ -154,7 +154,7 @@ effort: high
 
 - CI で行うのは「ビルドが通るか」だけです。リンターやテストは CI に入れず、エージェントが作業中に手元で実行します。
 - すべてのサイトに、プルリクエスト（依存パッケージや GitHub Actions の更新など）でビルドだけを確認する check ワークフローを置きます。
-- Node.js は最新の偶数番のバージョン、pnpm と依存パッケージは最新版を使います（references/build.md の「使うツールとバージョン」）。更新は Dependabot ではなく runtime-update スキルで行い、Dependabot は GitHub Actions の更新だけに使います。
+- Node.js は最新の LTS 版、pnpm と依存パッケージは最新版を使います（references/build.md の「使うツールとバージョン」）。更新は Dependabot ではなく runtime-update スキルで行い、Dependabot は GitHub Actions の更新だけに使います。
 - デプロイが失敗したら、autofix ワークフローが Claude を起動して直し、再デプロイします。直せなかった場合は GitHub の Issue でオーナーに知らせます。失敗している間も、前回公開したサイトはそのまま表示されています。
 - 詳細とワークフローのひな形は references/deploy-and-autofix.md と templates/ にあります。
 

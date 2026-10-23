@@ -23,7 +23,7 @@
 
 作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（runtime-update スキルの「最新版の調べ方」）。
 
-- Node.js: 最新の偶数番のバージョン（最新の安定版）。`.node-version` に書く（templates/node-version.txt）。奇数番は Astro が対応していないので使わない
+- Node.js: 最新の LTS 版（作業する日に、状態が LTS の版のうち一番新しいもの）。`.node-version` に書く（templates/node-version.txt）。Current と奇数番は使わない（runtime-update の Node.js の基準）
 - pnpm: 最新版。`package.json` の `packageManager` に書く（templates/package-json-fields.md）
 - 依存パッケージ: 最新版。`pnpm create astro@latest`、`pnpm add <パッケージ>@latest` で入れる。npm と yarn は使わない
 - pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から1日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）

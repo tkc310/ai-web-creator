@@ -49,7 +49,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude のドキュメントから原稿を読み取って公開する |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。2週間に1回、スタックを最新にし、壊れていれば直してマージする |
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する |
-| [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の偶数番）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
+| [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 
 ## 設計の方針
@@ -70,7 +70,7 @@ EmDash は本体やプラグインの更新、データベースの管理とい�
 
 Astro で一部のページを SSR にした場合と EmDash を使う場合は、公開されたサイトで依存パッケージのコードが動くため、「要保守構成」として扱います。
 
-- Claude のスケジュールタスク（旧称: ルーティン）が毎月1日と15日に動き、Node.js（最新の偶数番）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しくする。壊れていれば直して、問題なければマージする（[site-maintenance](skills/site-maintenance/SKILL.md)、[runtime-update](skills/runtime-update/SKILL.md)）
+- Claude のスケジュールタスク（旧称: ルーティン）が毎月1日と15日に動き、Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しくする。壊れていれば直して、問題なければマージする（[site-maintenance](skills/site-maintenance/SKILL.md)、[runtime-update](skills/runtime-update/SKILL.md)）
 - 公開から1日たっていない版は入れない（乗っ取られた版を公開直後に入れる攻撃を避けるため）。弱点は `pnpm audit` で確かめ、重大なものを先に直す
 - Dependabot は GitHub Actions の更新だけに使う。pnpm 11 以降のロックファイルを Dependabot が正しく読めない問題があるため（2026年10月時点）
 - データベースの構造が変わる更新、有料プランが必要になる更新、ライセンスが変わる更新は、自動ではマージせずオーナーに確認する
@@ -79,7 +79,7 @@ Astro で一部のページを SSR にした場合と EmDash を使う場合は�
 
 ### スタックは常に最新版を使う
 
-Node.js は最新の偶数番のバージョン（最新の安定版。奇数番は Astro が対応していないので使わない）、パッケージの管理は pnpm の最新版、依存パッケージも最新版で作り、上の保守と振り返りで最新に保ちます（[build.md](skills/web-creator/references/build.md) の「使うツールとバージョン」）。
+Node.js は最新の LTS 版（Node.js の公式が本番用に勧めるもの。LTS になる前の Current と奇数番は使わない）、パッケージの管理は pnpm の最新版、依存パッケージも最新版で作り、上の保守と振り返りで最新に保ちます（[build.md](skills/web-creator/references/build.md) の「使うツールとバージョン」）。
 
 ### 開発はクラウドで行い、公開は GitHub と Cloudflare で行う
 

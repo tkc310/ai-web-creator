@@ -7,7 +7,7 @@ effort: medium
 
 # runtime-update
 
-サイトのスタックを、Node.js の最新の安定版、pnpm の最新版、依存パッケージの最新版に保ちます。Workers の `compatibility_date` もあわせて確認します。
+サイトのスタックを、Node.js の最新の LTS 版、pnpm の最新版、依存パッケージの最新版に保ちます。Workers の `compatibility_date` もあわせて確認します。
 
 依存パッケージの更新は、Dependabot ではなくこのスキルで行います。pnpm 11 以降のロックファイルを Dependabot が正しく読めない問題があるためです（2026年10月時点。dependabot-core の Issue #14919、#15904）。Dependabot は GitHub Actions のバージョンの更新だけに使います。
 
@@ -43,11 +43,13 @@ effort: medium
 
 ### 基準
 
-最新の安定版を使います。ここでの安定版は、偶数番のメジャーバージョン（Current でも LTS でもよい）のうち、一番新しいものです。
+最新の LTS（長期サポート）版を使います。Node.js の公式は、本番では Active LTS か Maintenance LTS の版だけを使うよう案内しているためです（nodejs.org の「Node.js のリリース」のページ）。
 
-- 奇数番（25、27 など）は使わない。Astro が対応しておらず、サポートの期間も短いため
-- 新しい偶数番が出ても、astro、@astrojs/cloudflare、wrangler、emdash（使っている場合）の `engines` が対応していなければ、対応するまで待つ（`pnpm view <パッケージ> engines`）
-- 今の版のサポート終了（End-of-life）まで6か月を切っていたら、上の待ちに関係なく、対応している中で最新の偶数番に上げる
+- 使うのは、状態が LTS になっている版のうち、一番新しいメジャーバージョン。Current（LTS になる前の版）と、奇数番（LTS にならない）は使わない
+- 偶数番の版は、公開から約半年後（10月ごろ）に LTS になる。LTS になったら、次の保守か振り返りで上げる
+- ただし、astro、@astrojs/cloudflare、wrangler、emdash（使っている場合）の `engines` が新しい LTS 版に対応していなければ、対応するまで待つ（`pnpm view <パッケージ> engines`）
+- 今の版のサポート終了（End-of-life）まで6か月を切っていたら、上の待ちに関係なく、対応している中で最新の LTS 版に上げる
+- LTS かどうかは、schedule.json の `lts` の日付が今日より前かで判断する。作業する日に確かめ、記憶に頼らない
 
 ### 手順
 
@@ -113,7 +115,7 @@ Node.js、pnpm、依存パッケージ、`compatibility_date` の確認結果を
 
 例:
 
-- Node.js: 26 のまま（最新の偶数番。27 は奇数番なので使わない）
+- Node.js: 24 のまま（最新の LTS。26 は Current で、2026-10-28 に LTS になる予定）
 - pnpm: 12.15.0 → 12.16.0
 - 依存パッケージ: 14件を最新版に。astro はメジャー更新（アップグレードガイドの対応なし）。@astrojs/sitemap は公開から1日たっていないため次回
 - pnpm audit: 重大な弱点なし

@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-24（17）
+
+- fix(skills): Node.js の基準を「最新の偶数番（Current を含む）」から「最新の LTS 版」に直した。Node.js の公式は本番で Active LTS か Maintenance LTS だけを使うよう案内しているため。templates/node-version.txt を 24 に戻した（26 は 2026-10-28 に LTS になるまで Current）
+
 ## 2026-10-24（16）
 
 - feat(skills): サイトのスタックを、Node.js の最新の偶数番（最新の安定版。今は 26）、pnpm の最新版、依存パッケージの最新版にする方針に変更（build.md に「使うツールとバージョン」を追加。templates に node-version.txt=26、pnpm-workspace.yaml、package-json-fields.md）
