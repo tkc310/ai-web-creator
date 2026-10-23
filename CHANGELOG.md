@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-24（9）
+
+- docs(skills): account-setup の Cloudflare の見出しを「サイトの公開先」に変更
+
 ## 2026-10-24（8）
 
 - feat(skills): site-content-update に scripts/optimize_images.py を追加。受け取った画像の向きを反映してメタ情報（EXIF・GPS・XMP・ICC）を削除し、sRGB にそろえ、800px と 1600px に縮小して AVIF と WebP に変換する。OG 画像の作成と `<picture>` の例の表示にも対応
