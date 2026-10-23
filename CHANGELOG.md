@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-24（8）
+
+- feat(skills): site-content-update に scripts/optimize_images.py を追加。受け取った画像の向きを反映してメタ情報（EXIF・GPS・XMP・ICC）を削除し、sRGB にそろえ、800px と 1600px に縮小して AVIF と WebP に変換する。OG 画像の作成と `<picture>` の例の表示にも対応
+- docs(skills): 画像の手順に、写り込み（表札、ナンバー、関係のない人の顔など）の確認と、最適化の結果の報告を追加
+
 ## 2026-10-24（7）
 
 - feat: Cursor と ChatGPT（Codex）でもスキルを読み込めるよう、`.agents/skills/` と `.claude/skills/` から `skills/` へのリンクを追加
