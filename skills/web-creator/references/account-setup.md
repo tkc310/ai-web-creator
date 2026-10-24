@@ -36,12 +36,31 @@
 4. オーナー: 2段階認証を設定する（Settings → Password and authentication。認証アプリを推奨）
 5. エージェント: サイト用の空の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。Private を選ぶ
 6. オーナー: 「Create repository」を押す
-6. エージェント: github.com/tkc310/ai-web-creator を開き、右上の「Fork」を押して「Create fork」の画面まで進める（名前はそのまま、「Copy the main branch only」はオンのまま）
-7. オーナー: 「Create fork」を押す。オーナーのアカウントに `<owner>/ai-web-creator` ができる
-8. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
-9. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。リポジトリの選択で、サイトのリポジトリと、手順7のフォークの2つを選ぶ（権限の許可にあたるため、オーナーが行う）
+7. エージェント: github.com/tkc310/ai-web-creator を開き、右上の「Fork」を押して「Create fork」の画面まで進める（名前はそのまま、「Copy the main branch only」はオンのまま）
+8. オーナー: 「Create fork」を押す。オーナーのアカウントに `<owner>/ai-web-creator` ができる
+9. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
+10. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。リポジトリの選択で、サイトのリポジトリと、手順8のフォークの2つを選ぶ（権限の許可にあたるため、オーナーが行う）
 
 非公開のリポジトリで Claude Code が作業するには、Claude の GitHub アプリのインストールが必要です。Claude Code のプロジェクト（project-setup.md）には、オーナーが書き込めて GitHub アプリを入れたリポジトリしか追加できないので、スキルも配布元ではなくフォークを使います。フォークの中身はスキルとプロンプトだけで、オーナーの情報は入りません。
+
+### Claude がリポジトリに書き込むための2つの許可
+
+GitHub のアカウントを作っただけでは、Claude はリポジトリに書き込めません（公開リポジトリでも同じです。読むことだけはできます）。次の2つがそろって、はじめて push できます。
+
+1. Claude の GitHub アプリに、そのリポジトリを許可する（上の手順10）
+   - インストールの画面で「Only select repositories」を選んだ場合、あとから作ったリポジトリは自動では入らない。リポジトリを新しく作ったら、GitHub の Settings → Applications → Installed GitHub Apps にある Claude の「Configure」で、そのリポジトリを足してもらう
+2. Claude Code のプロジェクトかセッションに、そのリポジトリを入れる
+   - プロジェクトでは Context に追加する（project-setup.md）。プロジェクトを使わない場合は、セッションを始めるときのリポジトリの選択で選ぶ
+   - 1 が済んでいても、2 がないと push は拒否される。段階1から Claude Code で進めている場合も、サイトのリポジトリを作った時点で、リポジトリを選んだプロジェクトかセッションに移る
+
+push できないときは、エラーで見分けます。
+
+| 様子 | 原因 | 対処 |
+|---|---|---|
+| プロジェクトやセッションのリポジトリの一覧に出てこない | 1 の許可がない | GitHub アプリにリポジトリを足してもらい、画面を開き直してもらう |
+| push が 403 で拒否され、"authorized repository set" や "add the repository to the session's sources" と出る | 2 がない | セッションの途中でリポジトリを追加できる場合（リポジトリの追加のツールがある場合）は追加する。できない場合は、作業一式（.git を含む）を zip にしてオーナーに渡し、リポジトリを選んだ新しいセッション（またはプロジェクト）に添付して続きを頼んでもらう |
+
+zip での引き継ぎは、添付の漏れに気づきにくい方法です。作業を始める前に、push できるプロジェクトかセッションにいるかを確かめておくのがいちばん確実です。zip で引き継いだ場合は、新しいセッションで最初に zip が届いているかを確かめ、届いていなければ添付し直してもらいます。
 
 ## 2. Cloudflare（サイトの公開先）
 

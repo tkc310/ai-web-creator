@@ -28,7 +28,7 @@
 
 GitHub のアカウント、サイト用の非公開リポジトリ、スキルのフォーク、Claude の GitHub アプリのインストールが済んでから行います（account-setup.md）。所要時間は10分くらいです。
 
-プロジェクトに追加できるのは、オーナーの GitHub アカウントで書き込めて、Claude の GitHub アプリを入れたリポジトリだけです。そのため、配布元の tkc310/ai-web-creator はそのまま追加できません。オーナーのアカウントにフォーク（写し）を作り、それを追加します（account-setup.md の GitHub の手順6）。
+プロジェクトに追加できるのは、オーナーの GitHub アカウントで書き込めて、Claude の GitHub アプリを入れたリポジトリだけです。そのため、配布元の tkc310/ai-web-creator はそのまま追加できません。オーナーのアカウントにフォーク（写し）を作り、それを追加します（account-setup.md の GitHub の手順7・8）。プロジェクトに入れたリポジトリには、そのプロジェクトのスレッドから書き込めます。入れていないリポジトリには、GitHub アプリで許可していても書き込めません（account-setup.md の「Claude がリポジトリに書き込むための2つの許可」）。
 
 1. 段階1の Claude が、プロジェクトの指示の下書きを templates/project-instructions.md から作る（ヒアリングの答えと、hearing.md の「作業の環境」の答えを埋める）
 2. オーナー: claude.ai/code を開き、左のメニューの「Projects」から「New project」を押す

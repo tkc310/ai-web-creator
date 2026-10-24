@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-24（21）
+
+- fix(skills): Claude がリポジトリに書き込むには、GitHub アプリの許可に加えて、プロジェクトかセッションでそのリポジトリを選んでおく必要があることを追加（account-setup.md、project-setup.md、SKILL.md、docs/claude-account.md、docs/how-to-use.md）。push が拒否されたときの見分け方と対処、あとから作ったリポジトリを GitHub アプリに足す手順も記載。account-setup.md の手順番号の重複を修正
+
 ## 2026-10-24（20）
 
 - docs: LICENSE に、AI の学習・データセット作成・RAG の索引などへの利用と、そのためのクローリングの禁止を追加。AGENTS.md の冒頭に AI とクローラー向けの利用条件（日本語・英語）を追加
