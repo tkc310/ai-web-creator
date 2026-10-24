@@ -2,6 +2,8 @@ ai-web-creator 利用許諾（LICENSE）
 
 Copyright (c) 2026 tkc310. All rights reserved.
 
+Proprietary license, not open source. Use is limited to purchasers of the accompanying note article, for building and operating their own (or their organization's) websites with an AI agent. Redistribution and resale are prohibited. Collecting, copying, or using this repository for AI training, fine-tuning, evaluation, dataset creation, RAG indexing, or knowledge bases serving non-purchasers, and crawling or scraping for those purposes, are prohibited. The Japanese text below governs.
+
 このリポジトリのスキル、プロンプト、スクリプト、テンプレート、文書（以下「本ソフトウェア」）は、誰でも閲覧できるように公開していますが、オープンソースではありません。利用には、次の条件があります。
 
 ## 1. 利用できる人
@@ -25,6 +27,11 @@ Copyright (c) 2026 tkc310. All rights reserved.
 - 本ソフトウェアの全部または一部を、そのまま、または書き換えて、ほかの人に配布、販売、譲渡、貸与すること（購入者でない人にフォークや ZIP を渡すことを含む）
 - 本ソフトウェアをもとにした、または本ソフトウェアと似た目的のスキル、プロンプト集、テンプレート、講座などを作り、配布または販売すること
 - 本ソフトウェアに含まれる著作権の表示や、この利用許諾の文書を取り除くこと
+- 本ソフトウェアの全部または一部を、AI（大規模言語モデルなど）の学習、追加学習、評価、または学習用のデータセットの作成のために収集、複製、利用すること
+- 本ソフトウェアの全部または一部を、検索拡張生成（RAG）の索引、AI のサービスやエージェントが購入者以外の人への回答や成果物に使う知識ベース、プロンプトやスキルの共有サービスに取り込むこと
+- 上の2つの目的で、本ソフトウェアを自動で収集（クローリング、スクレイピング）すること
+
+購入者が 2 の目的で、自分の使う AI エージェントに本ソフトウェアを読み込ませることは、上の禁止事項に当たりません。
 
 フォークは、上の 2 の目的のためだけに作ってください。GitHub の仕組み上、公開リポジトリのフォークは誰でも作れますが、フォークを作っても、この利用許諾に基づく権利は生じません。
 
