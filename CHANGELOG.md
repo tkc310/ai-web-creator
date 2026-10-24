@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-24（22）
+
+- fix(skills): クラウドの作業環境から本番のサイトを Lighthouse で計測できるようにした。届かないときは、作業環境のネットワークの許可（Cowork は設定の「機能」、Claude Code は「Edit cloud environment」）にサイトのホストを足すよう案内する手順を quality-gate.md に追加。最後の手段として、オーナーに PageSpeed Insights で測ってもらう手順も追加
+- fix(skills): run_lighthouse.sh が、計測するページに届くかを先に確かめて、届かなければ理由と対処を表示して止まるようにした。「要改善」には点数に関係する項目だけを出すようにした
+
 ## 2026-10-24（21）
 
 - fix(skills): Claude がリポジトリに書き込むには、GitHub アプリの許可に加えて、プロジェクトかセッションでそのリポジトリを選んでおく必要があることを追加（account-setup.md、project-setup.md、SKILL.md、docs/claude-account.md、docs/how-to-use.md）。push が拒否されたときの見分け方と対処、あとから作ったリポジトリを GitHub アプリに足す手順も記載。account-setup.md の手順番号の重複を修正

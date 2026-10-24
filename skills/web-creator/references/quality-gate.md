@@ -22,6 +22,35 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 
 公開後は本番URLでもう一度計測します（Cloudflare 経由の配信で数値が変わるため）。
 
+```bash
+bash <スキルの場所>/scripts/run_lighthouse.sh https://<サイトの名前>.<アカウントのサブドメイン>.workers.dev/
+```
+
+### 作業環境から本番のサイトに届かないとき
+
+クラウドの作業環境（Claude Code のクラウドセッション、Cowork）は、外への通信が許可された行き先に限られています。最初の設定では、公開したサイト（workers.dev や独自ドメイン）や、Lighthouse 本体の取得先に届かないことがあります。`run_lighthouse.sh` が「届きません」と止まったら、オーナーに作業環境のネットワークの許可を足してもらいます。設定を変えると、動いている会話にも1分くらいで反映されます。
+
+足すホストは、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインなら `example.co.jp` と `www.example.co.jp`）です。パッケージの配布元（npm）も使うので、既定の許可の一覧は残します。
+
+| 作業している場所 | 設定の場所 | 選ぶもの |
+|---|---|---|
+| Cowork（Claude のアプリ） | 設定 → 機能（Capabilities）→ コードの実行のネットワークの許可（Domain allowlist） | 「Package managers only」を選び、「Additional allowed domains」にサイトのホストを1行ずつ入れる |
+| Claude Code（claude.ai/code、デスクトップアプリの Code） | 会話の名前の右の「∨」→「Edit cloud environment」→「Network access」 | 「Custom」を選び、「Allowed domains」にサイトのホストを1行ずつ入れ、「Also include default list of common package managers」にチェックを入れる |
+
+- 2026年10月の時点で、「Additional allowed domains」が効かないという不具合の報告があります（Cowork を含む）。足しても届かない場合だけ、計測のあいだ「すべてのドメイン」（All domains / Full）にし、終わったら元に戻すよう伝えます。守りが弱くなることも一文で伝えます
+- Team・Enterprise のプランでは、この設定は組織の管理者しか変えられないことがあります。その場合は下の「オーナーに計測してもらう」に進みます
+- 画面の表示名は変わることがあるので、案内の前に Claude Code のドキュメント（Configure cloud environments）と Claude のヘルプセンターで確認します
+
+### オーナーに計測してもらう（最後の手段）
+
+作業環境の設定を変えられない場合は、オーナーのパソコンの Chrome で計測してもらいます（5分くらい）。
+
+1. https://pagespeed.web.dev/ を開く
+2. 入力欄にサイトのアドレスを貼り、「分析」を押す
+3. 「携帯電話」が選ばれたまま、4つの丸の数字が見える画面のスクリーンショットをチャットに貼ってもらう（数字だけを送ってもらってもよい）
+
+PageSpeed Insights の API は、鍵なしでは失敗することが多いため使いません。
+
 外部の埋め込みが原因で目標に届かない場合は、削らずに「代わりの方法と、その場合の点数」をオーナーに示して選んでもらいます。
 
 ## 2. SEO（検索エンジン向け）
