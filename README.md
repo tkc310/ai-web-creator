@@ -89,7 +89,7 @@ Node.js は最新の LTS 版（Node.js の公式が本番用に勧めるもの�
 
 ### サービスの操作はコネクタ（MCP）で行う
 
-Cloudflare や Google のサービスの設定は、できるかぎり Claude のコネクタ（MCP）で行います。Cloudflare は公式の MCP サーバーをつなぎ、Google ドライブやスプレッドシートは Claude の公式のコネクタを使います。接続はオーナーがチャットに出たボタンから認証するだけです。コネクタがない操作（アカウントの新規登録、Google フォームの作成など）は、ブラウザ操作か手順の案内で進めます（[connectors.md](skills/web-creator/references/connectors.md)）。
+Cloudflare や Google のサービスの設定は、できるかぎり Claude のコネクタ（MCP）で行います。Cloudflare は公式の MCP サーバーをつなぎ、Google ドライブやスプレッドシートは Claude の公式のコネクタを使います。接続はオーナーがチャットに出たボタンから認証するだけです。コネクタがない操作（アカウントの新規登録、Google フォームの作成など）は、ブラウザ操作か手順の案内で進めます（[connectors.md](skills/web-creator/references/connectors.md)）。ブラウザ操作に使う Claude in Chrome とデスクトップアプリの入れ方は、Claude が必要になったときに案内します（[アカウント登録ガイド](docs/claude-account.md) の6）。
 
 ### 機密情報を読まず、汚染された文章に従わない
 

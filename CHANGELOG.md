@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-24（25）
+
+- feat(skills): Google フォームの作成などでブラウザ操作が要るのに、Claude in Chrome がない、または会話がパソコンにつながっていないときの進め方を追加。オーナーにデスクトップアプリと Chrome の拡張機能の入れ方、会話のつなぎ方を案内し、入れない場合はサイドパネルに貼る指示文を渡すか、画面ごとの手順を案内する。Google Drive・Sheets のコネクタではフォームを作れないことも明記（account-setup.md、forms.md、connectors.md、templates/forms/chrome-google-form-prompt.md、docs/claude-account.md、docs/forms.md、docs/how-to-use.md、README.md）
+
 ## 2026-10-24（24）
 
 - fix(skills): 作業環境の通信の許可の案内を、オーナーがチャット（Cowork）とコード（Claude Code）のどちらで作業しているかを聞いてから分けるようにした。チャットは「設定」→「機能」→「外部ネットワークへの通信を許可」、コードは「Edit cloud environment」→「Network access」。答えは SITE.md の「作業の環境」に残す（quality-gate.md、account-setup.md、SKILL.md、templates/SITE.md、run_lighthouse.sh、docs/claude-account.md、README.md）

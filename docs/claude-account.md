@@ -64,6 +64,46 @@ Claude は「コネクタ」という機能で、Cloudflare や Google のサー
 
 許可する権限は、必要なものだけにします。使わなくなったコネクタは、同じ画面で外せます。Claude のディレクトリにないサービスをつなぐ「カスタムコネクタ」は、信頼できる会社の公式のものだけを追加してください。
 
+## 6. Claude にブラウザを操作してもらう（必要になったとき）
+
+Google フォームの作成やアカウントの登録のように、コネクタではできない画面の操作は、Claude が Chrome を操作して進められます（Claude in Chrome）。入れていなくても、Claude が画面ごとの手順を案内するので作業はできます。Claude から「Chrome の拡張機能を入れると、こちらで操作できます」と案内されたときに入れてください。所要時間は15分くらいです。
+
+使うには、有料プラン（Pro 以上）と、パソコンの Google Chrome が必要です（スマートフォンや、Chrome 以外のブラウザでは使えません）。
+
+**1. Claude のデスクトップアプリを入れる**
+
+1. Chrome で claude.ai/download を開き、お使いのパソコン（Windows / Mac）用をダウンロードしてインストールする
+2. アプリを開き、Claude のアカウントでログインする
+
+Claude がブラウザを操作している間は、デスクトップアプリを開いたままにしておきます。
+
+**2. Chrome に拡張機能を入れる**
+
+1. Chrome ウェブストアで「Claude」を探し、「Chrome に追加」を押す
+2. Claude のアカウントでログインする
+3. Chrome の右上のパズルのマークを押し、Claude の横のピンを押して、ツールバーに出しておく
+4. 求められた権限を確かめて許可する
+
+**3. デスクトップアプリとつなぐ**
+
+1. デスクトップアプリの左下のお名前 →「設定」を開く
+2. 「Customize」→「Connectors」で「Claude in Chrome」の「Configure」を押し、オンにする
+3. 会話ごとにオンにする必要があります。会話の入力欄の下のコネクタの一覧で「Claude in Chrome」をオンにしてください
+
+**4. 会話をパソコンにつなぐ**
+
+ウェブ（claude.ai）やスマートフォンで始めた会話を Claude がパソコンで操作するには、その会話がパソコンにつながっている必要があります。Claude から「このチャットはパソコンにつながっていません」と言われたら、次の順に試します。
+
+1. Claude の返事の下に「パソコンを使う」のようなカードが出ていれば、それを押す
+2. デスクトップアプリで同じ会話を開き、「続けて」と送る
+3. それでもつながらない場合は、デスクトップアプリでその会話にパソコンのフォルダを1つ追加して、もう一度「続けて」と送る
+
+**つながらないとき**
+
+Chrome の右上の Claude のマークを押すと、Chrome の横に Claude の画面（サイドパネル）が開きます。Claude が作業の指示文を用意するので、それをサイドパネルに貼って送ってください。終わったら、サイドパネルに出た結果（フォームのリンクなど）を元の会話に貼ります。サイドパネルで画面を操作するときも、デスクトップアプリは開いておいてください。
+
+どの方法でも、パスワードの入力、2段階認証、支払い、秘密の鍵の貼り付けは、あなたが行います。Claude はその画面に来たら手を止めます。
+
 ## 次にすること
 
 [スキルとプロンプトの使い方](how-to-use.md) に進みます。
@@ -74,5 +114,7 @@ Claude は「コネクタ」という機能で、Cloudflare や Google のサー
 - [Claude ヘルプ: 電話番号の確認](https://support.claude.com/en/articles/8287232-verify-your-phone-number)
 - [Claude ヘルプ: スキルを使う](https://support.claude.com/en/articles/12512180-use-skills-in-claude)
 - [Claude Code: クラウドで始める](https://code.claude.com/docs/en/web-quickstart)
+- [Claude ヘルプ: Claude in Chrome を使い始める（英語）](https://support.claude.com/en/articles/12012173-get-started-with-claude-in-chrome)
+- [Claude ヘルプ: ウェブ、デスクトップ、スマートフォンで使う（英語）](https://support.claude.com/en/articles/15520349-use-claude-cowork-on-web-desktop-and-mobile)
 - [Claude: カスタムコネクタ（英語）](https://claude.com/docs/connectors/custom/remote-mcp)
 - [Cloudflare の MCP サーバー（英語）](https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/)
