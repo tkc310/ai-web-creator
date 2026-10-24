@@ -112,7 +112,7 @@ CI で確認するのは「ビルドが通るか」だけです（要保守構�
 
 ### 公開前に品質を測る
 
-Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー補助・おすすめの方法・SEO は100を目標にします。sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP を整えます。構造化データには、ページに表示している内容だけを書きます。公開後は本番のサイトでも測ります。Claude の作業環境から本番のサイトに届かない場合は、作業環境のネットワークの許可にサイトのアドレスを足すよう、Claude が案内します。基準の詳細は [quality-gate.md](skills/web-creator/references/quality-gate.md) にあります。
+Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー補助・おすすめの方法・SEO は100を目標にします。sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP を整えます。構造化データには、ページに表示している内容だけを書きます。計測は Claude のクラウドの作業環境で、トップページなどの主要ページ（ページの種類ごとに代表1つ）だけを行い、公開後は本番のサイトでも測ります。作業環境から本番のサイトに届かない場合は、Claude の「設定」→「機能」→「外部ネットワークへの通信を許可」にサイトのアドレスを足すよう、Claude が案内します。基準の詳細は [quality-gate.md](skills/web-creator/references/quality-gate.md) にあります。
 
 ### サイトごとに Claude のプロジェクトを作る
 

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-24（23）
+
+- fix(skills): Lighthouse の計測はエージェントのクラウドの作業環境で行い、全ページではなく主要ページ（ページの種類ごとに代表1つ、多くて5ページ）だけを測る形にした。オーナーに PageSpeed Insights で測ってもらう手順は外した（quality-gate.md、SKILL.md、README.md、run_lighthouse.sh）
+- fix(skills): ネットワークの許可の設定は、デスクトップアプリのチャットとコードとで会話の画面のメニューが違うため、どちらでも「設定」→「機能」→「外部ネットワークへの通信を許可」から案内するよう、よくある問題として記録した。公開の準備（account-setup.md の Cloudflare の手順9）と docs/claude-account.md にも足した
+
 ## 2026-10-24（22）
 
 - fix(skills): クラウドの作業環境から本番のサイトを Lighthouse で計測できるようにした。届かないときは、作業環境のネットワークの許可（Cowork は設定の「機能」、Claude Code は「Edit cloud environment」）にサイトのホストを足すよう案内する手順を quality-gate.md に追加。最後の手段として、オーナーに PageSpeed Insights で測ってもらう手順も追加

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Lighthouse をモバイル設定で実行し、4カテゴリの点数と主要指標を表示する。
+# エージェントのクラウドの作業環境で使う。測るのは主要ページだけ（quality-gate.md の「測るページ」）。
 # 使い方: bash run_lighthouse.sh URL [URL ...]
 # 結果の JSON は ./lighthouse-reports/ に保存する。
 set -euo pipefail
@@ -51,7 +52,7 @@ for url in "$@"; do
   if [ "$code" = "000" ] || [ "$code" = "403" ]; then
     host=$(echo "$url" | sed -E 's#https?://([^/]+).*#\1#')
     echo "作業環境から ${host} に届きません（HTTP ${code}）。" >&2
-    echo "作業環境のネットワークの許可に、このホストを足す必要があります（quality-gate.md の「作業環境から本番のサイトに届かないとき」）。" >&2
+    echo "オーナーに Claude の「設定」→「機能」→「外部ネットワークへの通信を許可」で、このホストを足してもらってください（quality-gate.md の「作業環境から本番のサイトに届かないとき」）。" >&2
     exit 2
   fi
 done
