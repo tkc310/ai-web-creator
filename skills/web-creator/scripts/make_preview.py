@@ -9,6 +9,10 @@
   # 起動中のサーバーから（SSR のページ、EmDash。例: pnpm run preview や wrangler dev を起動しておく）
   python3 make_preview.py http://localhost:4321/news/2026-10-holiday/ --out preview.html --label "..."
 
+  # 直したい文章や画像を、オーナーが選んでコメントできる形にする（1ページだけ。記事や文章の修正の確認に使う）
+  python3 make_preview.py dist/news/2026-10-holiday/index.html --root dist --out preview.html --comment \
+      --label "お知らせ「年末年始の休業」"
+
   # 複数のページやデザイン案をタブで切り替えて見せる
   python3 make_preview.py dist/index.html dist/about/index.html --root dist --out preview.html \
       --names "トップ" "会社概要" --label "デザインの変更"
@@ -16,6 +20,9 @@
 何をするか:
   - CSS、JavaScript、画像、フォントをページの中に埋め込む（アーティファクトは外部のファイルを読めないため）
   - ページは iframe の中に入れ、スマホ幅と PC 幅を切り替えて見られるようにする
+  - --comment のときは iframe を使わず、ページそのものをアーティファクトにする。
+    iframe の中の文章や画像は、アーティファクトのコメントで選べないことがあるため。幅の切り替えはなく、
+    スマホで開けばスマホの見え方、PC で開けば PC の見え方になる
   - サイト内のリンクは押しても移動しないようにする（プレビューの中では開けないため）
   - 外部のサイトから読み込むスクリプト（解析タグなど）は外し、外したものを一覧で表示する
 """
@@ -261,6 +268,22 @@ body.sp .frame {{ max-width: 390px; }}
 """
 
 
+COMMENT_BANNER = """<div data-preview-banner style="position:sticky;top:0;z-index:2147483647;\
+background:#fff4d6;color:#6b4e00;border-bottom:1px solid #e8d9a8;padding:8px 16px;\
+font:13px/1.6 system-ui,-apple-system,'Hiragino Sans','Noto Sans JP',sans-serif">\
+<b>公開前のプレビュー</b>　{label}<br>直したい文章や画像を選んで、コメントを書いて Claude に送ってください。サイト内のリンクは、プレビューの中では移動しません。</div>"""
+COMMENT_SCRIPT = """<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[data-preview-href]');if(a)e.preventDefault();});</script>"""
+
+
+def comment_page(doc: str, label: str) -> str:
+    """ページそのものに、プレビューであることの帯と、リンクを止めるスクリプトを足す。"""
+    banner = COMMENT_BANNER.format(label=label) + COMMENT_SCRIPT
+    m = re.search(r"<body\b[^>]*>", doc, re.I)
+    if m:
+        return doc[:m.end()] + banner + doc[m.end():]
+    return banner + doc
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("sources", nargs="+", help="ページのファイルか URL（複数可）")
@@ -269,7 +292,11 @@ def main() -> None:
     ap.add_argument("--label", default="", help="プレビューの見出し（例: お知らせ「年末年始の休業」）")
     ap.add_argument("--names", nargs="*", help="複数ページのときのタブの名前")
     ap.add_argument("--standalone", action="store_true", help="ブラウザで直接開ける完全な HTML にする（アーティファクトを使わない場合）")
+    ap.add_argument("--comment", action="store_true",
+                    help="iframe を使わず、オーナーが文章や画像を選んでコメントできる形にする（1ページだけ）")
     args = ap.parse_args()
+    if args.comment and len(args.sources) > 1:
+        sys.exit("--comment は1ページずつ作ってください（ページごとにアーティファクトを分ける）")
 
     loader = Loader(pathlib.Path(args.root).resolve() if args.root else None)
     pages, titles = [], []
@@ -290,12 +317,15 @@ def main() -> None:
         uniq = sorted(set(loader.removed))
         notes += " 読み込まなかったもの: " + "、".join(html.escape(u) for u in uniq[:8])
     label = html.escape(args.label or titles[0])
-    out = OUTER.format(
-        page_title=html.escape(("プレビュー " + (args.label or titles[0]))[:40]),
-        label=label, tabs=tabs, notes=notes,
-        pages_json=json.dumps(pages, ensure_ascii=False).replace("</", "<\\/"),
-    )
-    if args.standalone:
+    if args.comment:
+        out = comment_page(pages[0], label)
+    else:
+        out = OUTER.format(
+            page_title=html.escape(("プレビュー " + (args.label or titles[0]))[:40]),
+            label=label, tabs=tabs, notes=notes,
+            pages_json=json.dumps(pages, ensure_ascii=False).replace("</", "<\\/"),
+        )
+    if args.standalone and not args.comment:
         out = '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">' + out + "</body></html>"
     data = out.encode("utf-8")
     if len(data) > MAX_BYTES:

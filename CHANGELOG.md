@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-24（18）
+
+- feat(skills): プレビューの上で文章や画像を選んでコメントし、Claude に直してもらう方法を加え、おすすめとした。make_preview.py に `--comment`（iframe を使わず、ページそのものをプレビューにする）を足し、preview.md にコメントを受けたときの流れを書いた。使い方、プロンプト集、README にも反映
+- docs: 「Claude のドキュメント」の表記を「Claude ドキュメント」にそろえた
+
 ## 2026-10-24（17）
 
 - fix(skills): Node.js の基準を「最新の偶数番（Current を含む）」から「最新の LTS 版」に直した。Node.js の公式は本番で Active LTS か Maintenance LTS だけを使うよう案内しているため。templates/node-version.txt を 24 に戻した（26 は 2026-10-28 に LTS になるまで Current）
