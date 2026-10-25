@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-25
+
+- feat(skills): デザイン案づくりと全ページの完成後に、frontend-design スキルでブラッシュアップする手順を追加。claude.ai のアカウントで有効にする使い方と、使えない場合の見直しの観点も記載（build.md、SKILL.md、docs/other-agents.md、README.md）
+- feat(skills): スマホの表示を iPhone SE の幅（375px）と 320px でも確かめるようにした。作り方の決まりと、横スクロール、はみ出し、ヘッダーの折り返しを調べる scripts/check_mobile_width.py を追加（build.md、quality-gate.md、SKILL.md、site-builder.md、templates/log.md、templates/gitignore.txt、README.md）
+
 ## 2026-10-24（25）
 
 - feat(skills): Google フォームの作成などでブラウザ操作が要るのに、Claude in Chrome がない、または会話がパソコンにつながっていないときの進め方を追加。オーナーにデスクトップアプリと Chrome の拡張機能の入れ方、会話のつなぎ方を案内し、入れない場合はサイドパネルに貼る指示文を渡すか、画面ごとの手順を案内する。Google Drive・Sheets のコネクタではフォームを作れないことも明記（account-setup.md、forms.md、connectors.md、templates/forms/chrome-google-form-prompt.md、docs/claude-account.md、docs/forms.md、docs/how-to-use.md、README.md）

@@ -110,6 +110,10 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 
 CI で確認するのは「ビルドが通るか」だけです（要保守構成では、プルリクエストでも同じ確認をする）。リンターやテストはエージェントが作業中に実行します。デプロイが失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。失敗しても、Cloudflare 上の前回のサイトはそのまま表示されます。
 
+### デザインは frontend-design スキルで仕上げ、iPhone SE の幅まで確かめる
+
+デザイン案づくりと、全ページができたあとの仕上げには、Anthropic の frontend-design スキルを使います。書体、色、余白、細部を見直し、テンプレートのような見た目を避けます。スキルは claude.ai のアカウントで有効にしておくと、チャットでも Claude Code のクラウドの会話でも読み込まれます。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
+
 ### 公開前に品質を測る
 
 Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー補助・おすすめの方法・SEO は100を目標にします。sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP を整えます。構造化データには、ページに表示している内容だけを書きます。計測は Claude のクラウドの作業環境で、トップページなどの主要ページ（ページの種類ごとに代表1つ）だけを行い、公開後は本番のサイトでも測ります。作業環境から本番のサイトに届かない場合は、チャットとコードのどちらで使っているかを聞いたうえで、Claude が通信の許可にサイトのアドレスを足す手順を案内します。基準の詳細は [quality-gate.md](skills/web-creator/references/quality-gate.md) にあります。
@@ -146,7 +150,7 @@ skills/
 │   │   ├── preview.md
 │   │   ├── run-logs.md          … 実行ログと改善ループ
 │   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
-│   ├── scripts/                 … run_lighthouse.sh、make_preview.py、check_text.py（機密情報と汚染のチェック）
+│   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
 │   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   └── SKILL.md
