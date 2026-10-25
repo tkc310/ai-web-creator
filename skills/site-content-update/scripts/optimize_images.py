@@ -144,7 +144,8 @@ def main() -> None:
             formats = [("PNG", "png")] if im.mode == "RGBA" else [("JPEG", "jpg")]
         else:
             formats = [(f, e) for f, e in (("AVIF", "avif"), ("WEBP", "webp")) if f != "AVIF" or features.check("avif")]
-        for w in sorted(set(args.widths)):
+        # 元が指定の幅より小さいと同じ幅になるので、幅ごとに1回だけ書き出す
+        for w in sorted({min(w, im.width) for w in args.widths}):
             r = resize(im, w)
             for fmt, ext in formats:
                 dst = out / f"{base}-{r.width}.{ext}"
