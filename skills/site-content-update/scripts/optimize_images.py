@@ -19,7 +19,10 @@
                 1枚の変換が8秒を超えた場合は、それ以降を original に切り替える
   convert     : 必ず AVIF と WebP に変換する
   original    : 変換せず、元の形式で圧縮する（JPEG は品質82のプログレッシブ、透過のある画像は PNG）
-メタ情報の削除と縮小は、どのモードでも必ず行う。
+  clean       : メタ情報の削除だけを行い、--widths の最大の幅を上限に1枚だけ元の形式で書き出す（JPEG は品質90）。
+                複数サイズへの縮小と AVIF・WebP への変換は行わない。Astro の astro:assets（<Image> / <Picture>、
+                Markdown の ![]()）がビルド時に同じ処理をするサイトで使う
+メタ情報の削除と縮小（clean では上限の幅までの縮小）は、どのモードでも必ず行う。
 
 必要なもの: Pillow（AVIF に対応したもの。11.2 以降が目安）。iPhone の HEIC を読むには pillow-heif。
 """
@@ -69,9 +72,9 @@ def clean(im: Image.Image) -> Image.Image:
     return fresh  # info（exif、icc_profile、xmp など）を引き継がない
 
 
-def save(im: Image.Image, path: pathlib.Path, fmt: str) -> int:
+def save(im: Image.Image, path: pathlib.Path, fmt: str, jpeg_quality: int = 82) -> int:
     if fmt == "JPEG":
-        im.convert("RGB").save(path, "JPEG", quality=82, optimize=True, progressive=True)
+        im.convert("RGB").save(path, "JPEG", quality=jpeg_quality, optimize=True, progressive=True)
     elif fmt == "PNG":
         im.save(path, "PNG", optimize=True)
     elif fmt == "AVIF":
@@ -100,7 +103,7 @@ def main() -> None:
     ap.add_argument("--widths", nargs="+", type=int, default=[800, 1600])
     ap.add_argument("--alt", nargs="*", default=[], help="画像ごとの説明（alt）。HTML の例に使う")
     ap.add_argument("--og", action="store_true", help="1枚目から OG 画像（1200×630）を作る")
-    ap.add_argument("--mode", choices=["auto", "convert", "original"], default="auto")
+    ap.add_argument("--mode", choices=["auto", "convert", "original", "clean"], default="auto")
     ap.add_argument("--budget", type=float, default=60, help="auto のとき、変換にかけてよい合計秒数")
     args = ap.parse_args()
 
@@ -130,7 +133,14 @@ def main() -> None:
         base = f"{args.name}-{i}"
         made = []
         t0 = time.time()
-        if mode == "original":
+        if mode == "clean":
+            # 縮小と変換は astro:assets に任せ、元にする1枚だけを書き出す
+            fmt, ext = ("PNG", "png") if im.mode == "RGBA" else ("JPEG", "jpg")
+            r = resize(im, max(args.widths))
+            dst = out / f"{base}.{ext}"
+            made.append((dst, r.width, r.height, save(r, dst, fmt, jpeg_quality=90)))
+            formats = []
+        elif mode == "original":
             formats = [("PNG", "png")] if im.mode == "RGBA" else [("JPEG", "jpg")]
         else:
             formats = [(f, e) for f, e in (("AVIF", "avif"), ("WEBP", "webp")) if f != "AVIF" or features.check("avif")]
@@ -141,13 +151,13 @@ def main() -> None:
                 size = save(r, dst, fmt)
                 made.append((dst, r.width, r.height, size))
         took = time.time() - t0
-        if mode != "original":
+        if mode in ("auto", "convert"):
             spent += took
             if mode == "auto" and took > 8:
                 mode = "original"
                 print(f"{p.name} の変換に {took:.1f} 秒かかったため、残りは変換を省きます", file=sys.stderr)
         if i == 1 and args.og:
-            if mode == "original":
+            if mode in ("original", "clean"):
                 dst = out / f"{args.name}-og.jpg"
                 og_crop(im).save(dst, "JPEG", quality=82, optimize=True, progressive=True)
             else:
@@ -161,6 +171,13 @@ def main() -> None:
 
         # <picture> の例（最大幅の画像の縦横比を width/height に入れる）
         alt = html.escape(args.alt[i - 1] if i - 1 < len(args.alt) else "")
+        if mode == "clean":
+            src_img = next(d for d, w, h, s in made if "-og" not in d.name)
+            print(f'  Markdown: ![{alt}](./{src_img.name})')
+            print(f'  .astro  : import photo{i} from "<このファイルからの相対パス>/{src_img.name}";')
+            print(f'            <Picture src={{photo{i}}} formats={{["avif", "webp"]}} '
+                  f'widths={{[{", ".join(str(w) for w in sorted(set(args.widths)))}]}} sizes="(max-width: 800px) 100vw, 800px" alt="{alt}" />')
+            continue
         rel = lambda d: "/" + str(d).split("public/", 1)[-1] if "public/" in str(d) else str(d)
         avifs = [(d, w) for d, w, h, s in made if d.suffix == ".avif"]
         webps = [(d, w, h) for d, w, h, s in made if d.suffix == ".webp" and "-og" not in d.name]
