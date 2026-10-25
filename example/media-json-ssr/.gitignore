@@ -1,6 +1,0 @@
-node_modules/
-dist/
-.cache/
-.wrangler/
-.dev.vars
-bench-work/

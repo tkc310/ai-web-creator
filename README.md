@@ -53,7 +53,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
-| [example/media-json-ssr](example/media-json-ssr/README.md) | 検証用のサンプル。数百〜数千本の記事を持つメディアを、JSON の事前ビルドと Workers の SSR、Workers Cache で配信する構成。スキルにはまだ組み込んでいない |
+| [docs/verification](docs/verification/README.md) | 構成の検証の記録。スキルに組み込む前に、サンプルを作って計測した結果を残す |
 
 ## 設計の方針
 

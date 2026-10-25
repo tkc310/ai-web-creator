@@ -2,3 +2,6 @@ node_modules/
 lighthouse-reports/
 .DS_Store
 __pycache__/
+
+# 検証の計測用の一時フォルダ
+docs/verification/*/work/

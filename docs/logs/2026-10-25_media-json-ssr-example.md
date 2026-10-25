@@ -1,7 +1,8 @@
 # 2026-10-25 数百ページのメディアの構成（JSON の事前ビルド＋Workers の SSR）を検証
 
 - きっかけ: オーナーから、数百ページのメディアを EmDash を使わずに作る構想（JSON の事前ビルドと SSR、ハッシュでのスキップ、インデックスの分割、SSR のキャッシュとパージ、Claude のスケジュールタスクでの予約投稿、GitHub アカウントごとの権限、R2 の画像）を example ディレクトリで検証してほしいと依頼
-- 変えたファイル: example/media-json-ssr/（新規）、README.md、CHANGELOG.md
+- 変えたファイル: docs/verification/（新規）、README.md、CHANGELOG.md、.gitignore（検証用の example/media-json-ssr/ は作って計測したあと、オーナーの指示で削除）
+- 検証の記録: [docs/verification/2026-10-25_media-json-ssr/](../verification/2026-10-25_media-json-ssr/README.md)
 
 ## やったこと
 
@@ -16,16 +17,16 @@
 - Workers Cache: workers.dev で使える、Cache-Tag とタグでのパージ、cross_version_cache（wrangler 4.107.0 以上）、事前に入れる API はない、有効にすると静的ファイルへのリクエストも Workers のリクエストとして課金される（developers.cloudflare.com/workers/cache/、2026-10-25）
 - Workers の無料プランの静的ファイルは1つの版で 2 万ファイルまで（Cloudflare の changelog 2025-09-02）
 - GitHub のルールセットは、Free では公開リポジトリだけ。非公開は Pro / Team 以上（docs.github.com の managing-rulesets、2026-10-25）
-- 数値は example/media-json-ssr/README.md の「計測の結果」と logs/ の JSON
+- 数値と計測のソースは docs/verification/2026-10-25_media-json-ssr/
 
 ## 確認できなかったこと
 
-- 手元の wrangler dev（4.152.0）では Workers Cache が動かず（`ctx.cache` がない）、キャッシュのヒット、パージ、温め、エッジでの応答時間は測れなかった。本番の Cloudflare での計測はオーナーの了承待ち
+- 手元の wrangler dev（4.152.0）では Workers Cache が動かず（`ctx.cache` がない）、キャッシュのヒット、パージ、温め、エッジでの応答時間は測れなかった。本番の Cloudflare での計測は、オーナーの判断で行わない
 - GitHub Actions 上でのワークフロー、スケジュールタスクでの予約投稿の起動、ルールセットを入れたリポジトリでの書き手のプルリクエスト
 
 ## 次回の改善点
 
-- 本番の Cloudflare で、Workers Cache のヒット率、パージから反映までの時間、温めの効果を測る
+- この構成を作るときは、リクエストを Worker（HTML の SSR）・CDN（Workers Cache と R2 の前のキャッシュ）・R2（画像を独自ドメインで直接）に分散させる。画像を Worker に通すと、無料枠の 10 万リクエスト/日を画像の数だけ使う
 - stack-selection.md に「記事が1万本を超える、1日に何十回も更新する、サーバー側の検索や予約投稿が要る」場合の選択肢として、この構成を足すかを決める（Workers Cache を使うと無料枠の 10 万リクエスト/日に静的ファイルも数えられる点をオーナーに説明する必要がある）
 - 書き手ごとの権限（sync-permissions.mjs、check.yml）は Astro のサイトでも使えるので、スキルの選択肢にするかを検討する
 - 予約投稿のスケジュールタスクを、site-content-update の手順に入れるかを検討する

@@ -2,7 +2,7 @@
 
 ## 2026-10-25
 
-- feat(example): 数百〜数千本の記事を持つメディアの構成を検証するサンプル example/media-json-ssr を追加。記事と一覧の JSON だけを事前に作り、Worker が SSR して Workers Cache に置く。ハッシュによる変換と公開のスキップ、年ごとの分割、タグでのパージと温め、Claude のスケジュールタスクでの予約投稿、GitHub アカウントごとの権限、R2 の画像。300〜1万本で計測し、Astro の SSG と比べた結果を README に記録（docs/logs/2026-10-25_media-json-ssr-example.md）
+- docs(verification): 数百〜数千本の記事を持つメディアを、JSON の事前ビルドと Workers の SSR で配信する構成を検証し、結果を docs/verification/2026-10-25_media-json-ssr/ に記録した。計測の元データ、ダミー記事の生成と Astro のビルド計測のソースを含む。数千本の Astro のビルドは約7秒で、この規模の標準は Astro（SSG）のままとし、作る場合はリクエストを Worker・CDN・R2 に分散させる方式にする。検証用のサンプル（example/media-json-ssr）は削除した（docs/logs/2026-10-25_media-json-ssr-example.md）
 
 - fix(skills): optimize_images.py で、元の画像が指定の幅より小さいときに同じ幅のファイルを重ねて書き出し、srcset に重複して並んでいたのを直した（site-content-update）
 

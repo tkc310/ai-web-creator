@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// 検証用のダミー記事を作る。使い方: node scripts/gen-dummy.mjs <本数> <出力先> [開始年] [終了年]
+// 検証用のダミー記事を作る。使い方: node gen-dummy.mjs <本数> <出力先> [開始年] [終了年]
 // 本文は 1,500〜2,500 字ほど。乱数は固定なので、何度作っても同じ記事になる（計測をそろえるため）
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const [n = "500", out = "bench-work/content", from = "2019", to = "2026"] = process.argv.slice(2);
+const [n = "500", out = "work/content", from = "2019", to = "2026"] = process.argv.slice(2);
 const count = Number(n);
 const tags = ["news", "event", "food", "shop", "people", "history", "nature", "column"];
 const words = ["商店街", "駅前", "朝市", "古い町並み", "川沿い", "銭湯", "喫茶店", "パン屋", "祭り", "公園", "図書館", "坂道", "市場", "神社", "古書店", "八百屋", "工房", "路地", "桜並木", "港"];

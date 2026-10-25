@@ -1,19 +1,22 @@
 #!/usr/bin/env node
-// 比較用: 同じダミー記事を Astro（SSG で全ページを HTML にする）でビルドしたときの時間を測る。
-// 使い方: node scripts/bench.mjs 300 3000 のあとに node scripts/bench-astro.mjs 300 3000
-// bench-work/astro に最小の Astro のプロジェクトを作り、bench-work/<本数>/content を読ませる
+// 同じダミー記事を Astro（SSG で全ページを HTML にする）でビルドしたときの時間を測る。
+// 使い方（Node.js 22.23.4 以上）:
+//   node gen-dummy.mjs 3000 work/3000/content
+//   node bench-astro.mjs work 3000
+// <作業フォルダ>/astro に最小の Astro のプロジェクトを作り、<作業フォルダ>/<本数>/content を読ませる
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const dir = path.join(ROOT, "bench-work", "astro");
-const counts = process.argv.slice(2).map(Number).filter(Boolean);
+const [workArg = "work", ...rest] = process.argv.slice(2);
+const WORK = path.resolve(workArg);
+const dir = path.join(WORK, "astro");
+const counts = rest.map(Number).filter(Boolean);
 
 if (!existsSync(path.join(dir, "node_modules"))) {
   await mkdir(path.join(dir, "src/pages/posts"), { recursive: true });
+  await mkdir(path.join(dir, "src/pages/archive"), { recursive: true });
   await writeFile(path.join(dir, "package.json"), JSON.stringify({ name: "bench-astro", private: true, type: "module" }));
   await writeFile(path.join(dir, "pnpm-workspace.yaml"), "minimumReleaseAge: 1440\nallowBuilds:\n  esbuild: true\n  sharp: true\n");
   execFileSync("pnpm", ["add", "astro@latest"], { cwd: dir, stdio: "inherit" });
@@ -62,7 +65,7 @@ const { posts } = Astro.props;
 
 const results = [];
 for (const n of counts) {
-  const env = { ...process.env, CONTENT_DIR: path.join(ROOT, "bench-work", String(n), "content") };
+  const env = { ...process.env, CONTENT_DIR: path.join(WORK, String(n), "content") };
   for (const label of ["cold", "nochange"]) {
     if (label === "cold") execFileSync("rm", ["-rf", path.join(dir, ".astro"), path.join(dir, "node_modules/.astro"), path.join(dir, "dist")]);
     const s = performance.now();

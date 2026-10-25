@@ -1,5 +1,0 @@
-# 公開から1日たっていない版は入れない（サプライチェーン攻撃を避ける）
-minimumReleaseAge: 1440
-allowBuilds:
-  esbuild: true
-  workerd: true
