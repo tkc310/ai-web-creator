@@ -2,7 +2,7 @@
 
 ## 2026-10-25
 
-- docs(verification): 数百〜数千本の記事を持つメディアを、JSON の事前ビルドと Workers の SSR で配信する構成を検証し、結果を docs/verification/2026-10-25_media-json-ssr/ に記録した。計測の元データ、ダミー記事の生成と Astro のビルド計測のソースを含む。数千本の Astro のビルドは約7秒で、この規模の標準は Astro（SSG）のままとし、作る場合はリクエストを Worker・CDN・R2 に分散させる方式にする。検証用のサンプル（example/media-json-ssr）は削除した（docs/logs/2026-10-25_media-json-ssr-example.md）
+- docs(verification): 数百〜数千本の記事を持つメディアを、JSON の事前ビルドと Workers の SSR で配信する構成を検証し、結果を docs/verification/2026-10-25_media-json-ssr/ に記録した。計測の元データ、ダミー記事の生成と Astro のビルド計測のソースを含む。数千本の Astro のビルドは約7秒で十分に速いため、JSON＋SSR の構成は採用しない。一覧と検索用の JSON はブラウザ側の検索に活用できる点、リクエストを Worker・CDN・R2 に分散させる方式が望ましい点も記載した。検証用のサンプル（example/media-json-ssr）は削除した（docs/logs/2026-10-25_media-json-ssr-example.md）
 
 - fix(skills): optimize_images.py で、元の画像が指定の幅より小さいときに同じ幅のファイルを重ねて書き出し、srcset に重複して並んでいたのを直した（site-content-update）
 
