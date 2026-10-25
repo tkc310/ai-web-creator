@@ -2,6 +2,8 @@
 
 ## 2026-10-25
 
+- fix(skills): optimize_images.py で、元の画像が指定の幅より小さいときに同じ幅のファイルを重ねて書き出し、srcset に重複して並んでいたのを直した（site-content-update）
+
 - feat(skills): optimize_images.py に `--mode clean` を追加。Astro の `astro:assets` がビルド時に縮小と AVIF・WebP への変換をするサイトでは、スクリプトはメタ情報の削除と上限の幅までの縮小だけを行い、処理を重ねないようにした。`public/` に画像を置く標準の構成では Astro は変換しないため、従来どおりスクリプトで変換する（site-content-update）
 
 - feat(skills): 記事・お知らせの追加を「Claude ドキュメントに原稿を書く → HTML のアーティファクトでプレビュー → OK で公開 → 記録」の標準の流れとして site-content-update に定めた。原稿のひな形を templates/article-draft.md に移し、チュートリアルはこの流れを一度通すものにした（site-content-update、references/article-tutorial.md、README.md）
