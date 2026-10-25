@@ -2,6 +2,8 @@
 
 ## 2026-10-25
 
+- feat(skills): optimize_images.py に `--mode clean` を追加。Astro の `astro:assets` がビルド時に縮小と AVIF・WebP への変換をするサイトでは、スクリプトはメタ情報の削除と上限の幅までの縮小だけを行い、処理を重ねないようにした。`public/` に画像を置く標準の構成では Astro は変換しないため、従来どおりスクリプトで変換する（site-content-update）
+
 - feat(skills): 記事・お知らせの追加を「Claude ドキュメントに原稿を書く → HTML のアーティファクトでプレビュー → OK で公開 → 記録」の標準の流れとして site-content-update に定めた。原稿のひな形を templates/article-draft.md に移し、チュートリアルはこの流れを一度通すものにした（site-content-update、references/article-tutorial.md、README.md）
 
 - feat(skills): 記事のあるサイトで、公開後にオーナーと1本目の記事を追加するチュートリアルを追加。原稿の置き場所の指定がなければ Claude ドキュメントにひな形を作って書いてもらい、アーティファクトのプレビューで了承を得てから公開する。2本目からは「新しい記事の原稿を用意して」で同じ流れにする（references/article-tutorial.md、SKILL.md、site-content-update、templates/SITE.md、prompts/README.md、docs/how-to-use.md、docs/other-agents.md、README.md）
