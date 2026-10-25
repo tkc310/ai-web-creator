@@ -1,0 +1,32 @@
+{
+  "$comment": "サイトに関わる人と役割。GitHub のアカウントは各自が自分で作り、ここに GitHub のユーザー名を書く。変えたら node scripts/sync-permissions.mjs plan で差分を見て、オーナーの了承を得てから apply する",
+  "roles": {
+    "admin": {
+      "label": "管理者（オーナー）",
+      "github": "admin",
+      "paths": ["**"]
+    },
+    "editor": {
+      "label": "編集者（全部の記事を直せる。書き手のプルリクエストを承認する）",
+      "github": "maintain",
+      "paths": ["content/**", "images.lock.json", "site.config.json"]
+    },
+    "writer": {
+      "label": "書き手（自分の記事だけを作成・編集できる。公開には編集者の承認が必要）",
+      "github": "push",
+      "paths": ["content/posts/**", "images.lock.json"],
+      "ownPostsOnly": true
+    },
+    "viewer": {
+      "label": "閲覧者（非公開のリポジトリを読めるだけ）",
+      "github": "pull",
+      "paths": []
+    }
+  },
+  "members": [
+    { "github": "owner-account", "role": "admin", "author": "editor" },
+    { "github": "editor-account", "role": "editor", "author": "editor" },
+    { "github": "writer-account", "role": "writer", "author": "writer-a" },
+    { "github": "viewer-account", "role": "viewer" }
+  ]
+}

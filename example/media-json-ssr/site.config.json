@@ -1,0 +1,27 @@
+{
+  "name": "まちのメディア（サンプル）",
+  "description": "数百〜数千本の記事を持つメディアを、事前ビルドした JSON と Workers の SSR で配信するサンプルです。",
+  "url": "https://media-json-ssr.example.workers.dev",
+  "lang": "ja",
+  "latestCount": 30,
+  "pageSize": 20,
+  "shard": {
+    "by": "year",
+    "maxPerShard": 400
+  },
+  "searchExcerptLength": 120,
+  "tags": {
+    "news": "お知らせ",
+    "event": "イベント",
+    "food": "グルメ",
+    "shop": "お店",
+    "people": "ひと",
+    "history": "まちの歴史",
+    "nature": "自然",
+    "column": "コラム"
+  },
+  "authors": {
+    "editor": "編集部",
+    "writer-a": "書き手A"
+  }
+}

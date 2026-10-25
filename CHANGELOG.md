@@ -2,6 +2,8 @@
 
 ## 2026-10-25
 
+- feat(example): 数百〜数千本の記事を持つメディアの構成を検証するサンプル example/media-json-ssr を追加。記事と一覧の JSON だけを事前に作り、Worker が SSR して Workers Cache に置く。ハッシュによる変換と公開のスキップ、年ごとの分割、タグでのパージと温め、Claude のスケジュールタスクでの予約投稿、GitHub アカウントごとの権限、R2 の画像。300〜1万本で計測し、Astro の SSG と比べた結果を README に記録（docs/logs/2026-10-25_media-json-ssr-example.md）
+
 - fix(skills): optimize_images.py で、元の画像が指定の幅より小さいときに同じ幅のファイルを重ねて書き出し、srcset に重複して並んでいたのを直した（site-content-update）
 
 - feat(skills): optimize_images.py に `--mode clean` を追加。Astro の `astro:assets` がビルド時に縮小と AVIF・WebP への変換をするサイトでは、スクリプトはメタ情報の削除と上限の幅までの縮小だけを行い、処理を重ねないようにした。`public/` に画像を置く標準の構成では Astro は変換しないため、従来どおりスクリプトで変換する（site-content-update）

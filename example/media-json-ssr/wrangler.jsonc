@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "media-json-ssr",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-20",
+  "upload_source_maps": true,
+  // 事前ビルドした JSON、sitemap.xml などは静的ファイルとして置く。HTML のページは置かない
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "none"
+  },
+  // SSR の結果を Workers Cache に置く。キャッシュの間は Worker を動かさない。
+  // cross_version_cache: 記事だけを変えた公開で、キャッシュを捨てないようにする（変わった所はタグでパージする）
+  "cache": {
+    "enabled": true,
+    "cross_version_cache": true
+  },
+  // 画像は R2 に置き、/img/ で配る（Git にも Worker の静的ファイルにも入れない）
+  "r2_buckets": [
+    { "binding": "IMAGES", "bucket_name": "media-json-ssr-images" }
+  ],
+  "observability": { "enabled": true }
+  // PURGE_TOKEN は `wrangler secret put PURGE_TOKEN` で登録する（オーナーが行う）
+}
