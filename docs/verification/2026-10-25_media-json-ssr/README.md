@@ -18,7 +18,7 @@
 
 ## 結論
 
-1. 数百〜数千本の規模では、ビルドの時間は問題にならない。同じ記事を Astro で全ページ HTML にしても、3,000 本で約 7 秒、1 万本で約 18 秒で終わった（下の「Astro との比較」。計測に使ったソースもそこに載せた）。この規模の標準は、これまでどおり Astro（SSG のみ）でよい
+1. 数百〜数千本の規模では、ビルドの時間は大きな問題にならない。同じ記事を Astro で全ページ HTML にした最小構成では、3,000 本で約 7 秒、1 万本で約 18 秒で終わった（下の「Astro との比較」。計測に使ったソースもそこに載せた）。ただし、この数値は中身が実際のサイトよりかなり小さい条件での値で、実際のサイトでは数十秒〜数分になる見込み（下の「外部の参考記事と、今回の計測の限界」）。それでも GitHub Actions で待てる範囲なので、この規模の標準は、これまでどおり Astro（SSG のみ）でよい
 2. JSON＋SSR の構成は採用しない（不要）。Astro＋Cloudflare（SSG で全ページを HTML にして Workers の静的ファイルで配る）のビルドが十分に速く、SSR にすると Worker のコードを保守する必要が生まれ、Workers のリクエストの無料枠も使うため。JSON＋SSR で減らせるのは公開とキャッシュの入れ替えの量（変更なしなら公開を飛ばし、本文1本の修正ならパージは記事1つ）だが、この規模では Astro の再ビルドと再公開で困らない
 3. 配信は、リクエストを Worker・CDN・R2 に分散させる方式が望ましい（次の節）。全部を Worker に通すと、Workers の無料枠（1日 10 万リクエスト）をすぐに使い切る。Astro の SSG でも、画像を R2 の独自ドメインで配る形は使える
 4. 一覧と検索用の JSON（年ごとに分けた記事の一覧、タイトル・日付・タグ・本文の冒頭の索引）は、Astro のサイトでも活用できそう。Astro のビルドで静的ファイルとして書き出し、ブラウザの JavaScript が読んで、サイト内検索や絞り込み、「もっと見る」の読み込みを行う。静的ファイルなので Worker を動かさず、Workers の静的ファイルとして無料で配れる。年で分けておけば、検索で読む量を新しい年から必要な分だけにでき、記事が増えても1ファイルが大きくならない（1万本で1ファイル最大 50 KB。下の「出力の大きさ」の考え方）
@@ -54,6 +54,34 @@
 - Workers Cache の料金（キャッシュに当たっても1リクエストとして数え、静的ファイルも数える）: https://developers.cloudflare.com/workers/cache/
 - Workers の料金と R2 の料金（Class B は月 1,000 万回まで無料、転送量は無料）: https://developers.cloudflare.com/workers/platform/pricing/
 - R2 の公開バケット（独自ドメインでキャッシュが使える、r2.dev は開発用で回数の制限あり）: https://developers.cloudflare.com/r2/buckets/public-buckets/
+
+## 外部の参考記事と、今回の計測の限界
+
+今回の 3,000 本で約 7 秒（1秒あたり約 440 ページ）は、記事ページと年の一覧だけで、レイアウトの部品、画像、OGP 画像、MDX、外部のデータの取得がない最小構成での値。オーナーの指摘のとおり、中身が実際のサイトよりかなり小さいことが速さに効いている。外部の記事の数値（2026-10-25 に確認）は次のとおり。
+
+| 記事 | 規模と中身 | ビルドの時間 | 1秒あたりのページ |
+|---|---|---|---|
+| [Raymond Camden: i threw thousands of files at astro](https://www.raymondcamden.com/2026/02/13/i-threw-thousands-of-files-at-astro-and-you-wont-believe-what-happened-next) | 実在のブログの記事 6,742 本（Markdown、content collections の glob ローダー） | 約 7,000 ページで 8 秒 | 約 870 |
+| [Teramont: Astro 7.3.1 build benchmark](https://teramont.net/blog/astro-7-3-1-whats-new-build-benchmark) | 合成の 1,200 ページ（.astro）、別に 3,000 ページの動的ルート | 7.3.1 で 3.3 秒。変更なしの差分ビルドは 0.85 秒 | 約 360 |
+| [Flavio Copes: How I made this Astro site build faster](https://flaviocopes.com/optimize-astro-build-deploy-time/) | 4,000 ページ超（ブログ 2,000 本超、講座、OGP 画像 2,286 枚、Pagefind の検索） | 16.6 秒 → 12.5 秒 | 約 320 |
+| [bitdoze: Astro 7 Benchmark](https://www.bitdoze.com/astro-7-faster-builds/) | 743 ページ（Markdown / MDX、記事ごとの SVG のヒーロー画像） | Astro 6 で 103 秒 → Astro 7 で 47 秒 | 約 16 |
+| [bitdoze: Astro Build Speed Optimization](https://www.bitdoze.com/astro-ssg-build-optimization/) | 約 34 万ページ（API から取得、43 GB） | 2.7 時間 → 44 分 | 35 → 127 |
+| [Philipp Kuhnhardt: Deploying millions of pages with Astro](https://philippkuhnhardt.de/blog/deploying-millions-of-pages-with-astro) | 100 万ページ超（レースの記録） | SSG だと約 4 時間（1ページ約 10 ms）の見込み → SSR＋CDN に変更 | — |
+
+読み取れること:
+
+- 同じ Astro 7 でも、1秒あたりのページ数は 16〜870 と 50 倍ほど開く。Markdown だけの記事なら今回と同じ数百ページ/秒が出るが、MDX や部品の多いレイアウト、画像の処理、OGP 画像の生成、外部のデータの取得があると大きく遅くなる
+- 遅くなる原因として挙がっているのは、OGP 画像の生成、`public/` の大きなファイルのコピー、ページごとの重複した処理（Flavio Copes）、API からの取得、メモリ不足、並列数の過多（bitdoze の 34 万ページ）
+- 1秒あたり 16 ページ（bitdoze の 743 ページ）で見積もると 3,000 本で約 3 分、1万本で約 10 分。GitHub Actions では待てる長さだが、1日に何度も更新するなら気になり始める
+- SSR に切り替えた例（Philipp Kuhnhardt）は 100 万ページ超の規模で、SSR＋CDN キャッシュにしても、AI のクローラーのアクセスでホスティングの上限を使い切った。SSR を選ぶのは、全ページのビルドが何時間にもなる規模になってから
+
+実際のサイトでビルドを速く保つために（スキルに反映する候補）:
+
+- 記事の本文は Markdown にし、MDX や重い部品は必要なページだけにする
+- OGP 画像は記事を足したときにだけ作り、毎回のビルドで全部を作り直さない
+- 画像は `public/` に置いて Astro で変換しない（このスキルの標準の構成）か、`astro:assets` を使うなら変換結果のキャッシュ（`node_modules/.astro`）を GitHub Actions のキャッシュに残す
+- Astro 7 の差分ビルド（変更がなければ再ビルドが短くなる）を使うため、ビルドのキャッシュを CI で残す（Teramont の計測で、変更なしの再ビルドは 0.85 秒）
+- 記事が数千本になったサイトでは、公開の前にビルドの時間を測り、実行ログに残す
 
 ## 計測の環境
 
@@ -93,7 +121,7 @@
 
 - 3,000 本で約 7 秒。GitHub Actions の準備（チェックアウト、Node.js と pnpm の用意、依存のインストール）だけで数十秒かかるので、ビルドの時間は全体の待ち時間をほとんど左右しない
 - 2回目もほぼ同じ時間で、Astro のビルドは記事数にほぼ比例する（1本あたり約 1.8 ms）
-- 最小構成での計測なので、実際のサイトはこれより遅くなる。特に `astro:assets` で画像を変換する場合は、画像の枚数に応じて大きく伸びる（このスキルの標準の構成は、画像を `public/` に置いて Astro では変換しない）。タグの一覧やページ送りのページを足しても、ページ数が増える分だけ伸びる
+- 最小構成での計測なので、実際のサイトはこれより遅くなる（上の「外部の参考記事と、今回の計測の限界」）。特に `astro:assets` で画像を変換する場合は、画像の枚数に応じて大きく伸びる（このスキルの標準の構成は、画像を `public/` に置いて Astro では変換しない）。タグの一覧やページ送りのページを足しても、ページ数が増える分だけ伸びる
 
 #### 計測に使ったソース
 
