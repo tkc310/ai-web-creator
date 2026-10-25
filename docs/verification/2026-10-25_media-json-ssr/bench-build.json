@@ -1,0 +1,599 @@
+{
+ "node": "v24.22.1",
+ "marked": "18.1.1",
+ "cpu": "Intel(R) Xeon(R) Processor / cores 4",
+ "results": [
+  {
+   "posts": 300,
+   "cold": {
+    "label": "cold",
+    "wallMs": 248,
+    "ms": 200,
+    "files": 300,
+    "rendered": 300,
+    "reused": 0,
+    "written": 330,
+    "unchanged": 0,
+    "removed": 0,
+    "published": 300,
+    "scheduled": 0,
+    "outputs": 330,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": true,
+    "purgeTags": 0,
+    "warmPaths": 47
+   },
+   "nochange": {
+    "label": "nochange",
+    "wallMs": 189,
+    "ms": 146,
+    "files": 300,
+    "rendered": 0,
+    "reused": 300,
+    "written": 0,
+    "unchanged": 330,
+    "removed": 0,
+    "published": 300,
+    "scheduled": 0,
+    "outputs": 330,
+    "shards": 8,
+    "changed": false,
+    "purgeEverything": false,
+    "purgeTags": 0,
+    "warmPaths": 1,
+    "plan": {
+     "changed": false,
+     "purgeEverything": false,
+     "reason": "変更なし",
+     "tags": [],
+     "warm": [
+      "/"
+     ]
+    }
+   },
+   "edit1": {
+    "label": "edit1",
+    "wallMs": 222,
+    "ms": 178,
+    "files": 300,
+    "rendered": 1,
+    "reused": 299,
+    "written": 2,
+    "unchanged": 328,
+    "removed": 0,
+    "published": 300,
+    "scheduled": 0,
+    "outputs": 330,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 1,
+    "warmPaths": 2,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-00236"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-00236/"
+     ]
+    }
+   },
+   "add1": {
+    "label": "add1",
+    "wallMs": 206,
+    "ms": 164,
+    "files": 301,
+    "rendered": 1,
+    "reused": 300,
+    "written": 9,
+    "unchanged": 322,
+    "removed": 0,
+    "published": 301,
+    "scheduled": 0,
+    "outputs": 331,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 6,
+    "warmPaths": 4,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-new",
+      "index:2026",
+      "search",
+      "tag:news",
+      "latest",
+      "shards"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-new/",
+      "/archive/2026/",
+      "/tags/news/"
+     ]
+    }
+   },
+   "files": 331,
+   "byKind": {
+    "index": {
+     "files": 8,
+     "bytes": 70840,
+     "max": 9214
+    },
+    "other": {
+     "files": 6,
+     "bytes": 62628,
+     "max": 35165
+    },
+    "posts": {
+     "files": 301,
+     "bytes": 978956,
+     "max": 4114
+    },
+    "search": {
+     "files": 8,
+     "bytes": 139743,
+     "max": 18169
+    },
+    "tags": {
+     "files": 8,
+     "bytes": 132283,
+     "max": 18670
+    }
+   }
+  },
+  {
+   "posts": 1000,
+   "cold": {
+    "label": "cold",
+    "wallMs": 595,
+    "ms": 549,
+    "files": 1000,
+    "rendered": 1000,
+    "reused": 0,
+    "written": 1030,
+    "unchanged": 0,
+    "removed": 0,
+    "published": 1000,
+    "scheduled": 0,
+    "outputs": 1030,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": true,
+    "purgeTags": 0,
+    "warmPaths": 47
+   },
+   "nochange": {
+    "label": "nochange",
+    "wallMs": 464,
+    "ms": 412,
+    "files": 1000,
+    "rendered": 0,
+    "reused": 1000,
+    "written": 0,
+    "unchanged": 1030,
+    "removed": 0,
+    "published": 1000,
+    "scheduled": 0,
+    "outputs": 1030,
+    "shards": 8,
+    "changed": false,
+    "purgeEverything": false,
+    "purgeTags": 0,
+    "warmPaths": 1,
+    "plan": {
+     "changed": false,
+     "purgeEverything": false,
+     "reason": "変更なし",
+     "tags": [],
+     "warm": [
+      "/"
+     ]
+    }
+   },
+   "edit1": {
+    "label": "edit1",
+    "wallMs": 468,
+    "ms": 417,
+    "files": 1000,
+    "rendered": 1,
+    "reused": 999,
+    "written": 2,
+    "unchanged": 1028,
+    "removed": 0,
+    "published": 1000,
+    "scheduled": 0,
+    "outputs": 1030,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 1,
+    "warmPaths": 2,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-00774"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-00774/"
+     ]
+    }
+   },
+   "add1": {
+    "label": "add1",
+    "wallMs": 474,
+    "ms": 427,
+    "files": 1001,
+    "rendered": 1,
+    "reused": 1000,
+    "written": 9,
+    "unchanged": 1022,
+    "removed": 0,
+    "published": 1001,
+    "scheduled": 0,
+    "outputs": 1031,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 6,
+    "warmPaths": 4,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-new",
+      "index:2026",
+      "search",
+      "tag:news",
+      "latest",
+      "shards"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-new/",
+      "/archive/2026/",
+      "/tags/news/"
+     ]
+    }
+   },
+   "files": 1031,
+   "byKind": {
+    "index": {
+     "files": 8,
+     "bytes": 235385,
+     "max": 30450
+    },
+    "other": {
+     "files": 6,
+     "bytes": 166163,
+     "max": 113565
+    },
+    "posts": {
+     "files": 1001,
+     "bytes": 3325376,
+     "max": 4137
+    },
+    "search": {
+     "files": 8,
+     "bytes": 465307,
+     "max": 60041
+    },
+    "tags": {
+     "files": 8,
+     "bytes": 438539,
+     "max": 62303
+    }
+   }
+  },
+  {
+   "posts": 3000,
+   "cold": {
+    "label": "cold",
+    "wallMs": 1531,
+    "ms": 1476,
+    "files": 3000,
+    "rendered": 3000,
+    "reused": 0,
+    "written": 3094,
+    "unchanged": 0,
+    "removed": 0,
+    "published": 3000,
+    "scheduled": 0,
+    "outputs": 3094,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": true,
+    "purgeTags": 0,
+    "warmPaths": 111
+   },
+   "nochange": {
+    "label": "nochange",
+    "wallMs": 1269,
+    "ms": 1209,
+    "files": 3000,
+    "rendered": 0,
+    "reused": 3000,
+    "written": 0,
+    "unchanged": 3094,
+    "removed": 0,
+    "published": 3000,
+    "scheduled": 0,
+    "outputs": 3094,
+    "shards": 8,
+    "changed": false,
+    "purgeEverything": false,
+    "purgeTags": 0,
+    "warmPaths": 1,
+    "plan": {
+     "changed": false,
+     "purgeEverything": false,
+     "reason": "変更なし",
+     "tags": [],
+     "warm": [
+      "/"
+     ]
+    }
+   },
+   "edit1": {
+    "label": "edit1",
+    "wallMs": 1150,
+    "ms": 1087,
+    "files": 3000,
+    "rendered": 1,
+    "reused": 2999,
+    "written": 2,
+    "unchanged": 3092,
+    "removed": 0,
+    "published": 3000,
+    "scheduled": 0,
+    "outputs": 3094,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 1,
+    "warmPaths": 2,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-02313"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-02313/"
+     ]
+    }
+   },
+   "add1": {
+    "label": "add1",
+    "wallMs": 1147,
+    "ms": 1091,
+    "files": 3001,
+    "rendered": 1,
+    "reused": 3000,
+    "written": 10,
+    "unchanged": 3085,
+    "removed": 0,
+    "published": 3001,
+    "scheduled": 0,
+    "outputs": 3095,
+    "shards": 8,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 7,
+    "warmPaths": 5,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-new",
+      "index:2026",
+      "search",
+      "tag:news",
+      "tag:news:2026",
+      "latest",
+      "shards"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-new/",
+      "/archive/2026/",
+      "/tags/news/",
+      "/tags/news/2026/"
+     ]
+    }
+   },
+   "files": 3095,
+   "byKind": {
+    "index": {
+     "files": 8,
+     "bytes": 708041,
+     "max": 91041
+    },
+    "other": {
+     "files": 6,
+     "bytes": 464607,
+     "max": 337565
+    },
+    "posts": {
+     "files": 3001,
+     "bytes": 9995510,
+     "max": 4148
+    },
+    "search": {
+     "files": 8,
+     "bytes": 1393989,
+     "max": 179223
+    },
+    "tags": {
+     "files": 72,
+     "bytes": 2086237,
+     "max": 95449
+    }
+   }
+  },
+  {
+   "posts": 10000,
+   "cold": {
+    "label": "cold",
+    "wallMs": 4257,
+    "ms": 4176,
+    "files": 10000,
+    "rendered": 10000,
+    "reused": 0,
+    "written": 10266,
+    "unchanged": 0,
+    "removed": 0,
+    "published": 10000,
+    "scheduled": 0,
+    "outputs": 10266,
+    "shards": 94,
+    "changed": true,
+    "purgeEverything": true,
+    "purgeTags": 0,
+    "warmPaths": 111
+   },
+   "nochange": {
+    "label": "nochange",
+    "wallMs": 3274,
+    "ms": 3203,
+    "files": 10000,
+    "rendered": 0,
+    "reused": 10000,
+    "written": 0,
+    "unchanged": 10266,
+    "removed": 0,
+    "published": 10000,
+    "scheduled": 0,
+    "outputs": 10266,
+    "shards": 94,
+    "changed": false,
+    "purgeEverything": false,
+    "purgeTags": 0,
+    "warmPaths": 1,
+    "plan": {
+     "changed": false,
+     "purgeEverything": false,
+     "reason": "変更なし",
+     "tags": [],
+     "warm": [
+      "/"
+     ]
+    }
+   },
+   "edit1": {
+    "label": "edit1",
+    "wallMs": 3300,
+    "ms": 3227,
+    "files": 10000,
+    "rendered": 1,
+    "reused": 9999,
+    "written": 2,
+    "unchanged": 10264,
+    "removed": 0,
+    "published": 10000,
+    "scheduled": 0,
+    "outputs": 10266,
+    "shards": 94,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 1,
+    "warmPaths": 2,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-07699"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-07699/"
+     ]
+    }
+   },
+   "add1": {
+    "label": "add1",
+    "wallMs": 3239,
+    "ms": 3167,
+    "files": 10001,
+    "rendered": 1,
+    "reused": 10000,
+    "written": 10,
+    "unchanged": 10257,
+    "removed": 0,
+    "published": 10001,
+    "scheduled": 0,
+    "outputs": 10267,
+    "shards": 94,
+    "changed": true,
+    "purgeEverything": false,
+    "purgeTags": 7,
+    "warmPaths": 5,
+    "plan": {
+     "changed": true,
+     "purgeEverything": false,
+     "reason": "記事か一覧が変わった",
+     "tags": [
+      "post:post-new",
+      "index:2026-10",
+      "search",
+      "tag:news",
+      "tag:news:2026",
+      "latest",
+      "shards"
+     ],
+     "warm": [
+      "/",
+      "/posts/post-new/",
+      "/archive/2026/",
+      "/tags/news/",
+      "/tags/news/2026/"
+     ]
+    }
+   },
+   "files": 10267,
+   "byKind": {
+    "index": {
+     "files": 94,
+     "bytes": 2365399,
+     "max": 25964
+    },
+    "other": {
+     "files": 6,
+     "bytes": 1510583,
+     "max": 1121565
+    },
+    "posts": {
+     "files": 10001,
+     "bytes": 33356313,
+     "max": 4148
+    },
+    "search": {
+     "files": 94,
+     "bytes": 4644269,
+     "max": 50739
+    },
+    "tags": {
+     "files": 72,
+     "bytes": 5178334,
+     "max": 95464
+    }
+   }
+  }
+ ]
+}
