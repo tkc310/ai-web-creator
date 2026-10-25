@@ -31,7 +31,7 @@ effort: high
 1. ヒアリング      … 何のためのサイトかを聞く（references/hearing.md）
 2. 技術の選定      … 3択から自動で決める（references/stack-selection.md）
 3. アカウント準備  … 人がやる操作だけを任せる（references/account-setup.md）
-4. デザインと制作  … 3案を見せて選んでもらい、作る（references/build.md、お問い合わせフォームは references/forms.md）
+4. デザインと制作  … 3案を見せて選んでもらい、作り、frontend-design スキルで仕上げる（references/build.md、お問い合わせフォームは references/forms.md）
 5. 公開前の健康診断 … Lighthouse と SEO・AIO（references/quality-gate.md）
 6. 公開            … GitHub → Cloudflare（references/deploy-and-autofix.md）
 7. 保守の設定      … 要保守構成のときだけ（site-maintenance スキル）
@@ -143,6 +143,8 @@ effort: high
 公開前に references/quality-gate.md のチェックをすべて通します。目安は次のとおりです。
 
 - Lighthouse（モバイル）: パフォーマンス 95以上、ユーザー補助・おすすめの方法・SEO は 100
+- スマホの表示: iPhone SE の幅（375px）と 320px で、横スクロール、はみ出し、ヘッダーやボタンの折り返しがない（scripts/check_mobile_width.py。references/build.md の「スマホの幅」）
+- デザイン: frontend-design スキルでブラッシュアップしてある（references/build.md）
 - sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP がそろっている
 - 構造化データは、ページに実際に表示している内容だけを書く
 - Lighthouse は、エージェントのクラウドの作業環境で、主要ページ（ページの種類ごとに代表1つ、多くて5ページ）だけを測る。本番のサイトに届かないときは、オーナーにサイトのホストを許可に足してもらう。設定の画面はチャット（Cowork）とコード（Claude Code）で違うため、どちらで作業しているかを確かめてから案内を分ける（references/quality-gate.md）

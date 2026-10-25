@@ -4,6 +4,7 @@ dist/
 .astro/
 .wrangler/
 lighthouse-reports/
+mobile-shots/
 .autofix-failed.log
 .env
 .env.*
