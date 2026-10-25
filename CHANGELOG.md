@@ -2,6 +2,8 @@
 
 ## 2026-10-25
 
+- feat(skills): 記事・お知らせの追加を「Claude ドキュメントに原稿を書く → HTML のアーティファクトでプレビュー → OK で公開 → 記録」の標準の流れとして site-content-update に定めた。原稿のひな形を templates/article-draft.md に移し、チュートリアルはこの流れを一度通すものにした（site-content-update、references/article-tutorial.md、README.md）
+
 - feat(skills): 記事のあるサイトで、公開後にオーナーと1本目の記事を追加するチュートリアルを追加。原稿の置き場所の指定がなければ Claude ドキュメントにひな形を作って書いてもらい、アーティファクトのプレビューで了承を得てから公開する。2本目からは「新しい記事の原稿を用意して」で同じ流れにする（references/article-tutorial.md、SKILL.md、site-content-update、templates/SITE.md、prompts/README.md、docs/how-to-use.md、docs/other-agents.md、README.md）
 
 - feat(skills): デザイン案づくりと全ページの完成後に、frontend-design スキルでブラッシュアップする手順を追加。claude.ai のアカウントで有効にする使い方と、使えない場合の見直しの観点も記載（build.md、SKILL.md、docs/other-agents.md、README.md）

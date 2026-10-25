@@ -48,7 +48,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | フォルダ | 内容 |
 |---|---|
 | [skills/web-creator](skills/web-creator/SKILL.md) | サイト制作の全体を進めるスキル。ヒアリング、技術の選定、アカウントの準備、デザインと制作、公開前の品質チェック、公開、自動修正 |
-| [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらう |
+| [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらい、プレビューで「OK」をもらってから公開する（標準の流れ） |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。2週間に1回、スタックを最新にし、壊れていれば直してマージする |
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
@@ -154,7 +154,9 @@ skills/
 │   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
 │   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
-│   └── SKILL.md
+│   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
+│   ├── scripts/                 … optimize_images.py（写真のメタ情報の削除と軽量化）
+│   └── templates/               … article-draft.md（Claude ドキュメントの原稿のひな形）
 ├── site-maintenance/
 │   ├── SKILL.md
 │   └── references/              … ルーティンの作り方とプロンプト
