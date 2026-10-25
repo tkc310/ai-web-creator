@@ -34,9 +34,10 @@ effort: high
 4. デザインと制作  … 3案を見せて選んでもらい、作り、frontend-design スキルで仕上げる（references/build.md、お問い合わせフォームは references/forms.md）
 5. 公開前の健康診断 … Lighthouse と SEO・AIO（references/quality-gate.md）
 6. 公開            … GitHub → Cloudflare（references/deploy-and-autofix.md）
-7. 保守の設定      … 要保守構成のときだけ（site-maintenance スキル）
-8. 運用            … 更新、質問、自動修正（site-content-update スキル）
-9. 振り返り        … 実行ログから改善点を整理し、古いログを要約する（site-review スキル）
+7. 記事の追加体験  … 記事のあるサイトだけ。オーナーと1本目の記事を追加する（references/article-tutorial.md）
+8. 保守の設定      … 要保守構成のときだけ（site-maintenance スキル）
+9. 運用            … 更新、質問、自動修正（site-content-update スキル）
+10. 振り返り       … 実行ログから改善点を整理し、古いログを要約する（site-review スキル）
 ```
 
 既存サイトからの引っ越しは、1と2の間で references/migration.md を読みます。
@@ -163,7 +164,8 @@ effort: high
 
 ## 公開後の対応
 
-- 記事やお知らせの追加・修正の依頼は site-content-update スキルに従います。
+- 記事やお知らせの追加・修正の依頼は site-content-update スキルに従います。原稿の置き場所の指定がなければ、Claude ドキュメントに原稿を書いてもらい、アーティファクトのプレビューで了承を得てから公開します
+- 記事のあるサイトでは、公開後に一度、オーナーと一緒に1本目の記事を追加します（references/article-tutorial.md）。オーナーが「記事の追加を教えて」と頼んだときも、これに従います
 - 「ここの文字を変えて」「写真を差し替えて」のような小さな修正も、直してアーティファクトのプレビューを見せ、了承を得てから公開します（references/preview.md）。オーナーが「確認なしでよい」と言った種類の修正は、そのまま公開して結果のURLを伝えます。
 - 質問（「アクセス数は見られる？」「費用はいくら？」）には、SITE.md を読んでから答えます。
 - 脆弱性のニュースや記事のリンクを渡されたら、次の順に対応します。
