@@ -2,6 +2,8 @@
 
 ## 2026-10-25
 
+- feat(skills): 記事のあるサイトで、公開後にオーナーと1本目の記事を追加するチュートリアルを追加。原稿の置き場所の指定がなければ Claude ドキュメントにひな形を作って書いてもらい、アーティファクトのプレビューで了承を得てから公開する。2本目からは「新しい記事の原稿を用意して」で同じ流れにする（references/article-tutorial.md、SKILL.md、site-content-update、templates/SITE.md、prompts/README.md、docs/how-to-use.md、docs/other-agents.md、README.md）
+
 - feat(skills): デザイン案づくりと全ページの完成後に、frontend-design スキルでブラッシュアップする手順を追加。claude.ai のアカウントで有効にする使い方と、使えない場合の見直しの観点も記載（build.md、SKILL.md、docs/other-agents.md、README.md）
 - feat(skills): スマホの表示を iPhone SE の幅（375px）と 320px でも確かめるようにした。作り方の決まりと、横スクロール、はみ出し、ヘッダーの折り返しを調べる scripts/check_mobile_width.py を追加（build.md、quality-gate.md、SKILL.md、site-builder.md、templates/log.md、templates/gitignore.txt、README.md）
 

@@ -24,7 +24,7 @@ GitHub の tkc310/ai-web-creator にあるスキル（skills フォルダ）を�
 質問は選択肢をつけて、一度に5つまでにしてください。
 ```
 
-Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後は管理画面を開く必要がなく、お知らせやブログは要点を箇条書きで送るだけで、Claude が下書きと校正をして公開します。公開前の変更は、Claude のアーティファクトで HTML のプレビューを見せてから公開します。直したいところは、プレビューの上で文章や画像を選んでコメントするだけで伝えられます。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
+Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後は管理画面を開く必要がなく、お知らせやブログは要点を箇条書きで送るだけで、Claude が下書きと校正をして公開します。記事のあるサイトでは、公開後に Claude と一緒に1本目の記事を追加して、原稿を Claude ドキュメントに書く → プレビューで確かめる → OK と返すと公開される、という流れを一度体験できます。公開前の変更は、Claude のアーティファクトで HTML のプレビューを見せてから公開します。直したいところは、プレビューの上で文章や画像を選んでコメントするだけで伝えられます。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
 
 ## 使うモデル
 
@@ -48,7 +48,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | フォルダ | 内容 |
 |---|---|
 | [skills/web-creator](skills/web-creator/SKILL.md) | サイト制作の全体を進めるスキル。ヒアリング、技術の選定、アカウントの準備、デザインと制作、公開前の品質チェック、公開、自動修正 |
-| [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する |
+| [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらう |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。2週間に1回、スタックを最新にし、壊れていれば直してマージする |
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
@@ -148,6 +148,7 @@ skills/
 │   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
 │   │   ├── migration.md         … CMS やノーコードツールからの引っ越し
 │   │   ├── preview.md
+│   │   ├── article-tutorial.md  … 公開後に、オーナーと1本目の記事を追加するチュートリアル
 │   │   ├── run-logs.md          … 実行ログと改善ループ
 │   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
 │   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
