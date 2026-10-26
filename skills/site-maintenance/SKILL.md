@@ -79,6 +79,7 @@ runtime-update の「記録」の形で、Node.js、pnpm、依存パッケージ
 
 ### 6. 記録する
 
+- マージして公開した更新があれば、監査ログ（audit-log/YYYY/YYYY-MM-DD.md）に「保守」として、更新したものを追記する（web-creator の references/audit-log.md）
 - logs/YYYY-MM-DD_maintenance.md に、確認したプルリクエスト、マージしたもの、保留したものと理由、ランタイムの確認結果を書く（web-creator の templates/log.md）。同じパッケージで2回続けてつまずいたなど、次回以降に直す価値がある点は logs/IMPROVEMENTS.md に足す
 - SITE.md の「保守」の最終実行日を更新する
 - オーナーへの連絡は、確認が必要なときと、サイトに影響があったときだけにする。何も起きなかった回は、ログだけでよい

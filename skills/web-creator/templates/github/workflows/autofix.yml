@@ -70,7 +70,8 @@ jobs:
                例: 記事の frontmatter の書き間違い、存在しない画像へのリンク、閉じ忘れたタグ
             4. pnpm install --frozen-lockfile と pnpm run build（package.json がある場合）が通ることを確認する
             5. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）
-            6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
+            6. 何かを直した場合は、audit-log/YYYY/YYYY-MM-DD.md（日本時間の今日の日付。日付と時刻は TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M' で確かめる。なければ作る）の末尾に「## HH:MM 自動修正」の見出しで、対象のファイル、直した内容、依頼「自動修正」、確認「自動」を追記する。過去の記録は書き換えない
+            7. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
 
             守ること:
             - 記事の本文や意味は変えない。どうしても直せない記事は frontmatter に draft: true を付けて公開対象から外し、ログにそう書く
@@ -84,7 +85,7 @@ jobs:
             --model claude-opus-5-5
             --effort medium
             --max-turns 30
-            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(pnpm install --frozen-lockfile),Bash(pnpm run build),Bash(git log:*),Bash(git diff:*),Bash(git status),Bash(python3 scripts/check_text.py:*)"
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(pnpm install --frozen-lockfile),Bash(pnpm run build),Bash(git log:*),Bash(git diff:*),Bash(git status),Bash(python3 scripts/check_text.py:*),Bash(TZ=Asia/Tokyo date:*)"
 
       - name: ビルドを確認
         run: |

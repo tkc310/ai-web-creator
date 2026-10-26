@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-25（2）
+
+- feat(skills): EmDash を選ぶ条件を、会員機能やコメント機能が必要なコミュニティサイトで、外部のサービスでは足りない場合に変えた。記事の数、更新の頻度、管理画面の希望だけでは選ばない。数千本までは Astro の静的ビルドで足り、数千本を超えてビルドが負担になったら仕組みの見直しや乗り換えを検討する。EmDash のプラグインは安定していないものがあるため、必要な機能は Claude が実装する（stack-selection.md、hearing.md、migration.md、SKILL.md、README.md）
+- feat(skills): 公開前と機能の追加・変更のときに、Cloudflare の security-audit スキルでリポジトリ全体を監査し、確定した脆弱性を直す手順を追加（references/security-audit.md、quality-gate.md、SKILL.md、templates/AGENTS.md、templates/SITE.md、docs/how-to-use.md、README.md）
+- feat(skills): 改善ループの実行ログとは別に、記事・お知らせ・サイトの変更を記録する監査ログ（audit-log/YYYY/YYYY-MM-DD.md）を追加。変更と同じコミットに入れ、要約も削除もしない（references/audit-log.md、templates/audit-log.md、run-logs.md、site-content-update、site-maintenance、site-review、autofix.yml、templates/AGENTS.md、docs/how-to-use.md、README.md）
+
 ## 2026-10-25
 
 - docs(verification): 数百〜数千本の記事を持つメディアを、JSON の事前ビルドと Workers の SSR で配信する構成を検証し、結果を docs/verification/2026-10-25_media-json-ssr/ に記録した。計測の元データ、ダミー記事の生成と Astro のビルド計測のソースを含む。数千本の Astro のビルドは約7秒で十分に速いため、JSON＋SSR の構成は採用しない。一覧と検索用の JSON はブラウザ側の検索に活用できる点、リクエストを Worker・CDN・R2 に分散させる方式が望ましい点も記載した。検証用のサンプル（example/media-json-ssr）は削除した（docs/logs/2026-10-25_media-json-ssr-example.md）
