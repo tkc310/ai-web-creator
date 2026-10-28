@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-28（2）
+
+- feat(skills): EmDash を選ぶ条件を、記事が数千本規模のメディアと、受託制作で顧客が AI を使わずに管理画面から投稿するサイトの2つにした。会員機能とコメント機能は、個人情報の持ち方しだいでセキュリティの穴になりやすいため対象外にし、外部のコメント埋め込みや閲覧をしぼる程度の外部の認証なら比較的安全に実現できることを伝える形にした（stack-selection.md、hearing.md、migration.md、security-audit.md、SKILL.md、templates/AGENTS.md、README.md）
+
 ## 2026-10-28
 
 - feat(skills): EmDash を選ぶ補足のケースとして、受託制作で構築までを請け負い、公開後の記事の投稿は顧客が AI を使わずに管理画面から行う場合を追加。Claude に頼んで更新する本来の使い方から外れることを明記し、判定の条件、LICENSE の事前の許諾の確認、SITE.md に書く分担や権限、audit-log と自動修正の対象外になることを定めた（stack-selection.md、hearing.md、SKILL.md、README.md）

@@ -19,7 +19,8 @@ CMS（WordPress、Movable Type、Drupal など）や、ノーコードのサイ�
 - オーナーに管理画面の「ツール → エクスポート → すべてのコンテンツ」でエクスポートファイル（XML）をダウンロードしてもらい、チャットに添付してもらう
 - 画像は `wp-content/uploads/` の URL から取得する
 - 記事を Markdown に変換し、frontmatter（title、date、description、image、tags）を付ける
-- 記事が数千本までなら、記事の数だけで EmDash にはせず Astro に移す（stack-selection.md）。会員機能やコメント機能を使い続けたい場合は EmDash を検討する。EmDash は WordPress のエクスポートファイルを取り込め、移行用プラグイン（EmDash Exporter）でコメントも移せます
+- 記事が数千本規模なら EmDash に移し、それより少なければ Astro に移す（stack-selection.md）。EmDash は WordPress のエクスポートファイルを取り込め、移行用プラグイン（EmDash Exporter）も使えます
+- WordPress の会員機能やコメント機能は移さない（stack-selection.md の「対象外: 会員機能とコメント機能」）。コメントを残したい場合は外部のコメント埋め込みサービスへの移行を、会員限定の記事は閲覧をしぼる程度の外部の認証を提案する
 
 ### ノーコードのサイト作成サービスなど
 
