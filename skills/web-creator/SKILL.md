@@ -20,6 +20,8 @@ effort: high
 
 会員機能やコメント機能が必要なコミュニティサイトは、対象外にしません。外部のサービスで足りなければ EmDash で作ります（references/stack-selection.md の Q2・Q3）。
 
+補足のケースとして、受託制作で構築までを請け負い、公開後の投稿は顧客が AI を使わずに管理画面から行う場合も EmDash で作ります。Claude に頼んで更新するという本来の使い方からは外れるため、条件と伝えることは references/stack-selection.md の「補足: 投稿は顧客が管理画面で行う受託制作」に従います。
+
 一部だけが該当する場合（例: 会社サイトに予約の受付を付けたい）は、外部のサービスへのリンクで済むかを先に提案します。それでも制作会社への依頼が必要な場合は、次のことを手伝います。
 
 1. 作れる範囲でサイトを作り、制作会社に渡す見本（モックアップ）にする
@@ -31,7 +33,7 @@ effort: high
 
 ```
 1. ヒアリング      … 何のためのサイトかを聞く（references/hearing.md）
-2. 技術の選定      … 3択から自動で決める。会員やコメントの機能が要るときだけ EmDash（references/stack-selection.md）
+2. 技術の選定      … 3択から自動で決める。会員やコメントの機能が要るとき（と、顧客が管理画面で投稿する受託制作）だけ EmDash（references/stack-selection.md）
 3. アカウント準備  … 人がやる操作だけを任せる（references/account-setup.md）
 4. デザインと制作  … 3案を見せて選んでもらい、作り、frontend-design スキルで仕上げる（references/build.md、お問い合わせフォームは references/forms.md）
 5. 公開前の健康診断 … Lighthouse と SEO・AIO（references/quality-gate.md）、セキュリティ監査（references/security-audit.md）
