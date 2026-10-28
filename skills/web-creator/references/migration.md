@@ -20,7 +20,7 @@ CMS（WordPress、Movable Type、Drupal など）や、ノーコードのサイ�
 - 画像は `wp-content/uploads/` の URL から取得する
 - 記事を Markdown に変換し、frontmatter（title、date、description、image、tags）を付ける
 - 記事が数千本規模なら EmDash に移し、それより少なければ Astro に移す（stack-selection.md）。EmDash は WordPress のエクスポートファイルを取り込め、移行用プラグイン（EmDash Exporter）も使えます
-- WordPress の会員機能やコメント機能は移さない（stack-selection.md の「対象外: 会員機能とコメント機能」）。コメントを残したい場合は外部のコメント埋め込みサービスへの移行を、会員限定の記事は閲覧をしぼる程度の外部の認証を提案する
+- WordPress の会員機能やコメント機能は移さない（stack-selection.md の「対象外: 会員機能とコメント機能」）。移さないことと理由を、移行の前にオーナーに伝える
 
 ### ノーコードのサイト作成サービスなど
 
