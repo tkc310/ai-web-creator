@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-28
+
+- feat(skills): EmDash を選ぶ補足のケースとして、受託制作で構築までを請け負い、公開後の記事の投稿は顧客が AI を使わずに管理画面から行う場合を追加。Claude に頼んで更新する本来の使い方から外れることを明記し、判定の条件、LICENSE の事前の許諾の確認、SITE.md に書く分担や権限、audit-log と自動修正の対象外になることを定めた（stack-selection.md、hearing.md、SKILL.md、README.md）
+
 ## 2026-10-25（2）
 
 - feat(skills): EmDash を選ぶ条件を、会員機能やコメント機能が必要なコミュニティサイトで、外部のサービスでは足りない場合に変えた。記事の数、更新の頻度、管理画面の希望だけでは選ばない。数千本までは Astro の静的ビルドで足り、数千本を超えてビルドが負担になったら仕組みの見直しや乗り換えを検討する。EmDash のプラグインは安定していないものがあるため、必要な機能は Claude が実装する（stack-selection.md、hearing.md、migration.md、SKILL.md、README.md）
