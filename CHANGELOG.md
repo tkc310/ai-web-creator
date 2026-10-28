@@ -2,7 +2,7 @@
 
 ## 2026-10-28（2）
 
-- feat(skills): EmDash を選ぶ条件を、記事が数千本規模のメディアと、受託制作で顧客が AI を使わずに管理画面から投稿するサイトの2つにした。会員機能とコメント機能は、個人情報の持ち方しだいでセキュリティの穴になりやすいため対象外にし、外部のコメント埋め込みや閲覧をしぼる程度の外部の認証なら比較的安全に実現できることを伝える形にした（stack-selection.md、hearing.md、migration.md、security-audit.md、SKILL.md、templates/AGENTS.md、README.md）
+- feat(skills): EmDash を選ぶ条件を、記事が数千本規模のメディアと、受託制作で顧客が AI を使わずに管理画面から投稿するサイトの2つにした。会員機能とコメント機能は、個人情報の持ち方しだいでセキュリティの穴になりやすいため対象外にし、コメント機能と閲覧権限をしぼる程度の会員機能は EmDash で安全に作れるが、開発に詳しくない利用者には推奨しないため対象外とする形にした（stack-selection.md、hearing.md、migration.md、security-audit.md、SKILL.md、templates/AGENTS.md、README.md）
 
 ## 2026-10-28
 
