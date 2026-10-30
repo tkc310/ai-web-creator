@@ -24,18 +24,27 @@
 | templates/claude/settings.json | `"model": "claude-opus-5-5"`、`"effortLevel": "medium"` |
 | templates/github/workflows/autofix.yml の `claude_args` | `--model claude-opus-5-5`、`--effort medium` |
 
-モデルを変えるときは、`grep -rn "claude-opus-5-5" skills/` で漏れを確かめます。サイトのリポジトリにコピー済みの `.claude/settings.json`、`.claude/agents/site-builder.md`、`.github/workflows/autofix.yml` は自動では変わらないので、保守か振り返りのときに同じ値へ直します。
+モデルを変えるときは、`grep -rn "claude-opus-5-5" skills/` で漏れを確かめます。
+
+モデル以外にも、次の3か所は版の番号を直接書いています。
+
+| ファイル | 書いている値 | 直すとき |
+|---|---|---|
+| templates/node-version.txt | Node.js の最新の LTS 版のメジャー番号（`26`） | 新しい偶数番が LTS になったとき。サイトにコピーしたあとは、作業の日に runtime-update の基準で確かめ直す |
+| scripts/run_lighthouse.sh の `LIGHTHOUSE_VERSION` | Lighthouse の版（`13.6.0`） | 新しい版が出て、公開から1日以上たったとき。結果の比べやすさのため、版は固定して上げる |
+| references/security-audit.md の `npx -y skills@...` | skills（スキルを入れるツール）の版（`1.7.4`） | 使う前に、公開から1日以上たった新しい版があれば上げる |
+サイトのリポジトリにコピー済みの `.claude/settings.json`、`.claude/agents/site-builder.md`、`.github/workflows/autofix.yml` は自動では変わらないので、保守か振り返りのときに同じ値へ直します。
 
 ## Node.js、pnpm、依存パッケージ
 
-版の番号はここに書きません。作業する日に調べて、最新のものを使います（調べ方と上げる基準は runtime-update スキル）。
+サイトで使う版の番号は、作業する日に調べて、最新のものを使います（調べ方と上げる基準は runtime-update スキル）。下の「時点つきの事実」に、最後に確かめた日の最新を書いておきます。
 
 | 対象 | 基準 | 書く場所（サイトのリポジトリ） |
 |---|---|---|
 | Node.js | 最新の LTS 版。Current と奇数番は使わない | `.node-version`、`package.json` の `engines.node` |
 | pnpm | 最新版。npm と yarn は使わない | `package.json` の `packageManager` |
 | 依存パッケージ | 最新版。公開から1日たっていない版は入れない | `package.json`、`pnpm-lock.yaml`、`pnpm-workspace.yaml` |
-| Astro | 最新の安定版。`@astrojs/cloudflare` の設定は Astro 6 以降の書き方を前提にしている（build.md） | `package.json` |
+| Astro | 最新の安定版。`@astrojs/cloudflare` の設定は Astro 6 以降の書き方を前提にしている（build.md）。Astro 7 と `@astrojs/cloudflare` 14 でも同じ書き方（2026-10-30 確認） | `package.json` |
 | Workers の `compatibility_date` | 作成した日。6か月以上前になったら1か月前の日付に上げる | `wrangler.jsonc` |
 
 ## GitHub Actions
@@ -57,4 +66,8 @@ templates/github/workflows/ のワークフローは、次の版を使ってい�
 変わる可能性がある事実です。確かめた日を添え、古くなっていたら調べ直して直します。
 
 - Dependabot は、pnpm 11 以降のロックファイルを正しく読めない問題がある（2026年10月時点。dependabot-core の Issue #14919、#15904）。そのため、依存パッケージの更新は runtime-update スキルで行い、Dependabot は GitHub Actions の更新だけに使う。GitHub の Dependabot alerts も同じ理由で頼りにせず、`pnpm audit` で弱点を確かめる
-- pnpm 11 以降は、公開から1日（1440分）たっていない版を入れないのが既定値（templates/pnpm-workspace.yaml では明示している）
+- pnpm 11 以降は、公開から1日（1440分）たっていない版を入れないのが既定値（templates/pnpm-workspace.yaml では明示している）。pnpm 12 でも既定値は 1440（pnpm の設定のドキュメント、2026-10-30 確認）
+- 2026-10-30 に確かめた最新: Node.js 26（2026-10-28 に LTS になった。サポートは 2029-04-30 まで。24 は 2026-10-20 から Maintenance LTS）、pnpm 12.16.1、Astro 7.4.4（Node.js 22.23.4 以上）、`@astrojs/cloudflare` 14.4.3（Astro 7 が前提）、wrangler 4.156.0（Node.js 22 以上）。出典: https://raw.githubusercontent.com/nodejs/Release/main/schedule.json 、npm のレジストリ（`pnpm view <パッケージ> version engines`）
+- Claude Code のプロジェクトのスレッドは、リポジトリの CLAUDE.md、`.claude/CLAUDE.md`、`.claude/rules/`（パスを指定していないもの）だけを読み、`.claude/skills/`、`.claude/agents/`、`.claude/settings.json` は読まない。プロジェクトを使わないクラウドのセッション（リポジトリ1つ）は、`.claude/skills/`、`.claude/agents/`、`.claude/settings.json` も読む（Claude Code のドキュメント「Configure cloud environments」の What carries over from your setup、2026-10-30 確認）。そのため、スキルは skills/ に置いて CLAUDE.md から読ませ、site-builder と effort の設定は、読まれない場面ではオーナーに effort を選んでもらう（SKILL.md の「使うモデル」）
+- claude.ai にスキルを ZIP で登録するとき、SKILL.md の frontmatter に使えるのは name、description、license、allowed-tools、compatibility、metadata だけで、それ以外の項目（このスキルの model と effort など）があると登録を断られるという報告がある（anthropics/claude-code の Issue #24826、2026-10-30 確認）。そのため、ZIP での登録の手順は載せていない
+- `wrangler.jsonc` に `routes`（独自ドメイン）を足し、`workers_dev` を書いていない場合は、次の公開から workers.dev の URL が使えなくなる（Cloudflare のドキュメント「workers.dev」、2026-10-30 確認）。独自ドメインをつなぐコミットで、`.github/smoke-test.txt` の URL も本番のドメインに直す

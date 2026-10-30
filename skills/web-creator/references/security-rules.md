@@ -90,11 +90,17 @@ AI に向けた攻撃の文章（プロンプトインジェクション）は�
 
 ```bash
 # 原稿や、これから公開するファイルを調べる（見つかると終了コード1）
-python3 <web-creator のフォルダ>/scripts/check_text.py 原稿.md src/content/news/2026-11-holiday.md
+python3 scripts/check_text.py 原稿.md src/content/news/2026-11-holiday.md
 
-# コミットする前に、変更したファイルをまとめて調べる
-git diff --cached --name-only --diff-filter=ACM | xargs python3 <web-creator のフォルダ>/scripts/check_text.py
+# コミットする前に、変更したファイルをまとめて調べる。
+# 日本語のファイル名がそのまま渡るよう、core.quotePath=false と -z（NUL 区切り）を使う
+git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 scripts/check_text.py
+
+# リポジトリ全体を調べる。skills/ は命令の例を含むので除く
+python3 scripts/check_text.py . --exclude skills
 ```
+
+指定したファイルが見つからないとき（引用符つきのパスを渡したときなど）と、UTF-8 で読めないテキストのファイルは「調べられない」として表示し、終了コード1で終えます。画像などのバイナリは飛ばします。
 
 調べるもの:
 

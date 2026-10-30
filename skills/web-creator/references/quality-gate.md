@@ -24,13 +24,13 @@
 1. 公開前: ビルドして作業環境の中で配信し、主要ページを測る
 
 ```bash
-bash <スキルの場所>/scripts/run_lighthouse.sh http://localhost:4321/ http://localhost:4321/news/sample/
+bash skills/web-creator/scripts/run_lighthouse.sh http://localhost:4321/ http://localhost:4321/news/sample/
 ```
 
 2. 公開後: 本番のURLで、同じ主要ページをもう一度測る（Cloudflare 経由の配信で数値が変わるため）
 
 ```bash
-bash <スキルの場所>/scripts/run_lighthouse.sh https://<サイトの名前>.<アカウントのサブドメイン>.workers.dev/
+bash skills/web-creator/scripts/run_lighthouse.sh https://<サイトの名前>.<アカウントのサブドメイン>.workers.dev/
 ```
 
 3. デザインやページ構成を変えたとき、外部の埋め込みを足したとき。記事の追加だけのときは測らない
@@ -90,6 +90,12 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 - 見出しは h1 が1つ、h2・h3 が順番どおり
 - 引っ越しの場合は、旧URLから新URLへの 301 リダイレクトを `_redirects` に書く（migration.md）
 - 公開後、オーナーの了承を得て Google Search Console にサイトを登録し、サイトマップを送信する。所有権の確認には Cloudflare の DNS に TXT レコードを追加する
+  1. オーナー: Google アカウント（会社の共有のアカウントがあればそちら）で Search Console を開き、「ドメイン」の種類でサイトのドメインを入れる
+  2. エージェント: 表示された TXT レコードの値を、オーナーにチャットに貼ってもらい（秘密の値ではない）、コネクタで Cloudflare の DNS に追加する
+  3. オーナー: Search Console で「確認」を押す
+  4. オーナー: 「サイトマップ」に `sitemap-index.xml` を入れて送信する
+- 店や事務所のサイトで Google ビジネスプロフィール（Google マップの店の情報）がある場合は、ウェブサイトの欄を新しいサイトの URL にしてもらう。プロフィールの編集はオーナーが行い、エージェントは画面と入れる値を案内する。会社名、住所、電話番号はサイトと同じ表記にする（下の「AIO」）
+- アクセス解析は、独自ドメインをつないだときに Cloudflare Web Analytics を有効にする（analytics.md）
 
 ## 3. AIO（AI検索・AIエージェント向け）
 
@@ -123,7 +129,7 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 Lighthouse の「測るページ」と同じページを、`scripts/check_mobile_width.py` で 320px、375px、390px の幅で調べます。横スクロール、画面からはみ出した要素、ヘッダーの中の折り返しがないことと、スクリーンショットで見出しの改行位置や重なりがないことを確かめます。作り方の決まりと、NG が出たときの直し方は build.md の「スマホの幅」にあります。
 
 ```bash
-python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321/
+python3 skills/web-creator/scripts/check_mobile_width.py http://localhost:4321/
 ```
 
 Lighthouse のモバイル設定は 412px 前後の幅で測るため、点数が満点でも iPhone SE の幅で崩れていることがあります。デザインやヘッダー、メニューを変えたときは、記事の追加だけの場合を除いて、毎回確かめます。

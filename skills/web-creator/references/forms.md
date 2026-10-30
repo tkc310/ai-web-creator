@@ -1,6 +1,6 @@
 # お問い合わせフォーム
 
-お問い合わせの受け方は、オーナーに3つから選んでもらいます。基本は Google フォームです。サイトと同じ見た目にこだわりたい場合だけ、Cloudflare Email Sending を使って自前で作ります。オーナー向けの説明は docs/forms.md にあります。
+お問い合わせの受け方は、オーナーに4つから選んでもらいます。基本は Google フォームです。サイトと同じ見た目にこだわりたい場合だけ、Cloudflare Email Sending を使って自前で作ります。オーナー向けの説明は docs/forms.md にあります。
 
 ## 選び方
 
@@ -76,7 +76,7 @@ Google フォームには、Claude の公式のコネクタも、Google 公式�
 
 - ドメインが Cloudflare の DNS を使っている（account-setup.md でネームサーバーを Cloudflare に向けている）。Email Sending はこれが条件
 - 送信用のレコードは `cf-bounce` のサブドメインに入り、ドメインの受信用の MX レコードは変えない。オーナーが今使っているメール（info@ など）はそのまま使える。ただし Email Routing（受信の転送）は有効にしない。有効にすると受信用の MX が置き換わり、今のメールが受け取れなくなる
-- Email Sending は執筆時点でベータ版。手順の前に Cloudflare のドキュメント（Email Service の Get started、料金、ドメインの設定）で最新の状態を確かめ、変わっていたらこのファイルを直してログに残す
+- Email Sending は執筆時点でベータ版。手順の前に Cloudflare のドキュメント（Email Service の Get started、料金、ドメインの設定）で最新の状態を確かめる。変わっていたら、`skills/` は直さずに、このサイトでの扱いを SITE.md の「決めたことと理由」に書き、違いを logs/IMPROVEMENTS.md に種類「スキル」で足す（skills-install.md の「守ること」）
 
 ### 料金の確かめ方
 
@@ -97,7 +97,7 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
 7. エージェント: 同じ処理の中で、返ってきたシークレットキーをサイトの Worker の Secret `TURNSTILE_SECRET_KEY` として登録する。処理の結果には登録できたかどうかだけを返し、値をチャット、ログ、リポジトリに出さない（connectors.md の「秘密の値は表に出さない」）。オーナーには、Claude が直接登録して画面には表示していないことを伝える。コネクタが使えない場合は、オーナーが Turnstile の画面でシークレットキーをコピーし、Workers の Settings → Variables and Secrets に貼る
 8. エージェント: templates/forms/ をもとに実装する
    - `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは静的に出力したままにする（stack-selection.md の「SSR を使う場面」、build.md の「一部のページだけ SSR にする場合」）。1ページの LP でも同じ
-   - `wrangler-contact.jsonc` の設定（`send_email` の接続と `vars`）を wrangler.jsonc に足す
+   - `wrangler-contact.jsonc` の設定（`send_email` の接続、送信回数の制限の `ratelimits`、`vars`）を wrangler.jsonc に足す。`SITE_ORIGINS` には、本番、www、確認用の workers.dev の3つを並べる。送信回数の制限（Rate Limiting の接続）が今のプランで使えずに公開が失敗した場合は、`ratelimits` を外して公開し、Turnstile だけで守ることを SITE.md の「決めたことと理由」に書く
    - `contact-form.html` をお問い合わせページに入れ、`/contact/thanks/`（送信完了のページ）と、`?error=` の理由ごとの案内文を作る
 9. エージェント: ローカルで `pnpm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
 10. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる

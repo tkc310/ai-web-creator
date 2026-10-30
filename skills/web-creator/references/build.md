@@ -51,15 +51,27 @@
 - タップする部分は 44×44px 以上にする
 - 固定の幅（`width: 400px` など）は使わず、`max-width` と `%`、`min()` を使う
 
-確かめ方:
+確かめ方（準備は下の「確かめる前の準備」）:
 
 ```bash
-python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321/ http://localhost:4321/news/sample/
+python3 skills/web-creator/scripts/check_mobile_width.py http://localhost:4321/ http://localhost:4321/news/sample/
 ```
 
 320px、375px、390px の3つの幅で、横スクロール、画面からはみ出した要素、ヘッダーの中の折り返しを調べ、幅ごとのスクリーンショットを `mobile-shots/` に保存します。問題があれば NG と原因の要素を表示します。最後にスクリーンショットを目で見て、見出しの改行位置や重なりがないかを確かめます。ロゴとメニューを2段に分けるなど、意図して2段にしたヘッダーは NG と出ても問題ありません。
 
 確かめるページは、Lighthouse で測るページ（quality-gate.md の「測るページ」）と同じにします。`mobile-shots/` はリポジトリに入れません（templates/gitignore.txt）。
+
+### 確かめる前の準備
+
+check_mobile_width.py、make_preview.py（URL を渡す場合）、run_lighthouse.sh は、ビルドしたサイトを作業環境の中で配信してから使います。
+
+```bash
+pnpm run build
+pnpm astro preview --host 127.0.0.1 --port 4321 &   # 終わったら kill %1 で止める
+python3 -c "import playwright" 2>/dev/null || { pip install playwright && python3 -m playwright install chromium; }
+```
+
+Chromium がすでに入っている作業環境では、`python3 -m playwright install chromium` の代わりに、その場所を `CHROME_PATH` で渡します（run_lighthouse.sh と同じ）。
 
 ## 共通の作り方
 
@@ -85,8 +97,18 @@ python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321
 
 1ページの LP も含めて、すべて Astro のプロジェクトとして作ります。あとからページや記事を足すときも、同じリポジトリに足すだけで済みます。
 
-1. `pnpm create astro@latest` で、空のテンプレート（minimal）を選んでプロジェクトを作る。サンプルのページや部品は残さない
-2. `pnpm astro add sitemap` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
+1. 空のテンプレート（minimal）で、作業用の一時フォルダにプロジェクトを作り、サイトのリポジトリに写す。サイトのリポジトリには skills/、AGENTS.md、CLAUDE.md などがすでにあり、空でないフォルダでは作成のツールが質問で止まるため、別の場所で作る。`cp -n` は同じ名前のファイルを上書きしないので、skills/、AGENTS.md、CLAUDE.md、README.md は消えない
+
+   ```bash
+   tmp="$(mktemp -d)"
+   pnpm create astro@latest "$tmp/site" --template minimal --no-install --no-git --skip-houston --yes
+   cp -Rn "$tmp/site/." .
+   rm -rf "$tmp"
+   pnpm install
+   ```
+
+   テンプレートを取りに行けずに止まったとき（作業環境から GitHub のファイルを取得できないとき）は、`package.json`（templates/package-json-fields.md の scripts）、`astro.config.mjs`（`defineConfig({})` だけ）、`src/pages/index.astro` を手で作り、`pnpm add astro@latest` で入れる。サンプルのページや部品は残さない
+2. `pnpm astro add sitemap --yes` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
 3. templates/ から、`.node-version`、`package.json` の項目、`pnpm-workspace.yaml`、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローを置く（deploy-and-autofix.md の「初回の設定」）
 4. `src/layouts/Base.astro` に、head（タイトル、description、OGP、canonical、JSON-LD）をまとめる
 5. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
@@ -139,7 +161,7 @@ wrangler.jsonc   … assets.directory は "./dist"
 
 stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行います。
 
-1. `pnpm astro add cloudflare` でアダプターを追加する
+1. `pnpm astro add cloudflare --yes` でアダプターを追加する
 2. SSR にするファイルだけに `export const prerender = false` を書く。ほかのページはそのまま SSG で出力される
 3. 使わない機能は無効にする。セッションを使わないなら `session: false`。画像の変換は Cloudflare Images を使わず、ビルド時に変換する設定（`imageService: 'compile'`）にする（課金や設定の増加を避けるため）
 4. `wrangler.jsonc` はアダプターのドキュメントに従う。Astro 6 以降は `main` に `@astrojs/cloudflare/entrypoints/server` を指定し、静的アセットの設定はアダプターが行う
@@ -185,4 +207,4 @@ export async function POST({ request }) {
 
 `compatibility_date` は作成した日付にします。
 
-リポジトリの直下に `.node-version`（templates/node-version.txt をコピー）を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。
+リポジトリの直下に `.node-version`（templates/node-version.txt をコピー）を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。templates/node-version.txt は、最後にこのスキルを直した日の最新の LTS 版です。コピーしたあと、作業する日の最新の LTS 版を runtime-update スキルの「最新版の調べ方」で確かめ、違っていれば書き換えます。

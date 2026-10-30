@@ -87,7 +87,7 @@ SITE.md に「原稿はいつも校正してよい」とあれば、原稿はす
    - scripts/optimize_images.py で処理する。受け取った元の画像は、そのままリポジトリに入れない
 
      ```bash
-     python3 <スキルの場所>/scripts/optimize_images.py 受け取った画像... \
+     python3 skills/site-content-update/scripts/optimize_images.py 受け取った画像... \
        --out public/images/<種類>/<slug> --name <英数字の名前> --widths 800 1600 \
        --alt "画像1の説明" "画像2の説明" --og
      ```

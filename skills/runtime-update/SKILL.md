@@ -30,7 +30,7 @@ effort: medium
 | 依存パッケージ | `package.json`、`pnpm-lock.yaml` |
 | pnpm の設定 | `pnpm-workspace.yaml`（`minimumReleaseAge`、`allowBuilds`） |
 | Workers の互換日付 | `wrangler.jsonc` の `compatibility_date` |
-| GitHub Actions のバージョン | `.github/workflows/*.yml`（Dependabot のプルリクエストで更新する） |
+| GitHub Actions のバージョン | `.github/workflows/*.yml`（Dependabot のプルリクエストで更新する。自動ではマージせず、site-maintenance の「GitHub Actions の更新」の手順でオーナーに確かめる） |
 
 ## 最新版の調べ方
 
@@ -115,7 +115,7 @@ Node.js、pnpm、依存パッケージ、`compatibility_date` の確認結果を
 
 例:
 
-- Node.js: 24 のまま（最新の LTS。26 は Current で、2026-10-28 に LTS になる予定）
+- Node.js: 24 → 26（26 が 2026-10-28 に LTS になった。astro、wrangler の engines は 26 に対応）
 - pnpm: 12.15.0 → 12.16.0
 - 依存パッケージ: 14件を最新版に。astro はメジャー更新（アップグレードガイドの対応なし）。@astrojs/sitemap は公開から1日たっていないため次回
 - pnpm audit: 重大な弱点なし

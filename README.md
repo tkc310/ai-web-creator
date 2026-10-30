@@ -18,8 +18,9 @@ ITに詳しくない人が、Claude と対話するだけで、安全でデザ�
 Claude（有料プラン）のチャットに次の文章を送ります。
 
 ```
-GitHub の tkc310/ai-web-creator にあるスキル（skills フォルダ）を読み込んで、
+https://github.com/tkc310/ai-web-creator にあるスキル（skills フォルダ）を読み込んで、
 私のサイト作りを手伝ってください。
+読み込めたら、最初に、読み込んだスキルの版（CHANGELOG.md のいちばん新しい見出し）を教えてください。
 私は IT に詳しくありません。
 質問は選択肢をつけて、一度に4つまでにしてください。
 ```
@@ -41,12 +42,12 @@ Claude が選択肢つきの質問をしながら、企画、制作、公開ま�
 
 ## 必要なもの
 
-- Claude の有料プラン（Pro 以上）
+- Claude の有料プラン（Pro か Max）。Team と Enterprise でも使えますが、Claude Code のプロジェクトを使わない手順で進めます（[project-setup.md](skills/web-creator/references/project-setup.md)）
 - GitHub のアカウント（無料プランでよい）
 - Cloudflare のアカウント（無料プランでよい）
 - サイトの住所にするドメイン（持っていなければ途中で取得する）
 
-GitHub と Cloudflare のアカウントは、作業の途中で Claude が作成を案内します。
+GitHub と Cloudflare のアカウントは、作業の途中で Claude が作成を案内します。自動修正用の鍵は任意で、設定しなくても公開できます（下の「注意」）。アクセス数は、独自ドメインをつないだときに Cloudflare Web Analytics（無料、Cookie を使わない）で数え始めます（[analytics.md](skills/web-creator/references/analytics.md)）。
 
 ## 中身
 
@@ -80,7 +81,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 
 - Claude のスケジュールタスク（旧称: ルーティン）が毎月1日と15日に動き、Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しくする。壊れていれば直して、問題なければマージする（[site-maintenance](skills/site-maintenance/SKILL.md)、[runtime-update](skills/runtime-update/SKILL.md)）
 - 公開から1日たっていない版は入れない（乗っ取られた版を公開直後に入れる攻撃を避けるため）。弱点は `pnpm audit` で確かめ、重大なものを先に直す
-- Dependabot は GitHub Actions の更新だけに使う（理由は [versions.md](skills/web-creator/references/versions.md) の「時点つきの事実」）
+- Dependabot は GitHub Actions の更新だけに使う（理由は [versions.md](skills/web-creator/references/versions.md) の「時点つきの事実」）。Dependabot のプルリクエストは自動でマージせず、保守や振り返りのときに Claude が変更を読んでオーナーに確認する
 - 有料プランや新しい Cloudflare のサービスが必要になる更新、ライセンスが変わる更新は、自動ではマージせずオーナーに確認する
 
 静的だけのサイトは、公開されたサイトで依存パッケージが動かないため、この保守を設定しません。代わりに、月1回の振り返り（[site-review](skills/site-review/SKILL.md)）の中で同じように最新版にします。
@@ -95,7 +96,7 @@ Node.js は最新の LTS 版（Node.js の公式が本番用に勧めるもの�
 
 ### スキルはサイトのリポジトリに取り込む
 
-制作に入るとき、Claude がこのリポジトリの最新の版（タグ）を、サイトのリポジトリの `skills/` に写し、版を `skills/VERSION` に書きます。サイトの CLAUDE.md に「作業の前に skills/ の SKILL.md を読む」と書くので、Claude Code のプロジェクトでも通常のセッションでも同じように読まれます。プロジェクトに入れるリポジトリはサイトのリポジトリ1つで済み、オーナーがフォークを作る必要はありません（公開リポジトリのフォークは必ず公開になるため、使いません）。
+制作に入るとき、Claude がこのリポジトリの最新の版（タグ。タグがない間は main のコミットを1つ決めて固定する）を、サイトのリポジトリの `skills/` に写し、版を `skills/VERSION` に書きます。サイトの CLAUDE.md に「作業の前に skills/ の SKILL.md を読む」と書くので、Claude Code のプロジェクトでも通常のセッションでも同じように読まれます。プロジェクトに入れるリポジトリはサイトのリポジトリ1つで済み、オーナーがフォークを作る必要はありません（公開リポジトリのフォークは必ず公開になるため、使いません）。
 
 新しい版が出たら、月1回の振り返りで Claude が `skills/VERSION` と最新のタグを比べ、変更の要点を3行にまとめて、`skills/` を差し替えるプルリクエストを作ります。オーナーが「OK」と返すとマージします（[skills-install.md](skills/web-creator/references/skills-install.md)）。
 
@@ -121,7 +122,7 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 
 1. パスワードの入力と登録の確定
 2. 2段階認証
-3. 支払いと規約への同意
+3. 支払い、規約への同意、外部サービスへの権限の許可（GitHub アプリのインストール、コネクタの接続）
 4. API トークンなど秘密の文字列の貼り付け
 
 ドメインの切り替えや既存サイトの削除のように取り消せない操作は、何が起きるかを説明し、オーナーの了承を得てから行います。
@@ -130,7 +131,9 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 
 CI で確認するのは「ビルドが通るか」と、公開後に主なページが見られるかだけです。公開後の確認では、サイトのリポジトリの `.github/smoke-test.txt` に書いたページが 200 を返し、決めた文字を含むかを確かめます。プルリクエストでは、すべてのサイトでビルドだけを確認します。リンターやテストはエージェントが作業中に実行します。
 
-デプロイが失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、ページ、画像、ログだけで、ほかのファイル（package.json、pnpm-lock.yaml、scripts/、.github/、wrangler.*、astro.config.* など）を変えた場合は、push せずに Issue でオーナーに知らせて止まります。自動修正は24時間に3回まで、Issue が開いている間は動きません。ビルドや公開の段階で失敗しても、Cloudflare 上の前回のサイトはそのまま表示されます。
+ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、Issue が開いている間は動きません。
+
+公開後の確認だけで失敗した場合（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
 
 ### デザインは frontend-design スキルで仕上げ、iPhone SE の幅まで確かめる
 
@@ -150,7 +153,7 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 
 ### 実行ログで改善ループを回す
 
-エージェントが動くたびに（オーナーの依頼、自動修正、保守、振り返り）、サイトのリポジトリの logs/ に実行ログを1つ書きます。次回以降に直す価値がある点は logs/IMPROVEMENTS.md にまとめ、次の作業の前に読みます。月に1回の振り返り（[site-review](skills/site-review/SKILL.md)）で改善点を整理し、保管期間（既定90日）を過ぎたログは月ごとに要約して削除します。スキル側の改善点は、オーナーの了承を得て、個人情報を除いてからこのリポジトリの Issue に送ります（[run-logs.md](skills/web-creator/references/run-logs.md)）。
+エージェントが動くたびに（オーナーの依頼、自動修正、保守、振り返り）、サイトのリポジトリの logs/ に実行ログを1つ書きます。次回以降に直す価値がある点は logs/IMPROVEMENTS.md にまとめ、次の作業の前に読みます。月に1回の振り返り（[site-review](skills/site-review/SKILL.md)）で改善点を整理し、保管期間（既定90日）を過ぎたログは月ごとに要約して削除します。スキル側の改善点も、サイトの logs/IMPROVEMENTS.md に種類「スキル」で残すところまでが標準です。配布元に送るのは任意で、送る場合はオーナーの了承を得て、個人情報を除いてから、note の窓口かこのリポジトリの Issue に送ります（[run-logs.md](skills/web-creator/references/run-logs.md)）。
 
 ## スキルの構成
 
@@ -170,6 +173,7 @@ skills/
 │   │   ├── quality-gate.md
 │   │   ├── deploy-and-autofix.md … 公開、公開後の確認、自動修正（変えてよい範囲と回数の上限）
 │   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
+│   │   ├── analytics.md         … アクセス解析（Cloudflare Web Analytics）
 │   │   ├── migration.md         … WordPress や STUDIO からの引っ越し
 │   │   ├── preview.md
 │   │   ├── article-tutorial.md  … 公開後に、オーナーと1本目の記事を追加するチュートリアル
@@ -178,7 +182,7 @@ skills/
 │   │   ├── security-audit.md    … 公開前と機能の変更時のセキュリティ監査
 │   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
 │   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
-│   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
+│   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
 │   ├── scripts/                 … optimize_images.py（写真のメタ情報の削除と軽量化）
@@ -197,22 +201,40 @@ skills/
 スキルの版は Git のタグで表します。サイトのリポジトリは、このタグを見て新しい版を取り込みます（[skills-install.md](skills/web-creator/references/skills-install.md)）。
 
 - タグの名前は `vYYYY.MM.N`。YYYY.MM はタグを打つ年月、N はその月の通し番号で 0 から始める（例: `v2026.11.0`、`v2026.11.1`）
-- skills/、prompts/、docs/ を変えて main に入れたら、CHANGELOG.md に書いてからタグを打つ（`git tag v2026.11.0 && git push origin v2026.11.0`）。サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない（タグが1つもない間だけ main の最新のコミットを取り込む）
+- skills/、prompts/、docs/ を変えて main に入れたら、CHANGELOG.md に書いてからタグを打つ。サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない
+- タグが1つもない間は、サイトのリポジトリは main の最新のコミットを取り込み、`skills/VERSION` に `tag: none` とそのコミットを書いて固定する。今の作り方になる前の古い main（`skills/web-creator/references/skills-install.md` がない版）は取り込まずに止まる
 - 配布元を非公開にする場合は、同じ版の skills/ と LICENSE、`VERSION`（タグとコミット）を zip にして解説記事に添付する。zip の作り方を変えたら skills-install.md も直す
+
+最初のタグは、次の順に打ちます。
+
+1. 作業ブランチのプルリクエストを main にマージする
+2. CHANGELOG.md のいちばん上の見出しに版の名前を入れ（例: `## v2026.11.0（2026-11-01）`）、main にコミットする
+3. 空のリポジトリで、skills-install.md の初回の手順をそのまま試し、`skills/VERSION` が書かれることを確かめる（タグを打つ前なので `tag: none` になる）
+4. タグを打って送る
+
+   ```bash
+   git switch main && git pull
+   git tag -a v2026.11.0 -m "v2026.11.0"
+   git push origin v2026.11.0
+   ```
+
+5. `git ls-remote --tags https://github.com/tkc310/ai-web-creator` で、タグが見えることを確かめる
+
+スキルの更新は期間を区切らずに続けます。止めるときは、3か月前にこの README と note で知らせます。
 
 ## 注意
 
 - 料金やサービスの仕様は変わります。スキルの中の数値は作成時点のもので、エージェントは作業時に最新の情報を確認します
-- 自動修正のワークフローを使うには、GitHub Actions から Claude を呼ぶための鍵（`CLAUDE_CODE_OAUTH_TOKEN` または `ANTHROPIC_API_KEY`）が必要です
+- 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` または `ANTHROPIC_API_KEY`）は任意です。設定しなければ、失敗したときに Issue（と GitHub のメール）で知らせるだけになります。`CLAUDE_CODE_OAUTH_TOKEN` の発行には、パソコンに Claude Code を入れてコマンドを1行打つ作業が要ります（[account-setup.md](skills/web-creator/references/account-setup.md) の3）
 - 保守ルーティンは Claude のスケジュールタスクで動くため、Claude の利用量を使います（Pro 以上のプランで利用できます）
 
 ## ライセンス
 
 [LICENSE](LICENSE) の条件で使えます。要点は次のとおりです。
 
-- 使えるのは、note で販売している解説記事のうち、利用許諾が付くと記事の中で示しているもの（マガジンを含む）の購入者だけです。購入者が会社や団体のために使う場合は、その会社や団体の中で使えます
+- 使えるのは、note で販売している解説記事のうち、利用許諾が付くと記事の中で示しているもの（マガジンを含む）の購入者だけです。購入者が会社や団体のために使う場合は、その会社や団体の中で使えます。担当者が代わっても、後任の担当者が同じサイトのために使い続けられます
 - 自分や自社のサイトの制作、公開、更新、保守に使えます。そのために、スキルをサイトの非公開のリポジトリに写し、新しい版に更新できます
-- ほかの人から依頼を受けてサイトを作る仕事に使う場合は、事前に連絡して許諾を得てください
+- ほかの人から依頼を受けてサイトを作る仕事に使う場合は、note で販売している「受託ライセンス（1サイト分）」を、お客さまのサイト1つにつき1つ購入してください。お客さまのリポジトリに skills/ を置けるのは、制作か保守を続けている間です
 - スキルやプロンプトの配布、販売、購入者でない人への受け渡し、似たものを作って配ることはできません
 - AI の学習や学習用データセット、RAG の索引、購入者以外への回答に使う知識ベースへの取り込みと、そのためのクローリングは禁止しています。購入者が自分の AI エージェントに読み込ませるのは問題ありません
 - スキルで作ったサイトのページ、文章、コード、ログは、購入者のものです。自由に使えます。サイトのリポジトリをほかの人に渡すときは、skills/ を除いてください（相手も購入者なら除かなくてかまいません）
@@ -220,6 +242,6 @@ skills/
 
 ## フィードバック
 
-うまく動かなかった手順や、分かりにくかった説明は、Issue で教えてください。サイトの URL や個人情報は書かないでください。
+うまく動かなかった手順や、分かりにくかった説明は、note の窓口か、このリポジトリの Issue で教えてください。送るかどうかは任意です。Issue は誰でも読めるので、サイトの URL や個人情報は書かないでください。サイトのリポジトリで Claude が見つけた改善点は、logs/IMPROVEMENTS.md に残っています（送り方は [run-logs.md](skills/web-creator/references/run-logs.md) の「スキルの改善点を配布元に送る（任意）」）。
 
 いただいた意見をもとに改善した記録は [docs/logs/](docs/logs/README.md) に残しています。

@@ -2,7 +2,7 @@ ai-web-creator 利用許諾（LICENSE）
 
 Copyright (c) 2026 tkc310. All rights reserved.
 
-Proprietary license, not open source. Use is limited to purchasers of the accompanying note articles that state they include this license, for building and operating their own (or their organization's) websites with an AI agent. Redistribution and resale are prohibited. Collecting, copying, or using this repository for AI training, fine-tuning, evaluation, dataset creation, RAG indexing, or knowledge bases serving non-purchasers, and crawling or scraping for those purposes, are prohibited. The Japanese text below governs.
+Proprietary license, not open source. Use is limited to purchasers of the accompanying note articles that state they include this license, for building and operating their own (or their organization's) websites with an AI agent. Building or maintaining a website for a client requires one "contract license (one site)" per client site. Redistribution and resale are prohibited. Collecting, copying, or using this repository for AI training, fine-tuning, evaluation, dataset creation, RAG indexing, or knowledge bases serving non-purchasers, and crawling or scraping for those purposes, are prohibited. The Japanese text below governs.
 
 このリポジトリのスキル、プロンプト、スクリプト、テンプレート、文書（以下「本ソフトウェア」）は、誰でも閲覧できるように公開していますが、オープンソースではありません。利用には、次の条件があります。
 
@@ -10,7 +10,7 @@ Proprietary license, not open source. Use is limited to purchasers of the accomp
 
 本ソフトウェアを利用できるのは、note で販売している解説記事のうち、本ソフトウェアの利用許諾が付くと記事の中で示しているもの（それらの記事をまとめたマガジンを含みます）を購入した人（以下「購入者」）だけです。
 
-購入者が会社や団体に所属していて、その会社や団体のために使う場合は、その会社や団体の中で使ってかまいません。
+購入者が会社や団体に所属していて、その会社や団体のために使う場合は、その会社や団体の中で使ってかまいません。購入した担当者が異動や退職をしたあとも、その会社や団体の後任の担当者が、同じサイトのために使い続けてかまいません。
 
 ## 2. 利用できる範囲
 
@@ -20,7 +20,13 @@ Proprietary license, not open source. Use is limited to purchasers of the accomp
 - そのために、AI エージェント（Claude など）に本ソフトウェアを読み込ませること
 - そのために、本ソフトウェアの全部または一部を、自分（または所属する会社や団体）のウェブサイトの非公開のリポジトリに複製し、新しい版に更新し、必要に応じて書き換えること
 
-ほかの人や会社から依頼を受けてウェブサイトを制作、保守する仕事に本ソフトウェアを使う場合は、事前に著作権者に連絡し、許諾を得てください。
+ほかの人や会社（以下「お客さま」）から依頼を受けてウェブサイトを制作、保守する仕事に本ソフトウェアを使う場合は、購入者であることに加えて、note で販売している「受託ライセンス（1サイト分）」を、お客さまのサイト1つにつき1つ購入してください。受託ライセンス1つで、次のことができます。
+
+- お客さまのウェブサイト1つ（1つのドメイン。www の有無と、そのドメインの下のページを含みます）を、本ソフトウェアを使って制作、公開、更新、保守すること
+- そのために、本ソフトウェアを、お客さまの名義の非公開のリポジトリ（そのサイトのリポジトリ）に複製し、新しい版に更新すること。複製を置いてよいのは、購入者がそのサイトの制作か保守を続けている間です
+- 購入者がそのサイトから手を離すとき（保守の契約が終わるとき、引き渡して以後は関わらないときなど）は、そのリポジトリから本ソフトウェアの複製（skills/ など）を除いてください。お客さまが自分で購入者になった場合は、除かなくてかまいません
+
+受託ライセンスで認めるのは、上の範囲だけです。お客さまに本ソフトウェアそのものを渡すこと、別のサイトに使うことは、3 の禁止事項に当たります。
 
 ## 3. 禁止すること
 

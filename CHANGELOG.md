@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 2026-10-30（2）
+
+- fix(skills): 自動修正（autofix.yml）の安全を固めた。変えてよい範囲を記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）に絞り、.astro やレイアウトの修正は Issue にしてオーナーに知らせる。checkout に `persist-credentials: false` を付け、Claude が使えるツールをパスつきの Edit に限り、範囲の確認と秘密の確認をビルドより前に移し、コミットした状態から作り直して公開する。削除、symlink、実行ビット、`public/_redirects` を止める。日本語のファイル名で範囲の確認と秘密の確認が効かなかった不具合（git の既定の core.quotePath）を `core.quotePath=false` と `-z` で直した。`anthropic_api_key` も渡し、鍵がないときは Claude を起動せずに Issue にする。deploy と autofix を同じ concurrency の group にし、push の前に main が進んでいないかを確かめる（autofix.yml、deploy.yml、deploy-and-autofix.md、templates/AGENTS.md、security-rules.md、README.md）
+- fix(skills): 公開後の確認（smoke-test）を直した。`<...>` が残った行は確かめずに警告を出し、初回の公開で必ず失敗しないようにした。`curl -L` で転送をたどり、`&amp;` の書き方を注記した。公開後の確認だけが失敗したときは Claude を起動せずに Issue にし、戻し方（git revert）を書いた（deploy.yml、autofix.yml、smoke-test.txt、deploy-and-autofix.md）
+- fix(skills): check_text.py が、存在しないパス、読めない文字コードのファイルを「調べられない」として終了コード1で返すようにし、画像などのバイナリを飛ばし、`--exclude` を足した（scripts/check_text.py）
+- feat(skills): Cloudflare の workers.dev のサブドメインを確かめ、なければ作る手順を足した。ネームサーバーは数日前、サイトの向き先は公開のときに切り替える、と時期を分けて書いた（account-setup.md、deploy-and-autofix.md、migration.md）
+- fix(skills): スキルの取り込みの手順を、リポジトリの直下への移動、`mktemp -d` の作業用フォルダ、`scripts/` の作成、check_text.py の同期、タグがないときの `tag: none` に直した。タグがない間は main のコミットに固定し、古い main（skills-install.md がない版）は取り込まずに止める。プロジェクトのスレッドが読み込むものの説明を、ドキュメントに合わせて直した（skills-install.md、versions.md、site-review）
+- feat(skills): 引き継ぎ文のテンプレートを足し、最初の段落を「skills-install.md の手順で取り込んでから」に固定した（新規 templates/handoff.md、SKILL.md、prompts/README.md）
+- fix(skills): 「このファイルを直す」と「skills/ は書き換えない」の矛盾を、「skills/ は直さず、扱いを SITE.md に、違いを logs/IMPROVEMENTS.md に種類『スキル』で書く」にそろえた（stack-selection.md、forms.md、connectors.md、migration.md、skills-install.md、templates/project-instructions.md）
+- feat(skills): 引っ越しの手順に、DNS の記録の控え（スクリーンショットかゾーンファイル、DKIM との照らし合わせ）、DNSSEC を止めたあとの待ち時間、MX がドメインそのものを指す場合、旧サイトを読む前の通信の許可、切り替えの瞬間の予告、末尾の / の転送を足した（migration.md）
+- feat(skills): アクセス解析の手順を足した。独自ドメインをつないだときに Cloudflare Web Analytics を標準で有効にし、オーナーに聞かれたら数字を読んで答える。Google アナリティクスは希望されたときだけ入れる（新規 references/analytics.md、quality-gate.md、SKILL.md、templates/SITE.md、docs/how-to-use.md）
+- docs(skills): 自動修正用の鍵を任意にし、発行の場所（パソコンに Claude Code を入れる例外）、所要時間、API キーの費用と上限を書いた（account-setup.md、SKILL.md、deploy-and-autofix.md、README.md）
+- feat(skills): フォームのひな形で、許可する Origin を一覧（`SITE_ORIGINS`）にし、送信回数の制限（Rate Limiting のバインディング）と Turnstile のホスト名の確認を足した。`.gitignore` に `.dev.vars` を足した（templates/forms/、forms.md、gitignore.txt）
+- fix(skills): Dependabot に cooldown を入れ、GitHub Actions の更新は自動でマージせずオーナーに確認するようにした。Lighthouse と security-audit の skills の版を固定した（dependabot.yml、site-maintenance、routine-prompt.md、site-review、run_lighthouse.sh、security-audit.md、versions.md）
+- chore(skills): Node.js 26 が LTS になったため、templates/node-version.txt を 26 にした。Astro 7、pnpm 12 と、作業の日の最新の版を versions.md に書いた（versions.md、node-version.txt、build.md、runtime-update）
+- fix(skills): `pnpm create astro` を一時フォルダで対話なしに動かしてから写すようにし、プレビューのサーバーと Playwright の準備を書いた。`<スキルの場所>` を `skills/<名前>/` に直した（build.md、preview.md、quality-gate.md、site-builder.md、site-content-update、SKILL.md）
+- feat(skills): スキルの改善点は logs/IMPROVEMENTS.md に残すまでを標準にし、配布元に送るのは任意にした（run-logs.md、site-review、README.md）。年に1回の点検（鍵とトークンの期限、ドメインの更新）と、担当者が代わったときの手順を足した（site-review）
+- docs(license): 受託制作は「受託ライセンス（1サイト分）」をお客さまのサイト1つにつき1つ購入する形にし、できること（お客さまの名義の非公開のリポジトリに置く、制作か保守を続けている間だけ）と、手を離すときに skills/ を除くことを書いた。購入した担当者が代わっても、後任が同じサイトのために使い続けられることを足した。変更前に購入した人の利用は、LICENSE の 6 のとおり続けられる（LICENSE、stack-selection.md、skills-install.md、README.md）
+- docs: 最初に送る文章を配布元の URL つきにし、読み込んだ版を最初に答えてもらうようにした。読み込めないときの分かれ道、知らせが届く場所、アクセス数の見方、プロンプト（戻す、予約投稿、引き継ぎなど）を足し、使えない ZIP の登録の節を外した。Team と Enterprise はプロジェクトを使わない手順で進めることを書いた。最初のタグの打ち方と、更新の提供の続け方を README に書いた（README.md、docs/how-to-use.md、docs/claude-account.md、prompts/README.md、templates/README.owner.md、docs/verification/README.md）
+
 ## 2026-10-30
 
 - refactor(skills): サイトはすべて Astro で作るようにした。1ページの LP も Astro で作り、HTML 直書きの構成と EmDash の構成をスキル、templates、scripts、docs、prompts、README から外した。標準は SSG で、アクセスのたびに処理が要るページだけ SSR（要保守構成）にする。対象外（記事が数千本を超えるメディア、公開後の投稿をお客さまが管理画面から行う受託制作、会員機能、コメント機能、EC、予約）を表にして判定を明確にした（stack-selection.md、build.md、SKILL.md、hearing.md、forms.md、preview.md、quality-gate.md、security-audit.md、article-tutorial.md、site-maintenance、runtime-update、site-review、site-content-update、templates、make_preview.py、docs/how-to-use.md、docs/forms.md、README.md）

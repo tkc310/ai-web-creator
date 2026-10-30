@@ -32,7 +32,10 @@
 - SSR のページ（ある場合）:
 - Node.js のバージョンとサポート終了日:
 - 選んだ理由:
-- 公開先: Cloudflare Workers（名前: ）
+- 公開先: Cloudflare Workers（名前: 、workers.dev の URL: https://<名前>.<サブドメイン>.workers.dev）
+- 独自ドメイン: （ドメイン、つないだ日。まだなら「まだ」）
+- アクセス解析: Cloudflare Web Analytics（有効にした日）/ Google アナリティクス（測定 ID）/ なし（references/analytics.md）
+- 自動修正用の鍵: CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY / 見送り（設定した日と、次に確かめる月）
 - 公開後の確認: `.github/smoke-test.txt`（確かめるページ: ）
 - リポジトリ: github.com/<owner>/<repo>
 
@@ -43,6 +46,9 @@
 | GitHub | | 共有アドレス / 個人 | あり / なし |
 | Cloudflare | | | |
 | ドメイン管理 | | | |
+
+- 受託制作: いいえ / はい（受託ライセンス（1サイト分）の購入: 済み、対象のサイト: <ドメイン>、制作者: <会社名>、保守の終わり: <未定 / 日付>）
+- 担当者が代わったときの記録: （日付、前の担当者から引き継いだこと。site-review の「担当者が代わったとき」）
 
 ## 更新の方法
 

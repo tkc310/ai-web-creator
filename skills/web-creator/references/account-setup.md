@@ -45,7 +45,7 @@
 | 持っているもの | 進め方 |
 |---|---|
 | GitHub のアカウント | 下の「1. GitHub」の手順1〜3を飛ばす。手順4で2段階認証が有効かを確かめ、無効なら設定してもらう。名義が個人で、会社のサイトを置く場合は、会社の共有アドレスで別に作るか、そのまま使うかをオーナーに決めてもらう（担当者が辞めると管理できなくなるため） |
-| Cloudflare のアカウント | 下の「2. Cloudflare」の手順1〜4を飛ばす。2段階認証が有効か、ほかのサイトやドメインが入っているかを確かめる。ほかのサイトがある場合は、手順7の API トークンの Zone Resources をこのサイトのドメインだけにしぼり、既存の DNS やサイトに触れないことをオーナーに伝える |
+| Cloudflare のアカウント | 下の「2. Cloudflare」の手順1〜4を飛ばす。2段階認証が有効か、ほかのサイトやドメインが入っているかを確かめる。ほかのサイトがある場合は、手順7の API トークンの Zone Resources をこのサイトのドメインだけにしぼり、既存の DNS やサイトに触れないことをオーナーに伝える。手順8の workers.dev のサブドメインは、すでにあればそのまま使う |
 | ドメイン | 手順6の「持っている場合」に進む。今のサイトがあれば migration.md を先に読む |
 | Claude の GitHub アプリ | 「1. GitHub」の手順8で、このサイトのリポジトリが許可に入っているかを確かめ、なければ足してもらう（下の「Claude がリポジトリに書き込むための2つの許可」） |
 | GitHub の Secrets（`CLOUDFLARE_API_TOKEN` など） | 別のサイトのリポジトリに登録した鍵は、このリポジトリには入っていない。リポジトリごとに登録する |
@@ -102,27 +102,51 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
      - .com などは Cloudflare Registrar で取得できる
      - .jp・.co.jp は Cloudflare Registrar では取得できない（2026年10月時点の確認）。お名前.com などの国内の登録業者で取得し、ネームサーバーを Cloudflare に向ける。取得前に Cloudflare の TLD の一覧で最新の対応状況を確認する
      - 国内の登録業者のうち、ムームードメインには Claude の公式のコネクタがあり、空きの検索からネームサーバーの変更までエージェントが進められる（支払いはオーナーがムームードメインのサイトで行う）。特に希望がなければ、こちらを勧める
-   - 持っている場合: 今の管理会社（お名前.com、Xserver など）は変えずに、ネームサーバーを Cloudflare に向ける手順を案内する。切り替えは公開直前に行う（deploy-and-autofix.md の「独自ドメインの接続」）
+   - 持っている場合: 今の管理会社（お名前.com、Xserver など）は変えずに、ネームサーバーを Cloudflare に向ける手順を案内する。ドメインの契約は今の会社のままで、移すのはネームサーバーだけ（Cloudflare 側の費用はかからない）。ネームサーバーは公開の数日前に移してよく、サイトの向き先（Workers の独自ドメイン）は公開するときに変える（deploy-and-autofix.md の「独自ドメインの接続」）。今のサイトがある場合は、migration.md の「5. ドメインと DNS の切り替え」の順に進める
 7. APIトークン（GitHub から公開するための鍵）。強い権限が要るため、コネクタでは作らない
    - エージェント: My Profile → API Tokens → Create Token を開き、「Edit Cloudflare Workers」テンプレートを選ぶところまで進める
    - オーナー: 「Create Token」を押し、表示されたトークンをコピーする
    - エージェント: アカウントIDを読み取る（コネクタがあればコネクタで、なければダッシュボードの右側の英数字）。アカウントIDは秘密ではないので、エージェントが扱ってよい
-8. GitHub に鍵を登録する
+8. workers.dev のサブドメイン（確認用の URL `https://<Worker の名前>.<サブドメイン>.workers.dev` の部分）を確かめる。初めての公開と、公開後の確認（`.github/smoke-test.txt`）で使う。2分くらい
+   - エージェント: コネクタで `GET /accounts/{account_id}/workers/subdomain` を呼び、サブドメインがあるかを確かめる
+   - ない場合: エージェントが候補を1つ出し（会社名やサイト名の英数字。アカウント全体で使い、あとから変えると、今の workers.dev の URL がすべて変わる）、オーナーの「はい」を得てから、コネクタで `PUT /accounts/{account_id}/workers/subdomain`（本文は `{"subdomain": "<候補>"}`）で作る。コネクタがない場合は、オーナーに Cloudflare のダッシュボードの「Workers & Pages」を開いてもらい、サブドメインを決める画面が出たら候補を入れてもらう
+   - エージェント: 決まったサブドメインを SITE.md の「技術」に書き、`.github/smoke-test.txt` の `<...>` を埋める（deploy-and-autofix.md の「初回の設定」）
+9. GitHub に鍵を登録する
    - エージェント: サイトのリポジトリの Settings → Secrets and variables → Actions → New repository secret を開く
    - オーナー: 名前 `CLOUDFLARE_API_TOKEN` で、コピーしたトークンを貼り付けて保存する
    - エージェント: `CLOUDFLARE_ACCOUNT_ID` を同じ画面で登録する（値はアカウントID）
-9. Claude の作業環境から、公開したサイトに届くようにする（公開後の品質チェックで使う。3分くらい）
-   - エージェント: オーナーがチャット（Cowork）とコード（Claude Code）のどちらで作業しているかを確かめる（設定の画面が違うため。SITE.md に書いてなければ選択肢をつけて聞き、答えを SITE.md に書く）
-   - オーナー: 許可に、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインを使うならそのドメイン）を足す。チャットなら「設定」→「機能」→「外部ネットワークへの通信を許可」、コードなら会話の名前の右の「∨」→「Edit cloud environment」→「Network access」（手順は quality-gate.md の「作業環境から本番のサイトに届かないとき」）
+10. Claude の作業環境から、公開したサイトに届くようにする（公開後の品質チェックで使う。3分くらい）
+    - エージェント: オーナーがチャット（Cowork）とコード（Claude Code）のどちらで作業しているかを確かめる（設定の画面が違うため。SITE.md に書いてなければ選択肢をつけて聞き、答えを SITE.md に書く）
+    - オーナー: 許可に、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインを使うならそのドメイン）を足す。チャットなら「設定」→「機能」→「外部ネットワークへの通信を許可」、コードなら会話の名前の右の「∨」→「Edit cloud environment」→「Network access」（手順は quality-gate.md の「作業環境から本番のサイトに届かないとき」）
 
-## 3. 自動修正用の Claude の鍵（任意・おすすめ）
+## 3. 自動修正用の Claude の鍵（任意）
 
-デプロイ失敗時に自動で直すには、GitHub Actions から Claude を呼ぶための鍵が必要です。autofix.yml のコミットは GitHub が用意するトークン（GITHUB_TOKEN）で行うため、この用途のためだけに追加の権限は要りません。
+公開が失敗したときに GitHub Actions の上で Claude に直してもらうには、GitHub Actions から Claude を呼ぶための鍵が要ります。設定しなくてもサイトは公開でき、失敗したときは GitHub の Issue（メールが届く）で知らせるので、オーナーが Claude に「直して」と頼めば直せます。公開したあとに足すこともできます。autofix.yml のコミットは GitHub が用意するトークン（GITHUB_TOKEN）で行うため、この用途のために追加の権限は要りません。
 
-1. エージェント: 鍵の発行方法を案内する（Pro / Max プランなら Claude Code の `claude setup-token` で発行する鍵、それ以外は Claude Console の API キー）
-2. オーナー: 発行した鍵を、`CLAUDE_CODE_OAUTH_TOKEN`（API キーの場合は `ANTHROPIC_API_KEY`）として GitHub の Secrets に登録する
+最初に、どちらにするかを選択肢で聞きます。
 
-鍵の発行方法は変わることがあるため、案内の前に anthropics/claude-code-action の README で最新の手順を確認します。オーナーがこの設定を見送った場合も、サイトの公開には影響しません（失敗時に Issue で知らせるだけになります）。
+| 選択肢 | 手間 | 費用 | 向いている人 |
+|---|---|---|---|
+| A. 見送る（あとで足せる） | なし | なし | パソコンを使わない人、まず公開したい人 |
+| B. Pro / Max の鍵（`CLAUDE_CODE_OAUTH_TOKEN`） | パソコンで1行のコマンドを打つ。15分くらい | プランの利用量の中で使う | パソコンがあり、Pro か Max を使っている人 |
+| C. API キー（`ANTHROPIC_API_KEY`） | Claude Console でキーを作る。10分くらい | 使った分だけ料金がかかる（プランとは別の支払い） | パソコンがない、または会社で API の契約がある人 |
+
+B の手順（オーナーのパソコンで行う。SKILL.md の「開発する場所」の例外）:
+
+1. エージェント: オーナーのパソコン（Mac / Windows）に合わせて、Claude Code を入れるコマンドを Claude Code のドキュメントで確かめて案内する
+2. オーナー: ターミナル（Windows は PowerShell）を開き、案内されたコマンドを貼って実行する
+3. オーナー: `claude setup-token` を実行し、開いたブラウザで Claude にログインして許可する
+4. オーナー: 表示された鍵をコピーする。チャットには貼らない
+5. オーナー: GitHub の Settings → Secrets and variables → Actions → New repository secret で、名前 `CLAUDE_CODE_OAUTH_TOKEN` として貼って保存する（画面はエージェントが開く）
+6. オーナー: 鍵を発行したあとは、パソコンの Claude Code を消してかまわない（鍵は GitHub に登録したもので動く）
+
+C の手順:
+
+1. オーナー: Claude Console（Anthropic の API の管理画面）にログインし、支払い方法を登録する
+2. オーナー: 使いすぎを防ぐため、Console の利用の上限（月の上限額）を設定する。自動修正は失敗したときだけ動き、1回の実行は30ターンまで
+3. オーナー: API キーを作ってコピーし、名前 `ANTHROPIC_API_KEY` で GitHub の Secrets に登録する
+
+鍵の発行方法、有効期限、画面の名前は変わることがあるため、案内の前に anthropics/claude-code-action の README と Claude Code のドキュメントで最新の手順を確認します。鍵には有効期限があることがあるので、年に1回の点検（site-review の「年に1回の点検」）で、期限を確かめます。autofix.yml は両方の入力を渡しているので、B と C のどちらを選んでもワークフローは書き換えません。
 
 ## 終わったら
 

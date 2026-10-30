@@ -6,10 +6,17 @@
   // Email Sending でメールを送るための接続。鍵は要らない
   "send_email": [{ "name": "EMAIL" }],
 
+  // 送信回数の制限（サイト全体で1分に5件まで）。namespace_id はアカウントの中で重ならない正の整数の文字列。
+  // 使えないプランだった場合は、この項目を外し、SITE.md の「決めたことと理由」に書く（forms.md）
+  "ratelimits": [
+    { "name": "CONTACT_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }
+  ],
+
   // 秘密でない設定
   "vars": {
     "CONTACT_TO": "<通知を受けるアドレス。Cloudflare で確認済みのもの>",
     "CONTACT_FROM": "form@<Email Sending に登録したドメイン>",
-    "SITE_ORIGIN": "https://<本番のドメイン>"
+    // 許可する送信元。本番、www、確認用の workers.dev をカンマ区切りで（末尾の / なし）
+    "SITE_ORIGINS": "https://<本番のドメイン>,https://www.<本番のドメイン>,https://<Worker の名前>.<アカウントのサブドメイン>.workers.dev"
   }
 }

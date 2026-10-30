@@ -1,6 +1,6 @@
 # 公開前のプレビュー
 
-サイトや記事を更新するときは、公開する前に、変更後のページを Claude のアーティファクト（HTML のページ）として見せます。オーナーはアーティファクトのカードを開くだけで、スマホと PC の両方の見え方を確認できます。スクリーンショットより、実際のページに近い状態で確かめられるためです。
+サイトや記事を更新するときは、公開する前に、変更後のページを Claude のアーティファクト（HTML のページ）として見せます。オーナーはアーティファクトのカードを開くだけで、実際のページに近い見え方を確認できます。デザイン案や複数のページの変更はスマホ幅と PC 幅を切り替えて見られ、記事やページの文章の確認（`--comment`）は、開いた端末の幅で見えます。スクリーンショットより、実際のページに近い状態で確かめられるためです。
 
 ## いつ見せるか
 
@@ -21,19 +21,19 @@ SITE.md で「確認なしで公開してよい」とされた種類の変更は
 
 ```bash
 # ビルド結果から（SSG のページ）
-python3 <スキルの場所>/scripts/make_preview.py dist/news/2026-10-holiday/index.html --root dist \
+python3 skills/web-creator/scripts/make_preview.py dist/news/2026-10-holiday/index.html --root dist \
   --out /tmp/preview/<サイト名>-preview.html --label "お知らせ「年末年始の休業」"
 
 # 起動中のサーバーから（SSR のページ）
-python3 <スキルの場所>/scripts/make_preview.py http://localhost:4321/news/2026-10-holiday/ \
+python3 skills/web-creator/scripts/make_preview.py http://localhost:4321/news/2026-10-holiday/ \
   --out /tmp/preview/<サイト名>-preview.html --label "お知らせ「年末年始の休業」"
 
 # コメントで直せる形（1ページだけ。記事や文章、写真の修正の確認に使う）
-python3 <スキルの場所>/scripts/make_preview.py dist/news/2026-10-holiday/index.html --root dist --comment \
+python3 skills/web-creator/scripts/make_preview.py dist/news/2026-10-holiday/index.html --root dist --comment \
   --out /tmp/preview/<サイト名>-preview.html --label "お知らせ「年末年始の休業」"
 
 # 複数のページやデザイン案（タブで切り替え）
-python3 <スキルの場所>/scripts/make_preview.py a/index.html b/index.html c/index.html --root . \
+python3 skills/web-creator/scripts/make_preview.py a/index.html b/index.html c/index.html --root . \
   --names "A案" "B案" "C案" --out /tmp/preview/<サイト名>-design.html --label "デザイン案"
 ```
 

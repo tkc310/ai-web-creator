@@ -4,10 +4,14 @@
 使い方:
   python3 check_text.py ファイル [ファイル ...]
   python3 check_text.py フォルダ          # フォルダの中のテキストファイルをまとめて調べる
-  git diff --cached --name-only --diff-filter=ACM | xargs python3 check_text.py
+  python3 check_text.py . --exclude skills  # skills/ などを除く（フォルダもファイルの指定も。何度でも付けられる）
+  git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 check_text.py
 
 見つかったら 1 行ずつ「ファイル:行: [種類] 内容」を表示し、終了コード 1 で終える。
 何もなければ終了コード 0。機密情報らしいものは先頭の数文字だけを表示する。
+指定したファイルが見つからない場合と、テキストのはずのファイルを UTF-8 で読めない場合も、
+調べられなかったこととして表示し、終了コード 1 で終える（画像などのバイナリは調べずに飛ばす）。
+日本語のファイル名を git から渡すときは、上の例のように core.quotePath=false と -z を使う。
 
 これは見落としを減らすための補助で、これだけで安全とは判断しない（references/security-rules.md）。
 """
@@ -19,6 +23,12 @@ TEXT_SUFFIXES = {
     ".md", ".mdx", ".markdown", ".txt", ".html", ".htm", ".astro", ".json", ".jsonc",
     ".yml", ".yaml", ".toml", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".css",
     ".xml", ".svg", ".csv", ".env", ".vars",
+}
+# 中身を調べないファイル（画像、フォント、動画など）。指定されても飛ばす
+BINARY_SUFFIXES = {
+    ".png", ".jpg", ".jpeg", ".webp", ".avif", ".gif", ".ico", ".bmp", ".tif", ".tiff", ".heic",
+    ".pdf", ".woff", ".woff2", ".ttf", ".otf", ".eot", ".mp4", ".webm", ".mov", ".mp3", ".wav",
+    ".zip", ".gz",
 }
 SKIP_DIRS = {".git", "node_modules", "dist", ".astro", ".wrangler", "lighthouse-reports"}
 MARKUP_SUFFIXES = {".md", ".mdx", ".markdown", ".txt", ".csv"}  # 原稿として扱うもの
@@ -74,15 +84,25 @@ def is_text(path: pathlib.Path) -> bool:
     return path.suffix.lower() in TEXT_SUFFIXES or path.name.startswith(".env") or path.name == ".dev.vars"
 
 
-def iter_files(args):
+def is_excluded(path: pathlib.Path, excludes) -> bool:
+    return any(path == e or e in path.parents for e in excludes)
+
+
+def iter_files(args, excludes, problems):
     for arg in args:
         p = pathlib.Path(arg)
         if p.is_dir():
             for f in sorted(p.rglob("*")):
-                if f.is_file() and is_text(f) and not (set(f.parts) & SKIP_DIRS):
+                if (f.is_file() and is_text(f) and not (set(f.parts) & SKIP_DIRS)
+                        and not is_excluded(f.resolve(), excludes)):
                     yield f
         elif p.is_file():
+            if p.suffix.lower() in BINARY_SUFFIXES or is_excluded(p.resolve(), excludes):
+                continue
             yield p
+        else:
+            # 引用符つきのパス（core.quotePath）や、消えたファイルを渡されたとき。黙って通さない
+            problems.append(f"{arg}: [調べられない] ファイルが見つかりません")
 
 
 SELF = pathlib.Path(__file__).name  # このスクリプト自身は、命令の言い回しを含むので調べない
@@ -92,8 +112,10 @@ def check(path: pathlib.Path):
     findings = []
     try:
         text = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        return findings
+    except UnicodeDecodeError:
+        return [(0, "調べられない", "UTF-8 で読めません（文字コードを UTF-8 にするか、テキストでないなら調べる対象から外す）")]
+    except OSError as e:
+        return [(0, "調べられない", f"読めません（{e.__class__.__name__}）")]
     is_manuscript = path.suffix.lower() in MARKUP_SUFFIXES
     lines = text.splitlines()
 
@@ -126,17 +148,38 @@ def check(path: pathlib.Path):
     return findings
 
 
+def parse_args(argv):
+    paths, excludes = [], []
+    it = iter(argv)
+    for a in it:
+        if a == "--exclude":
+            value = next(it, None)
+            if value is None:
+                raise SystemExit("--exclude のあとに、除くフォルダかファイルを書いてください")
+            excludes.append(pathlib.Path(value).resolve())
+        elif a.startswith("--exclude="):
+            excludes.append(pathlib.Path(a.split("=", 1)[1]).resolve())
+        else:
+            paths.append(a)
+    return paths, excludes
+
+
 def main() -> int:
-    if len(sys.argv) < 2:
+    paths, excludes = parse_args(sys.argv[1:])
+    if not paths:
         print(__doc__)
         return 2
     total = 0
-    for f in iter_files(sys.argv[1:]):
+    problems = []
+    for f in iter_files(paths, excludes, problems):
         if f.name == SELF:
             continue
         for no, kind, detail in check(f):
             print(f"{f}:{no}: [{kind}] {detail}")
             total += 1
+    for line in problems:
+        print(line)
+        total += 1
     if total:
         print(f"\n{total} 件見つかりました。1件ずつ内容を見て判断してください（references/security-rules.md）。", file=sys.stderr)
         return 1

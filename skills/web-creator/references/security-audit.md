@@ -20,20 +20,20 @@
 
 ## 入れ方
 
-サイトのリポジトリにはコミットせず、作業のたびに最新版をユーザー単位で入れます（クラウドの作業環境は会話ごとに作り直されるため）。
+サイトのリポジトリにはコミットせず、作業のたびに作業用の一時フォルダに clone し、その SKILL.md を直接読んで手順に従います。クラウドの作業環境は会話ごとに作り直され、会話の途中で `~/.claude/skills/` に入れたスキルが読み込まれるかは環境によって違うためです（Claude Code のプロジェクトのスレッドは、リポジトリの `.claude/skills/` も読まない。versions.md の「時点つきの事実」）。
 
 ```bash
-npx -y skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global --agent claude-code --yes
+audit="$(mktemp -d)"
+git clone --depth 1 https://github.com/cloudflare/security-audit-skill "$audit/skill"
+git -C "$audit/skill" rev-parse HEAD   # 使った版。実行ログに書く
+ls "$audit/skill/skills/security-audit/SKILL.md"
 ```
 
-`~/.claude/skills/security-audit/` に入ります。入れたあとの会話（またはスキルを読み直したあと）で使えます。npm に届かない場合は、次の方法で入れます。
+1. clone したら、使った版（コミット）を控え、実行ログに書く。前回の監査と同じ版かどうかを比べられるようにするため
+2. `$audit/skill/skills/security-audit/SKILL.md` を読み、そこに書かれた手順で監査を進める。参照しているファイルも、同じフォルダの中のものを読む
+3. 前回の監査と版が違うときは、SKILL.md を読んで、前回と使い方が変わっていないかを確かめてから使う
 
-```bash
-git clone --depth 1 https://github.com/cloudflare/security-audit-skill /tmp/security-audit-skill
-mkdir -p ~/.claude/skills && cp -r /tmp/security-audit-skill/skills/security-audit ~/.claude/skills/
-```
-
-入れたスキルは、エージェントと同じ権限で動きます。初めて使うときと、前回の監査から日が空いたときは、SKILL.md を読んで、前回と使い方が変わっていないかを確かめてから使います。
+スキルの仕組みで読み込ませたい場合（会話の途中でもスキルとして呼べる環境）は、`npx -y skills@1.7.4 add https://github.com/cloudflare/security-audit-skill --skill security-audit --global --agent claude-code --yes` でも入れられます。`skills` の版は固定して使い、上げるときは公開から1日以上たった版にします。入れたスキルは、エージェントと同じ権限で動きます。
 
 ## 頼み方
 
