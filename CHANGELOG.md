@@ -18,6 +18,7 @@
 - docs(skills): 通信の許可は、Claude Code で初めて公開するときに頼む。プロジェクトでは Project settings の General と Environment から設定を開く（account-setup.md、quality-gate.md、SKILL.md、docs/claude-account.md）
 - docs: 段階1で「Code execution and file creation」が要ることと、オンにできないときにリリースの zip のファイルを添付する道を書いた。版の確かめ方を「v で始まる版の名前」にした。README の「版の付け方」に、`MANIFEST.txt` の作り方、`gh auth login`、実機で確かめること（clone、raw、新しいフォルダへの Upload files、Pro のコメント、更新、保守の1回の実行、`env` の拒否、上限の Issue）、versions.md への記録を足した（docs/how-to-use.md、README.md、versions.md）
 - chore(skills): 保守の間隔の書き方を「毎月1日と15日」にそろえ、GitHub Actions の無料枠を「毎月12ドル分」にそろえた（README.md、forms.md、stack-selection.md、SKILL.md、runtime-update、dependabot.yml、docs/forms.md、docs/other-agents.md、deploy-and-autofix.md）
+- docs(site-review): 記事を買った note のアカウントのログインは、note の規約で確かめるまで後任に渡さない、とした（記事とそろえる）
 
 ### 2026-10-30（4）
 
