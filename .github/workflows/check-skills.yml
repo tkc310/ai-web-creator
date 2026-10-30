@@ -1,0 +1,47 @@
+# このリポジトリ（スキルの配布元）の確かめ。プルリクエストと main への push とタグの push で動く。
+# サイトのリポジトリには置かない（サイトのワークフローは skills/web-creator/templates/github/workflows/ にある）。
+#   - Markdown の bash のかたまりと、テンプレートのワークフローの run: のシェルが bash -n を通る
+#   - YAML が読める。シェルのスクリプトが bash -n を通り、Python のスクリプトがコンパイルできる
+#   - check_text.py で、機密情報と AI に向けた命令の疑いがない（説明の文に例のタグがあるので、--no-markup を付ける）
+#   - EmDash を標準にしていた古い版の記述が、スキルとプロンプトに戻っていない
+#   - タグと、MANIFEST.txt を置いたあとの main では、MANIFEST.txt が LICENSE と skills/ のファイルと一致する（README の「版の付け方」の手順2）
+name: check-skills
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: YAML を読むための道具を入れる
+        run: python3 -m pip install --quiet pyyaml
+
+      # MANIFEST.txt は、タグでは必ず、main では置いてあるときだけ確かめる（手順2で置く前の main への push を失敗にしない）
+      - name: スキルを確かめる
+        run: |
+          opts=()
+          if [ "$GITHUB_REF_TYPE" = tag ] || { [ "$GITHUB_REF" = refs/heads/main ] && [ -f MANIFEST.txt ]; }; then
+            opts=(--manifest)
+          fi
+          python3 .github/scripts/check_skills.py "${opts[@]}"
+
+      - name: スクリプトを確かめる
+        run: |
+          set -e
+          git ls-files -z '*.sh' | xargs -0 -r -n1 bash -n
+          git ls-files -z '*.py' | xargs -0 -r python3 -m py_compile
+
+      - name: 機密情報と命令の疑いを確かめる
+        run: python3 -I skills/web-creator/scripts/check_text.py --no-markup . --exclude docs/logs
