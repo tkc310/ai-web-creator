@@ -1,7 +1,7 @@
 # 2026-10-30 cron の時間帯、復旧コード、取り込みの経路、公開後の確認のまとめ
 
 - きっかけ: スキルの評価（6回目の修正）で見つかった不具合と不足。保守と振り返りのスケジュールタスクの cron の式を日本時間のつもりで書いていたが、5つの欄だけの式は UTC で読まれるので、日本時間の 18:07 に動いていた。2段階認証の復旧コードを保存する手順がなかった。C の取り込みで `git ls-remote` を使っていた（clone が通らない環境では、これも通らないことが多い）。非公開の確かめの `gh api 'repos/{owner}/{repo}'` が、origin が中継の住所のときに置き換わらない。B の zip を会話に添付できない場合の道と、`unzip` がない場合の道がなかった。プレビューを必ず見せる例外が「要点から作った下書き」だけだった。公開後の確認が、Cloudflare のセキュリティの確認の画面で誤って失敗する、など
-- 変えたファイル: LICENSE、README.md、prompts/README.md、.github/（新規: workflows/check-skills.yml、scripts/check_skills.py、ISSUE_TEMPLATE/skill-feedback.yml）、skills/web-creator/SKILL.md、skills/web-creator/references/（account-setup.md、build.md、client-handoff.md、deploy-and-autofix.md、forms.md、migration.md、preview.md、quality-gate.md、run-logs.md、security-rules.md、skills-install.md、versions.md）、skills/web-creator/scripts/check_text.py、skills/web-creator/templates/（AGENTS.md.tmpl、CLAUDE.md.tmpl、SITE.md、handoff.md、project-instructions.md、github/smoke-test.txt、github/workflows/autofix.yml、github/workflows/deploy.yml、新規: github/scripts/smoke.sh）、skills/site-maintenance/references/routine-setup.md、skills/site-review/SKILL.md、skills/site-content-update/SKILL.md
+- 変えたファイル: LICENSE、README.md、prompts/README.md、.github/（新規: workflows/check-skills.yml、scripts/check_skills.py、ISSUE_TEMPLATE/skill-feedback.yml）、skills/web-creator/SKILL.md、skills/web-creator/references/（account-setup.md、build.md、client-handoff.md、connectors.md、deploy-and-autofix.md、forms.md、migration.md、preview.md、quality-gate.md、run-logs.md、security-rules.md、skills-install.md、versions.md）、skills/web-creator/scripts/check_text.py、skills/web-creator/templates/（AGENTS.md.tmpl、CLAUDE.md.tmpl、SITE.md、handoff.md、project-instructions.md、github/smoke-test.txt、github/workflows/autofix.yml、github/workflows/deploy.yml、新規: github/scripts/smoke.sh）、skills/site-maintenance/references/routine-setup.md、skills/site-review/SKILL.md、skills/site-content-update/SKILL.md
 
 ## やったこと
 
@@ -54,7 +54,10 @@
     - 公開後の作業を再開するときに、main に入っていないコミットと最新のログを読む、を SKILL.md に足した
     - Google フォームと Search Console の「会社の共有のアカウント」の勧めを、1人1つのログインのまま、もう1人の担当者を加える形にした
     - README の「main にはタグを打つ版だけ」の決まりに、手順2と手順3・4の直しの例外を書いた
-15. README の「版の付け方」に、実機で確かめること（README の「使い方」の文章を Pro の新しいチャットで送る入口、raw の手順書の取得、origin の形と `GH_REPO`、B1 と B2、`CRON_TZ=` と次の実行の予定、405 の行と確認の画面、鍵がないときと鍵を間違えたときの Issue）を足した。versions.md の「時点つきの事実」にも、確かめた事実と未確認の点を足した
+15. ほかの文書とそろえた
+    - site-review の「担当者が代わったとき」で、会社のサイトは Organization に招待する形だけにし、「Organization を使わない場合は共同作業者に招待する」の道と、外すものの「（または共同作業者）」を消した
+    - ムームードメインのコネクタで、ネームサーバーの変更までできると書いていたのを、「Claude がコネクタのツールでできるかを確かめ、できなければオーナーが画面で行う」にした。GMOペパボの発表は、空きの検索、購入の手続き、DNS の設定を挙げていて、ネームサーバーの変更は挙げていない（account-setup.md、connectors.md、migration.md）
+16. README の「版の付け方」に、実機で確かめること（README の「使い方」の文章を Pro の新しいチャットで送る入口、raw の手順書の取得、origin の形と `GH_REPO`、B1 と B2、`CRON_TZ=` と次の実行の予定、405 の行と確認の画面、鍵がないときと鍵を間違えたときの Issue）を足した。versions.md の「時点つきの事実」にも、確かめた事実と未確認の点を足した
 
 ## オーナーが決めること（判断の材料）
 
@@ -83,6 +86,7 @@
   - GitHub の復旧コード（16個で1回ずつ使える。あとから見る場所は Settings → Password and authentication → Recovery codes → View。設定のときの保存の方法は Download・Print・Copy）: https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication-recovery-methods
   - Cloudflare の復旧コード（Download・Print・Copy、My Profile → Authentication → Manage で作り直し）: https://developers.cloudflare.com/fundamentals/user-profiles/2fa/
   - Cloudflare のチャレンジの応答の `cf-mitigated: challenge`: https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/
+  - ムームードメインのコネクタでできること（空きの検索、持っているドメインの表示、購入の手続き、DNS の設定。ネームサーバーの変更は挙げていない）: https://dime.jp/company_news/detail/?pr=2736382
   - STUDIO の 301（Business プラン以上、旧プランは全プラン。転送元は接続中の独自ドメインのパスだけ。一括の設定はできない）: https://intercom.help/studiodesign/ja/articles/8366949
 
 ## 確認できなかったこと
@@ -91,7 +95,7 @@
 - スケジュールタスクの入力欄に `CRON_TZ=` を書き足して受け付けられるか、次の実行の予定がどのタイムゾーンで表示されるか
 - Claude Code のスレッドに zip を添付できるか、添付したファイルが作業フォルダのどこに置かれるか
 - プロジェクトのスレッドの origin の形（中継の住所か）と、そこで `gh api` の `{owner}/{repo}` が置き換わるか
-- check-skills.yml がこのリポジトリで動くか（ワークフローのファイルを push できるかを含む）
+- check-skills.yml の結果（push は通った。動いた結果はプルリクエストの画面で確かめる）
 
 ## 見送ったもの
 

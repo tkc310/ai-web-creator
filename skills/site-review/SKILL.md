@@ -75,7 +75,7 @@ effort: medium
 
 引き継ぐもの:
 
-1. GitHub: 後任を Organization に招待し、Owner にする（前の担当者が Owner のうちに行う）。リポジトリが前の担当者の個人のアカウントにある場合は、先に Organization を作ってリポジトリを移す（リポジトリの Settings → General のいちばん下の「Transfer」。取り消しにくい操作なので、何が起きるかを説明し、了承を得てから案内する）。Organization を使わない場合は、リポジトリの共同作業者（Collaborator）に招待する
+1. GitHub: 後任を Organization に招待し、Owner にする（前の担当者が Owner のうちに行う）。リポジトリが前の担当者の個人のアカウントにある場合は、先に Organization を作ってリポジトリを移す（リポジトリの Settings → General のいちばん下の「Transfer」。取り消しにくい操作なので、何が起きるかを説明し、了承を得てから案内する）
 2. Cloudflare: 後任を Manage Account → Members に招待する（権限は Super Administrator）
 3. ドメインの会社: 管理画面に登録している担当者の名前と連絡先（メールアドレス、電話番号）を、後任か会社の共有の連絡先に変えてもらう。ログインの扱いは、ドメインの会社と社内の決まりに従う。更新の知らせと支払いの方法も、ここで確かめる
 4. 知らせの宛先: 後任の GitHub で、リポジトリの通知（Watch）を設定してもらう（Issue のメールが後任に届くように）
@@ -94,7 +94,7 @@ effort: medium
 
 1. 自分の Claude のスケジュールタスク（後任のものができてから削除する）
 2. 自分の Claude のプロジェクトからサイトのリポジトリ、Claude の GitHub アプリとコネクタの接続、Secrets の自分の自動修正用の鍵（鍵そのものも無効にする）、自分が作った Cloudflare の API トークン（後任のものに差し替えたあとに削除する）
-3. GitHub の Organization（または共同作業者）と、Cloudflare の Members からの自分
+3. GitHub の Organization と、Cloudflare の Members からの自分
 4. SITE.md に書いた、自分しか開けないプレビューやドキュメントの URL（後任のものに書き換える）
 5. Google フォームや原稿のドキュメントの持ち主（会社のアカウントか後任に移す）
 

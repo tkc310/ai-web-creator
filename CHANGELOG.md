@@ -19,6 +19,7 @@
 - fix(skills): 引っ越しで、studio.site の住所のままのサイトは STUDIO の 301 で転送できない（転送元は接続中の独自ドメインのパスだけ）と、確かめた事実に書き換えた。`?p=` のパーマリンクを変える前に、データベースのバックアップを取る手順を足した（migration.md、versions.md）
 - docs: LICENSE の 4 に、サイトのために使い続けてよいものと、渡すときに除くもの（skills/、prompts/ など）を名前で挙げた。引き渡しで Watch を付け替える手順を足した（LICENSE、client-handoff.md）
 - chore: 配布元の確かめのワークフロー（check-skills.yml。Markdown とワークフローの bash の構文、YAML、check_text.py、MANIFEST.txt、古い構成の記述）と、改善点を送る Issue の書式を足した（.github/、run-logs.md、README.md）
+- docs(skills): 担当者が代わったときは、会社のサイトでは Organization に招待する形だけにした（共同作業者の道を外した）。ムームードメインのネームサーバーの変更は、Claude がコネクタでできるかを確かめ、できなければオーナーが画面で行う、にした（site-review、account-setup.md、connectors.md、migration.md）
 - docs: README の「版の付け方」に、実機で確かめること（最初の入口、raw の手順書、origin の形と `GH_REPO`、zip の添付と Upload files、`CRON_TZ=`、405 の行と確認の画面、鍵がないときの Issue）と、main に直接入れる例外を書いた。プルリクエストを作る場合にメジャーの更新を足し、Google フォームと Search Console の共有のアカウントの勧めをやめた（README.md、templates/AGENTS.md.tmpl、templates/project-instructions.md、SKILL.md、forms.md、quality-gate.md）
 
 ### 2026-10-30（5）
