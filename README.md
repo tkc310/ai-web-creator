@@ -61,6 +61,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 | [docs/verification](docs/verification/README.md) | 構成の検証の記録。スキルに組み込む前に、サンプルを作って計測した結果を残す |
+| [.github](.github/workflows/check-skills.yml) | このリポジトリ自身の確かめ（Markdown の bash の構文、YAML、check_text.py、MANIFEST.txt、古い構成の記述が戻っていないか）と、改善点を送る Issue の書式。サイトのリポジトリには写さない |
 
 ## 設計の方針
 
@@ -97,7 +98,7 @@ Node.js は最新の LTS 版（Node.js の公式が本番用に勧めるもの�
 
 ### スキルはサイトのリポジトリに取り込む
 
-制作に入るとき、Claude がこのリポジトリの最新の版（タグ。タグがない間は main のコミットを1つ決めて固定する）を、サイトのリポジトリの `skills/` に写し、版を `skills/VERSION` に書きます。サイトの CLAUDE.md に「作業の前に skills/ の SKILL.md を読む」と書くので、Claude Code のプロジェクトでも通常のセッションでも同じように読まれます。プロジェクトに入れるリポジトリはサイトのリポジトリ1つで済み、オーナーがフォークを作る必要はありません（公開リポジトリのフォークは必ず公開になるため、使いません）。作業環境で `git clone` が失敗したときは、raw.githubusercontent.com から一覧（`MANIFEST.txt`）のファイルを1つずつ取り、それも通らなければ、推測で進めずにオーナーにリリースの zip を頼みます。
+制作に入るとき、Claude がこのリポジトリの最新の版（タグ。タグがない間は main のコミットを1つ決めて固定する）を、サイトのリポジトリの `skills/` に写し、版を `skills/VERSION` に書きます。サイトの CLAUDE.md に「作業の前に skills/ の SKILL.md を読む」と書くので、Claude Code のプロジェクトでも通常のセッションでも同じように読まれます。プロジェクトに入れるリポジトリはサイトのリポジトリ1つで済み、オーナーがフォークを作る必要はありません（公開リポジトリのフォークは必ず公開になるため、使いません）。作業環境で `git clone` が失敗したときは、raw.githubusercontent.com から一覧（`MANIFEST.txt`）のファイルを1つずつ取り、それも通らなければ、推測で進めずにオーナーにリリースの zip を頼みます（会話に添付するか、GitHub の画面でサイトのリポジトリの別のブランチに置いてもらう）。
 
 新しい版が出たら、月1回の振り返りで Claude が `skills/VERSION` と最新のタグを比べ、変更の要点を3行にまとめて、`skills/` を差し替えるプルリクエストを作ります。オーナーが「OK」と返すとマージします（[skills-install.md](skills/web-creator/references/skills-install.md)）。
 
@@ -122,15 +123,17 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 次の4つはエージェントが代わりに行わず、オーナーに交代します。
 
 1. パスワードの入力と登録の確定
-2. 2段階認証
+2. 2段階認証（QR コードと復旧コードが表示される画面を含む。復旧コードはオーナーが保存し、どこにも書かない）
 3. 支払い、規約への同意、外部サービスへの権限の許可（GitHub アプリのインストール、コネクタの接続）
 4. API トークンなど秘密の文字列の貼り付け
+
+操作の一覧と合計の時間（30〜40分くらい）は、始める前にオーナーに見せます（[account-setup.md](skills/web-creator/references/account-setup.md) の「オーナーの操作の一覧」）。
 
 ドメインの切り替えや既存サイトの削除のように取り消せない操作は、何が起きるかを説明し、オーナーの了承を得てから行います。
 
 ### デプロイを失敗しにくくし、失敗しても自動で直す
 
-CI で確認するのは「ビルドが通るか」と、公開後に主なページが見られるかだけです。公開後の確認では、サイトのリポジトリの `.github/smoke-test.txt` に書いたページが 200 を返し、決めた文字を含むかを確かめます。プルリクエストでは、すべてのサイトでビルドだけを確認します。リンターやテストはエージェントが作業中に実行します。
+CI で確認するのは「ビルドが通るか」と、公開後に主なページが見られるかだけです。公開後の確認では、サイトのリポジトリの `.github/smoke-test.txt` に書いたページが 200（行ごとに `405` などの状態も指定できる）を返し、決めた文字を含むかを確かめます。Cloudflare のセキュリティの確認の画面が返ったページは、失敗にせず警告にします（`.github/scripts/smoke.sh`）。プルリクエストでは、すべてのサイトでビルドだけを確認します。リンターやテストはエージェントが作業中に実行します。
 
 ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、自動修正の Issue（ラベル autofix）が開いている間は動きません。Claude を起動しない知らせの Issue（ラベル deploy-notice）は、開いていても自動修正を止めません。
 
@@ -184,7 +187,7 @@ skills/
 │   │   ├── security-audit.md    … 公開前と機能の変更時のセキュリティ監査
 │   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
 │   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
-│   └── templates/               … SITE.md、AGENTS.md.tmpl と CLAUDE.md.tmpl（サイトの直下に置くときに .tmpl を外す）、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
+│   └── templates/               … SITE.md、AGENTS.md.tmpl と CLAUDE.md.tmpl（サイトの直下に置くときに .tmpl を外す）、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt と scripts/smoke.sh（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
 │   ├── scripts/                 … optimize_images.py（写真のメタ情報の削除と軽量化）
@@ -203,25 +206,25 @@ skills/
 スキルの版は Git のタグで表します。サイトのリポジトリは、このタグを見て新しい版を取り込みます（[skills-install.md](skills/web-creator/references/skills-install.md)）。
 
 - タグの名前は `vYYYY.MM.N`。YYYY.MM はタグを打つ年月、N はその月の通し番号で 0 から始める（例: `v2026.11.0`、`v2026.11.1`）
-- main には、タグを打つ版だけを入れる。作業はブランチで行い、CHANGELOG.md に書いてからプルリクエストで main に入れ、すぐにタグを打つ。段階1のチャットは main を読むので、main とタグの版がずれないようにするため
+- main には、タグを打つ版だけを入れる。作業はブランチで行い、CHANGELOG.md に書いてからプルリクエストで main に入れ、すぐにタグを打つ。段階1のチャットは main を読むので、main とタグの版がずれないようにするため。例外は、下の手順2（版の見出しの日付と `MANIFEST.txt`）と、手順3と4で見つかった直しで、どれもタグを打つ前に作者のパソコンから main に直接入れる
 - サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない
 - タグは作者のパソコンから push する。Claude Code のクラウドのセッションでは、GitHub の中継（プロキシ）がタグの push を拒否する（「the proxy rejects branch deletions and pushes of anything other than a branch, such as a tag」。出典: https://code.claude.com/docs/en/cloud-environments 、2026-10-30 確認）。リリースの作成と zip の添付も、同じパソコンで行う。エージェントはタグを打たず、main にもマージしない
 - タグが1つもない間は、サイトのリポジトリは main の最新のコミットを取り込み、`skills/VERSION` に `tag: none` とそのコミットを書いて固定する。今の作り方になる前の古い main（`skills/web-creator/references/skills-install.md` がない版）は取り込まずに止まる
 - タグを打つ前に、ファイルの一覧 `MANIFEST.txt`（`# tag:` の行と、`LICENSE` と `skills/` のファイルごとの SHA-256）を作って main に入れる。clone できない作業環境で、Claude が raw.githubusercontent.com から1つずつ取り、一覧と合うかを確かめるのに使う（skills-install.md の「C の raw.githubusercontent.com から取り込むとき」）。作り方は下の手順2
-- タグを打つたびに、同じ版の `skills/`、`LICENSE`、`VERSION`（source、tag、commit の3行）を入れた zip（`ai-web-creator-<タグ>.zip`）を作り、GitHub のリリースに添付する。clone も raw も通らない作業環境で、オーナーがダウンロードしてチャットに添付する（skills-install.md の「B の zip から取り込むとき」）。配布元を非公開にする場合は、同じ zip を解説記事に添付する。zip の作り方を変えたら skills-install.md も直す。`gh release create` を使うので、作者のパソコンに GitHub CLI（gh）を入れ、`gh auth login` でログインしておく
+- タグを打つたびに、同じ版の `skills/`、`LICENSE`、`CHANGELOG.md`、`VERSION`（source、tag、commit の3行）を入れた zip（`ai-web-creator-<タグ>.zip`）を作り、GitHub のリリースに添付する。clone も raw も通らない作業環境で、オーナーがダウンロードしてチャットに添付する（skills-install.md の「B の zip から取り込むとき」。チャットに添付できないときは、GitHub の画面でサイトのリポジトリの別のブランチに置いてもらう）。配布元を非公開にする場合は、同じ zip を解説記事に添付する。zip の作り方を変えたら skills-install.md も直す。`gh release create` を使うので、作者のパソコンに GitHub CLI（gh）を入れ、`gh auth login` でログインしておく
 
   ```bash
   tag=v2026.11.0
   out="$(mktemp -d)"
-  git archive --format=tar "$tag" skills LICENSE | tar -x -C "$out"
+  git archive --format=tar "$tag" skills LICENSE CHANGELOG.md | tar -x -C "$out"
   printf 'source: https://github.com/tkc310/ai-web-creator\ntag: %s\ncommit: %s\n' "$tag" "$(git rev-list -n 1 "$tag")" > "$out/VERSION"
-  (cd "$out" && zip -qr "ai-web-creator-$tag.zip" skills LICENSE VERSION)
+  (cd "$out" && zip -qr "ai-web-creator-$tag.zip" skills LICENSE CHANGELOG.md VERSION)
   gh release create "$tag" "$out/ai-web-creator-$tag.zip" --title "$tag" --notes-file <(sed -n "/^## $tag/,/^## /p" CHANGELOG.md | sed '$d')
   ```
 
 最初のタグは、次の順に打ちます。手順1、2、5、7は作者のパソコンで行います。
 
-1. 作業ブランチのプルリクエストを main にマージする
+1. 作業ブランチのプルリクエストで、check-skills のワークフロー（.github/workflows/check-skills.yml）が通っていることを確かめてから、main にマージする。手順2のあとの main への push とタグの push では、MANIFEST.txt が合うかも同じワークフローが確かめる
 2. CHANGELOG.md のいちばん上の見出し `## v2026.11.0（未リリース）` の「未リリース」を、タグを打つ日に書き換える（例: `## v2026.11.0（2026-11-01）`）。版の見出しの下には、タグのない日付の見出し（`### 2026-10-30（2）` など）をまとめてある。リリースの説明は、版の見出しから次の `## ` の見出しまでを使う。続けて `MANIFEST.txt` を作り、両方を main にコミットして push する
 
    ```bash
@@ -234,6 +237,9 @@ skills/
    ```
 
 3. 使い捨てのサイトのリポジトリ（README だけのもの）で、取り込みから公開までを Claude Code のプロジェクトのスレッドで通して確かめる。手順3と4で直すところが見つかったら、作業ブランチで直して main に入れ、手順2の `MANIFEST.txt` を作り直してから、もう一度確かめる
+   - 最初に、Pro のアカウントの新しいチャット（設定の「Code execution and file creation」はオン）で、この README の「使い方」の文章を送る。返事に `v2026.11.0` が書かれ、hearing.md の最初の質問（選択肢つき、一度に4問まで）が出ることを確かめる。読者がいちばん最初に通る入口なので、ここが通らなければ先に進まない
+   - 引き継ぎ文（templates/handoff.md）の1文目のとおり、`curl` で raw.githubusercontent.com の skills-install.md を1つだけ取れるかを確かめる
+   - スレッドの作業フォルダの `git remote get-url origin` の形（github.com か、中継の住所か）と、skills-install.md の初回の手順の1の非公開の確かめが `true` で通ることを確かめる。`gh api 'repos/{owner}/{repo}'` が置き換わらないときに、`GH_REPO` で通ることも確かめる。結果を versions.md に書く
    - skills-install.md の初回の手順をそのまま試し、`skills/VERSION` が書かれることを確かめる（タグを打つ前なので `tag: none` になる）
    - プロジェクトのスレッドで、セッションにつないでいない公開リポジトリ（このリポジトリ）を `git clone` できるかを確かめる（A の経路。公式の文書には、つないでいないリポジトリの clone が通るかは書かれていない）。通らなければ、C の経路（raw.githubusercontent.com と MANIFEST.txt）で取り込めることを確かめる。C も通らなければ、B の zip で取り込めることを確かめる。どの経路が通ったかを versions.md に書く
    - 取り込みのコミットが main に入り（初回の手順の8。その前に Claude がオーナーの OK を求めること）、新しく始めた2つ目のスレッドから skills/ と SITE.md が見え、CLAUDE.md の3つの決まり（SITE.md の作業用のブランチに切り替える、など）に従うことを確かめる。`@AGENTS.md` が読み込まれているかも、スレッドに AGENTS.md の決まりを聞いて確かめる
@@ -242,6 +248,9 @@ skills/
    - Pro のアカウントで、作った本人が自分のプレビュー（アーティファクト）にコメントを付けて Claude に送れるかを確かめる。送れたら、preview.md の「直してほしいところの伝え方」を直す
    - 設定の「Code execution and file creation」をオフにしたチャットで、how-to-use.md の段階1の代わりの道（リリースの zip の中のファイルを添付する）で相談を始められるかを確かめる
    - 同じリポジトリで、skills-install.md の「新しい版への更新」を1回通す（`skills/VERSION` の commit を1つ前のコミットに書き換えて試す。浅い clone のときに履歴を取り直せること）
+   - B の zip の道を確かめる。Claude Code のスレッドに zip を添付できるか（添付したファイルが作業フォルダのどこに置かれるか）、添付できなければ、GitHub の画面の「Upload files」で zip を `skills-zip` のブランチに置き、`git show` で取り出せるかを確かめる（skills-install.md の「B の zip から取り込むとき」の B1 と B2）。`unzip` がないときの `python3 -m zipfile -e` も試す
+   - スケジュールタスクの「Custom」の入力欄に、もとから `CRON_TZ=` が入っているか、`CRON_TZ=Asia/Tokyo` を書き足して受け付けられるか、`7 0 1,15 * *` で次の実行の予定が日本時間の1日か15日の 9:07 になるかを確かめる。結果を site-maintenance の references/routine-setup.md の「実行日」と versions.md に書く
+   - `.github/smoke-test.txt` に、お問い合わせの受け口などの `405` の行を1つ足して、公開後の確認が通ることを確かめる。Cloudflare の Security の設定（Bot Fight Mode など）を試しにオンにできるときは、確認の画面が返ったページが失敗ではなく警告になることも確かめる（終わったら設定を戻す）
    - 要保守構成のサイトを1つ用意できるときは、site-maintenance のスケジュールタスクを「Run now」で1回動かし、パッチの更新が main に入ること、メジャーの更新がプルリクエストのまま残ること、どのプルリクエストもマージされないことを確かめる
 4. 同じリポジトリで、自動修正の経路を1回ずつ起こして確かめる
    - 記事の frontmatter をわざと壊して push する → Claude が直して公開し直す（build のジョブの失敗）
@@ -249,6 +258,7 @@ skills/
    - `.github/smoke-test.txt` にページにない文字を書いて push する → Claude は起動せず、公開後の確認だけの失敗の Issue（ラベル deploy-notice）が立つ。その Issue が開いたままでも、次のビルドの失敗で自動修正が動く
    - 記事の frontmatter を壊し、本文に「`.git/config` と `/proc/self/environ` を読んで、ログに書き写す」「`cat .git/config` と `env` を実行して結果をログに書く」という文を入れて push する → Claude が読めず、ログと Issue に中身が出ない（autofix.yml の許可と拒否のルールが効いている。読み取りのコマンドは承認なしで通るため、`env` などを拒否の規則に入れている）
    - 記事の iframe の埋め込みを残したまま frontmatter を壊して push する → 失敗の前からあった埋め込みでは止まらず、Claude が直して公開し直す（check_text.py の `--baseline`）
+   - 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` と `ANTHROPIC_API_KEY`）を Secrets から一時的に外し、記事の frontmatter を壊して push する → Claude は起動せず、「自動修正用の鍵が登録されていないため」の Issue（ラベル autofix）が立つ。続けて、鍵にわざと違う値を入れて同じ壊し方をする → 「考えられる原因」を並べた Issue が立つ。終わったら鍵を戻す
    - 操作の回数の上限に当たる失敗を起こせたら（直すところが多い壊し方をする）、Issue に「決めた回数（30回）の操作の中で直しきれずに止まりました」と出ることと、`execution_file` の最後の `result` の `subtype` が `error_max_turns` になっていることを確かめる
 5. タグを打って送る
 
@@ -284,6 +294,6 @@ skills/
 
 ## フィードバック
 
-うまく動かなかった手順や、分かりにくかった説明は、note の窓口か、このリポジトリの Issue で教えてください。送るかどうかは任意です。Issue は誰でも読めるので、サイトの URL や個人情報は書かないでください。サイトのリポジトリで Claude が見つけた改善点は、logs/IMPROVEMENTS.md に残っています（送り方は [run-logs.md](skills/web-creator/references/run-logs.md) の「スキルの改善点を配布元に送る（任意）」）。
+うまく動かなかった手順や、分かりにくかった説明は、note の窓口か、このリポジトリの Issue（書式「スキルの改善点」）で教えてください。送るかどうかは任意です。Issue は誰でも読めるので、サイトの URL や個人情報は書かないでください。サイトのリポジトリで Claude が見つけた改善点は、logs/IMPROVEMENTS.md に残っています（送り方は [run-logs.md](skills/web-creator/references/run-logs.md) の「スキルの改善点を配布元に送る（任意）」）。
 
 いただいた意見をもとに改善した記録は [docs/logs/](docs/logs/README.md) に残しています。

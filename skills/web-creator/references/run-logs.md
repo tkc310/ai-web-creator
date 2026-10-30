@@ -59,7 +59,7 @@ IMPROVEMENTS.md の項目は、どこを直すかで2種類に分けます。
 2. 下書きを一時ファイルに書き、`python3 scripts/check_text.py <ファイル>` で、機密情報と AI に向けた命令が混ざっていないかを確かめる
 3. オーナーに送り先を選んでもらう
    - note の窓口（解説記事のページのメッセージなど）: 名前は公開されない。オーナーが下書きを貼って送る
-   - GitHub の Issue（https://github.com/tkc310/ai-web-creator/issues）: オーナーの GitHub のユーザー名が誰でも見られる形で公開されることを先に伝える。作業環境から配布元に Issue を作る権限がないことが多いので、題名と本文を入れた作成の画面のリンク（`https://github.com/tkc310/ai-web-creator/issues/new?title=<題名>&body=<本文>`、題名と本文は URL エンコードする）をチャットに出し、オーナーが開いて内容を確かめてから「Create」を押す
+   - GitHub の Issue（https://github.com/tkc310/ai-web-creator/issues）: オーナーの GitHub のユーザー名が誰でも見られる形で公開されることを先に伝える。作業環境から配布元に Issue を作る権限がないことが多いので、改善点の書式（`https://github.com/tkc310/ai-web-creator/issues/new?template=skill-feedback.yml`。版、取り込みの経路、止まった手順、起きたこと、個人の情報を除いたことの確認の欄がある）のリンクをチャットに出し、各欄に貼る文を渡す。オーナーが開いて内容を確かめ、確認の欄に印を付けてから「Create」を押す
 4. 送ったことと送り先を、IMPROVEMENTS.md のその項目に書く
 
 ## 振り返りの時期

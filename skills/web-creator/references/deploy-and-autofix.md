@@ -25,6 +25,7 @@ deploy と autofix は同じ同時実行のグループ（`publish`）で動く�
    - templates/github/workflows/deploy.yml、autofix.yml、check.yml → `.github/workflows/`
    - templates/github/dependabot.yml → `.github/dependabot.yml`
    - templates/github/smoke-test.txt → `.github/smoke-test.txt`（下の「公開後の確認」。`<...>` を埋める）
+   - templates/github/scripts/smoke.sh → `.github/scripts/smoke.sh`（公開後の確認の処理。deploy と autofix の両方が動かす。ワークフローのファイルではないので、`.github/workflows/` の push が拒否される場合も、ふつうに push できる）
    - templates/gitignore.txt → `.gitignore`
    - templates/node-version.txt → `.node-version`（Node.js のバージョン。ひな形なので、runtime-update スキルの基準で調べた、作業する日の最新の LTS 版のメジャー番号だけを書く）
    - templates/claude/settings.json → `.claude/settings.json`、templates/claude/agents/site-builder.md → `.claude/agents/site-builder.md`（使うモデルの設定。versions.md）
@@ -47,7 +48,7 @@ deploy と autofix は同じ同時実行のグループ（`publish`）で動く�
 
 ## 公開後の確認（スモークテスト）
 
-deploy ワークフローは、公開のあとに `.github/smoke-test.txt` に書いたページを開き、状態が 200 で、決めた文字を含むかを確かめます。CI を増やさないため、確かめるのはこれだけです。
+deploy ワークフローは、公開のあとに `.github/smoke-test.txt` に書いたページを開き、決めた状態（ふだんは 200）で、決めた文字を含むかを確かめます。CI を増やさないため、確かめるのはこれだけです。処理は `.github/scripts/smoke.sh` にまとめてあり、autofix の公開後の確認も同じものを動かします（autofix では、Claude が書き換えたものを動かさないよう、失敗した版のコミットから写して動かす）。
 
 ```
 # .github/smoke-test.txt
@@ -57,6 +58,8 @@ https://example.co.jp/contact/ お問い合わせ
 ```
 
 - 1行に1つ、URL と、そのページに必ず含まれる文字を空白で区切って書く。文字には空白を含めてよい。`#` で始まる行は読まない
+- 200 以外の状態を確かめたいページは、URL のあとに3桁の数字で状態を書く（例: `https://example.co.jp/api/contact 405`。お問い合わせの受け口は、ブラウザで開くと 405 を返す）。状態を書いた行は、転送をたどらずにその応答を確かめる。状態を書かない行は 200 として、転送をたどってから確かめる
+- 応答のヘッダーに `cf-mitigated: challenge` があるページ（Cloudflare のセキュリティの確認の画面が返った）は、失敗にせず警告にする。サイトは動いていて、GitHub Actions からの自動のアクセスが止められているだけのことが多いため。すべてのページがそうなったときは、確認が働いていないことを警告に出す（Cloudflare のドキュメント「Detect a Challenge Page response」、2026-10-30 確認: https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/ ）
 - 載せるのは、トップページと、ページの種類ごとに代表1つ（Lighthouse で測るページと同じ。quality-gate.md）。多くて5ページにする
 - 文字は、表示が崩れても残る固有の言葉（サイト名、見出し）を選ぶ。日付や件数のように変わるものは選ばない
 - 文字はページの HTML の中で探す。`&` や `<` を含む見出しは HTML の中では `&amp;` や `&lt;` になっているので、その書き方で書くか、記号を含まない言葉を選ぶ
@@ -167,7 +170,7 @@ Issue の本文は、何が起きたかで書き分けます。どの場合も�
 | 起きたこと | 公開中のサイト | 本文に書く頼み方 |
 |---|---|---|
 | ビルドの失敗を直せなかった、範囲の外の修正が要る | 前回の版のまま | 「サイトの公開が失敗しているので直して」 |
-| Claude の実行が途中で止まった | 前回の版のまま | 鍵の期限切れか利用の上限の可能性。鍵の発行日は SITE.md の「技術」。「公開が失敗しているので直して。自動修正用の鍵の期限も確かめて」 |
+| Claude の実行が途中で止まった | 前回の版のまま | 考えられる原因を並べる（鍵の期限切れか取り消し、鍵の登録の間違い、利用の上限、一時的な不調）。鍵の発行日は SITE.md の「技術」。「公開が失敗しているので直して。自動修正用の鍵の期限も確かめて」 |
 | Claude が30ターンの上限で止まった | 前回の版のまま | 鍵や利用の上限の問題ではない。「サイトの公開が失敗しているので直して」 |
 | 公開の段階だけの失敗 | 前回の版のまま | Cloudflare の鍵や設定の可能性。「サイトの公開が失敗しているので直して」 |
 | 公開後の確認だけの失敗（deploy でも autofix の公開のあとでも） | 新しい版 | 上の3つの頼み方 |
@@ -181,6 +184,8 @@ Claude が調べた原因（autofix が書いた `logs/*_autofix.md`）は、che
 autofix と deploy-notice の Issue は、Claude が原因を直して公開し直したあとに閉じます。オーナーが「直して」と頼んだ会話の中で、公開後の確認が OK になったことを確かめてから閉じ、オーナーに「◯日の公開の失敗は、◯◯を直して公開し直しました」と一言伝えます。オーナーが自分で閉じてもかまいません。ラベル autofix の Issue（題名「サイトの公開に失敗しました」）は、閉じるまで autofix が動きません。ラベル deploy-notice の Issue（題名「サイトの公開について確認してください」）は、開いていても autofix を止めません。
 
 クラウドの作業環境では `gh issue` と `gh pr` が使えません（GitHub の GraphQL が拒否される。versions.md の「時点つきの事実」）。Issue やプルリクエストの操作は、REST の `gh api` で行います。
+
+下の `{owner}/{repo}` は、gh が作業フォルダの origin から読み取って置き換えます。クラウドの作業環境では origin が中継の住所になっていて、読み取れないことがあります（`none of the git remotes configured for this repository point to a known GitHub host` などと出る）。そのときは、同じ呼び出しの最初に `export GH_REPO=<owner>/<repo>`（SITE.md の「技術」の「リポジトリ」の値）を書きます。gh は、`GH_REPO` があれば `{owner}/{repo}` をその値で置き換えます（`gh api --help`）。
 
 - Issue を閉じる: `gh api -X PATCH 'repos/{owner}/{repo}/issues/<番号>' -f state=closed`
 - 開いている autofix の Issue を探す: `gh api 'repos/{owner}/{repo}/issues?state=open&labels=autofix' --jq '.[].number'`（知らせは `labels=deploy-notice`）

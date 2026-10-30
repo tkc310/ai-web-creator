@@ -25,11 +25,11 @@ Claude Code に移ります。プロジェクトの指示の下書きと、最�
 引き継ぎ文がない場合は、次の文章を使います。
 
 ```
-最初に、git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-src/src で配布元を取得し
-（GitHub の API や、リポジトリをこの会話に追加する操作は使わないでください）、
-その中の skills/web-creator/references/skills-install.md の手順でスキルをこのリポジトリの skills/ に取り込んでください。
-clone が失敗したら、https://raw.githubusercontent.com/tkc310/ai-web-creator/main/skills/web-creator/references/skills-install.md の「C」の手順を試し、
-それも失敗したら、推測で進めずに、スキルの zip を添付するよう私に頼んでください。取り込めたら、取り込んだ版を教えてください。
+最初に、curl -fsSL https://raw.githubusercontent.com/tkc310/ai-web-creator/main/skills/web-creator/references/skills-install.md
+でスキルの取り込みの手順書を取得して読み、その「初回の手順」でスキルをこのリポジトリの skills/ に取り込んでください
+（GitHub の API や、リポジトリをこの会話に追加する操作は使わないでください）。
+取得できなければ、git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-read で取得して同じファイルを読み、
+どちらも失敗したら、推測で進めずに、スキルの zip を渡すよう私に頼んでください。取り込めたら、取り込んだ版を教えてください。
 そのあと、skills/web-creator/SKILL.md に従ってサイトを作ってください。
 チャットで相談した内容は次のとおりです。
 （相談の内容を貼る）
@@ -163,6 +163,8 @@ GitHub から公開失敗のお知らせが来ました。直して、原因を�
 ```
 確認なしで公開してよい変更の種類を決めたいです。選択肢をつけて聞いて、SITE.md に書いてください。
 ```
+
+数字（営業時間、価格、日付）、ページの部品、人が写っている写真の変更と、要点から作った下書きは、確認なしにした種類に当たっても、Claude が必ずプレビューを見せます。
 
 ## アクセス数を知りたいとき
 

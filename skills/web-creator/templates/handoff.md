@@ -7,7 +7,7 @@
 - 添付された素材（ロゴ、写真、PDF）は、Claude Code の会話には引き継がれない。もう一度添付してもらうものを、最後の「添付するもの」に書く
 
 ```
-最初に、`git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-src/src` で配布元を取得し（GitHub の API や、リポジトリをこの会話に追加する操作は使わないでください）、その中の skills/web-creator/references/skills-install.md を読み、その手順でスキルをこのリポジトリの skills/ に取り込んでください。clone が失敗したら、https://raw.githubusercontent.com/tkc310/ai-web-creator/main/skills/web-creator/references/skills-install.md を読み、その「C の raw.githubusercontent.com から取り込むとき」を試してください。それも失敗したら、推測で進めずに、理由を教えて、スキルの zip を添付するよう私に頼んでください。取り込めたら、取り込んだ版（skills/VERSION の tag と commit）を教えてください。
+最初に、`curl -fsSL https://raw.githubusercontent.com/tkc310/ai-web-creator/main/skills/web-creator/references/skills-install.md` でスキルの取り込みの手順書を1つだけ取得して読み、その「初回の手順」でスキルをこのリポジトリの skills/ に取り込んでください（GitHub の API や、リポジトリをこの会話に追加する操作は使わないでください）。取得できなければ、`git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-read` で取得し、その中の同じファイルを読んでください。どちらも失敗したら、推測で進めずに、理由を教えて、スキルの zip を渡すよう私に頼んでください。取り込めたら、取り込んだ版（skills/VERSION の tag と commit）を教えてください。
 取り込んだら、skills/web-creator/SKILL.md に従い、次の内容で SITE.md を作ってから、サイトを作ってください。
 
 ## サイト

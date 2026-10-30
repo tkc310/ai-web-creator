@@ -42,7 +42,7 @@ BINARY_SUFFIXES = {
     ".zip", ".gz",
 }
 SKIP_DIRS = {".git", "node_modules", "dist", ".astro", ".wrangler", "lighthouse-reports"}
-MARKUP_SUFFIXES = {".md", ".mdx", ".markdown", ".txt", ".csv"}  # 原稿として扱うもの
+MARKUP_SUFFIXES = {".md", ".mdx", ".markdown", ".txt", ".csv", ".json", ".yaml", ".yml"}  # 原稿として扱うもの（記事のデータを含む）
 LOG_DIRS = {"logs", "audit-log"}  # 原稿の中の不審な記述を調べないフォルダ（今のフォルダから見た最初のフォルダ）
 
 # 機密情報の形
@@ -89,7 +89,11 @@ INJECTION_PATTERNS = [
 MARKUP_PATTERNS = [
     ("スクリプト", re.compile(r"(?i)<\s*script\b")),
     ("埋め込み", re.compile(r"(?i)<\s*(?:iframe|object|embed)\b")),
+    ("ページの動きを変えるタグ", re.compile(r"(?i)<\s*(?:meta|base|form|link|style|svg)\b")),
+    ("イベントの属性", re.compile(r"(?i)<\s*[a-z][^>]*?\son[a-z]+\s*=")),
+    ("フォームの送り先の属性", re.compile(r"(?i)\bformaction\s*=")),
     ("javascript: のリンク", re.compile(r"(?i)javascript\s*:")),
+    ("data: の HTML", re.compile(r"(?i)data\s*:\s*text/html")),
     ("隠すための CSS", re.compile(r"(?i)(?:display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0(?:px)?\b|opacity\s*:\s*0(?:\.0+)?\b)")),
 ]
 HTML_COMMENT = re.compile(r"<!--(.*?)-->", re.S)

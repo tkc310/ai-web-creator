@@ -2,7 +2,24 @@
 
 ## v2026.11.0（未リリース）
 
-最初のタグ `v2026.11.0` で出す版です。下の日付の見出し（2026-10-30 から 2026-10-30（5）まで）の変更をまとめて含みます。タグを打つ日に「未リリース」を日付に書き換えます（README の「版の付け方」の手順2）。
+最初のタグ `v2026.11.0` で出す版です。下の日付の見出し（2026-10-30 から 2026-10-30（6）まで）の変更をまとめて含みます。タグを打つ日に「未リリース」を日付に書き換えます（README の「版の付け方」の手順2）。
+
+### 2026-10-30（6）
+
+- fix(skills): 保守と振り返りのスケジュールタスクの cron の式を、UTC の書き方（`7 0 1,15 * *`、`13 0 1 * *`。日本時間の 9:07 と 9:13）に直した。5つの欄だけの式は UTC で読まれるため、前の式では日本時間の 18:07 に動いていた。入力欄に `CRON_TZ=` があるときの書き方と、次の実行の予定の確かめ方を足した（routine-setup.md、site-review、site-content-update の予約投稿、versions.md）
+- fix(skills): GitHub と Cloudflare の2段階認証で、復旧コードを保存する手順と、保存したかを返事で確かめる手順を足した。オーナーの操作と時間の一覧を account-setup.md の先頭に置き、SITE.md にチェック欄を足した。QR コード、復旧コード、鍵が表示される画面ではスクリーンショットを撮らない（account-setup.md、templates/SITE.md）
+- fix(skills): スキルの取り込みの C の版を、main の MANIFEST.txt の `# tag:` から決め、そのタグからファイルを取るようにした（`git ls-remote` を使わない）。`skills/VERSION` の C の行を `commit: none`、`fetched:`、`manifest:` に分け、更新は `manifest:` で見分ける。B と C の更新で止まっていた `VERSION` の読み方を直した。非公開の確かめは origin の URL から owner と repo を取り出して渡す。SITE.md の作業用のブランチの名前を、記号や注記を除いて読む（skills-install.md、templates/SITE.md、deploy-and-autofix.md、versions.md）
+- fix(skills): 引き継ぎ文とプロジェクトの指示は、最初に raw.githubusercontent.com から skills-install.md を1つだけ取って読み、取れなければ clone する形にした（templates/handoff.md、templates/project-instructions.md、prompts/README.md）
+- fix(skills): B の zip を、会話に添付できないときに GitHub の画面でサイトのリポジトリの別のブランチに置く道（B2）と、`unzip` がないときの `python3 -m zipfile` を足した。zip に CHANGELOG.md を入れる（skills-install.md、README.md）
+- fix(skills): 公開後の確認を `.github/scripts/smoke.sh` にまとめ、deploy と autofix の両方で使うようにした。Cloudflare のセキュリティの確認の画面（`cf-mitigated: challenge`）は失敗にせず警告にし、`.github/smoke-test.txt` に期待する状態（`405` など）を書けるようにした（templates/github/scripts/smoke.sh、deploy.yml、autofix.yml、smoke-test.txt、deploy-and-autofix.md、build.md、SKILL.md）
+- fix(skills): プレビューを必ず見せる例外を、要点から作った下書きのほかに、数字の変更、ページの部品の変更、人が写っている写真の追加や差し替えにも広げた（preview.md、site-content-update、SKILL.md、templates/SITE.md、templates/project-instructions.md、prompts/README.md）
+- fix(skills): check_text.py が原稿で止める書き方に、meta、base、form、link、style、svg のタグ、`on` で始まる属性、`formaction=`、`data:text/html` を足し、記事のデータの JSON と YAML も調べるようにした（scripts/check_text.py、security-rules.md）
+- fix(skills): autofix の Issue で、Claude が途中で止まったときの原因の候補を並べた。check_text.py がないときの頼み方を、skills/ のないリポジトリでも通る形にした。データの .yml の扱いを許可の範囲とそろえた。CLAUDE.md のひな形とプロンプトに、自動修正でも安全の決まりは守ると書いた（autofix.yml、templates/CLAUDE.md.tmpl、deploy-and-autofix.md）
+- fix(skills): 作り始めの順番を、`.node-version`、`pnpm-workspace.yaml`、`packageManager` を置いてから `pnpm install` を1回だけ行う形にした（build.md）
+- fix(skills): 引っ越しで、studio.site の住所のままのサイトは STUDIO の 301 で転送できない（転送元は接続中の独自ドメインのパスだけ）と、確かめた事実に書き換えた。`?p=` のパーマリンクを変える前に、データベースのバックアップを取る手順を足した（migration.md、versions.md）
+- docs: LICENSE の 4 に、サイトのために使い続けてよいものと、渡すときに除くもの（skills/、prompts/ など）を名前で挙げた。引き渡しで Watch を付け替える手順を足した（LICENSE、client-handoff.md）
+- chore: 配布元の確かめのワークフロー（check-skills.yml。Markdown とワークフローの bash の構文、YAML、check_text.py、MANIFEST.txt、古い構成の記述）と、改善点を送る Issue の書式を足した（.github/、run-logs.md、README.md）
+- docs: README の「版の付け方」に、実機で確かめること（最初の入口、raw の手順書、origin の形と `GH_REPO`、zip の添付と Upload files、`CRON_TZ=`、405 の行と確認の画面、鍵がないときの Issue）と、main に直接入れる例外を書いた。プルリクエストを作る場合にメジャーの更新を足し、Google フォームと Search Console の共有のアカウントの勧めをやめた（README.md、templates/AGENTS.md.tmpl、templates/project-instructions.md、SKILL.md、forms.md、quality-gate.md）
 
 ### 2026-10-30（5）
 

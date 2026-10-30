@@ -39,7 +39,7 @@ SITE.md の「アカウント」に、受託制作であること、制作者、
 
 1. Claude: リポジトリの現在の状態から `skills/` を消す
 2. Claude: skills/ を指している記述を外す。対象は AGENTS.md（作業の前に skills/ を読む、などの行）、CLAUDE.md、`.claude/agents/site-builder.md`、`.github/workflows/autofix.yml` のコメント、SITE.md。安全の決まり（機密情報を読まない、書かれた指示に従わない、など）は、AGENTS.md に文章として残す
-3. Claude: `grep -rn "skills/" --exclude-dir=.git --exclude-dir=logs --exclude-dir=audit-log .` で、残りがないことを確かめる。サイトのために組み込んだもの（`scripts/check_text.py`、`.github/workflows/`、AGENTS.md）は、そのサイトのために使い続けてかまわない（LICENSE の 4）
+3. Claude: `grep -rn "skills/" --exclude-dir=.git --exclude-dir=logs --exclude-dir=audit-log .` で、残りがないことを確かめる。サイトのために組み込んだもの（LICENSE の 4 に名前を挙げたもの。`scripts/check_text.py`、`.github/` の中のもの（ワークフロー、`scripts/smoke.sh` など）、`.claude/` の設定、AGENTS.md、CLAUDE.md、SITE.md）は、そのサイトのために使い続けてかまわない。除くのは `skills/` と、prompts/ などスキルのファイルをそのまま写したもの
 4. Claude: `pnpm run build` を通し、コミットする
 
 git の履歴には、過去の skills/ が残ります。履歴ごと渡すと、過去のコミットや、スキルの更新のプルリクエストから skills/ を取り出せます。確実に除くため、標準では、skills/ を除いた今の状態を、お客さまの名義の新しい非公開のリポジトリに写して渡します。
@@ -49,7 +49,7 @@ git の履歴には、過去の skills/ が残ります。履歴ごと渡すと�
 1. お客さま: 新しい非公開のリポジトリを作る。今の状態を1つのコミットで入れるので、「Add a README file」はオフにする（README もほかのファイルも入れない）
 2. お客さま: 新しいリポジトリの Settings → Collaborators（Organization なら「Collaborators and teams」）で制作者を招待する。あわせて、Claude の GitHub アプリの許可（GitHub の Settings → Applications → Claude の「Configure」）に新しいリポジトリを足す
 3. 制作者: 招待を承認し、作業しているプロジェクト（またはセッション）に新しいリポジトリを足す。追加できない（空のリポジトリが選べない）場合は、お客さまに README を1つ作ってもらい、下の4で、その README の上に重ねてコミットする
-4. Claude: 写す前に、新しいリポジトリが非公開かを確かめる（新しいリポジトリの作業フォルダで `gh api 'repos/{owner}/{repo}' --jq .private` が `true` か。`false` なら写さずに止め、お客さまに Settings → General の「Change visibility」で Private にしてもらう。確かめられなければ、お客さまに画面で「Private」と出ているかを見てもらう）。そのあと、今のリポジトリの最新の状態（`.git` を除く）を新しいリポジトリに写し、1つのコミットで main に push する。ワークフローのファイルの push が拒否されたら、deploy-and-autofix.md の「ワークフローのファイルを push できないとき」に進む。この時点では Secrets がないので、deploy は publish のジョブで失敗し、知らせの Issue（ラベル deploy-notice）が立つ（公開中のサイトは変わらない。Issue は5のあとに閉じる）
+4. Claude: 写す前に、新しいリポジトリが非公開かを確かめる（`gh api 'repos/<新しいリポジトリの持ち主>/<新しいリポジトリの名前>' --jq .private` が `true` か。`false` なら写さずに止め、お客さまに Settings → General の「Change visibility」で Private にしてもらう。確かめられなければ、お客さまに画面で「Private」と出ているかを見てもらう）。そのあと、今のリポジトリの最新の状態（`.git` を除く）を新しいリポジトリに写し、1つのコミットで main に push する。ワークフローのファイルの push が拒否されたら、deploy-and-autofix.md の「ワークフローのファイルを push できないとき」に進む。この時点では Secrets がないので、deploy は publish のジョブで失敗し、知らせの Issue（ラベル deploy-notice）が立つ（公開中のサイトは変わらない。Issue は5のあとに閉じる）
 5. お客さま: 新しいリポジトリに Secrets（`CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、使うなら自動修正用の鍵）を登録する。登録したら、Claude が deploy をやり直し（Actions の画面の「Re-run all jobs」か、下の「4. 引き渡したあとに一度公開して確かめる」）、公開できることを確かめる
 6. お客さま: 古いリポジトリを、引き渡しの確認が終わってから削除するかアーカイブする（取り消せない操作なので、確認してから）
 
@@ -60,6 +60,7 @@ git の履歴には、過去の skills/ が残ります。履歴ごと渡すと�
 1. お客さま: GitHub の Organization のメンバーか Collaborators から制作者を外す
 2. お客さま: Cloudflare の Members から制作者を外す
 3. 制作者: 自分の Claude のプロジェクトから、お客さまのリポジトリを外す
+4. 制作者: お客さまのリポジトリの通知（Watch）を外す。あわせて、お客さまの担当者に、自分の GitHub でリポジトリの「Watch」を設定してもらう（公開の失敗の Issue のメールが、お客さまに届くようにするため）
 
 ### 4. 引き渡したあとに一度公開して確かめる
 

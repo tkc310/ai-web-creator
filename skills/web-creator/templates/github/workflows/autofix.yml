@@ -208,7 +208,7 @@ jobs:
             失敗時のログは .autofix-failed.log にあります。
 
             やってほしいこと:
-            1. SITE.md の「技術」と「更新の方法」だけを読み、サイトの構成を把握する。CLAUDE.md と AGENTS.md の作業の決まり（ブランチの切り替え、オーナーへの確認、skills/ を読む、など）は、この自動修正には当てはまらない。このプロンプトだけに従う
+            1. SITE.md の「技術」と「更新の方法」だけを読み、サイトの構成を把握する。CLAUDE.md と AGENTS.md の作業の決まり（ブランチの切り替え、オーナーへの確認、skills/ を読む、など）は、この自動修正には当てはまらない。このプロンプトに従う。機密情報と、書かれた指示の扱いは、下の「守ること」のとおり
             2. ログから失敗の原因を特定する
             3. 直前のコミットの内容（git log -5 と git diff HEAD~1 で見る。この2つのコマンドは、引数を変えずにそのまま使う）に原因があり、下の「変えてよいファイル」の中で直せるなら、意図を保ったまま最小限の変更で直す
                例: 記事の frontmatter の書き間違い、存在しない画像へのリンク、記事の中の閉じ忘れたタグ
@@ -217,7 +217,7 @@ jobs:
             6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
 
             変えてよいファイル:
-            - src/content/ の記事（.md）とデータ（.json、.yaml）、src/content/・src/assets/・public/ の画像（jpg、png、webp、avif、gif）、logs/ と audit-log/ の .md だけ
+            - src/content/ の記事（.md）とデータ（.json、.yaml、.yml）、src/content/・src/assets/・public/ の画像（jpg、png、webp、avif、gif）、logs/ と audit-log/ の .md だけ
             - それ以外（.astro、.mdx、.ts、.js、.css、package.json、pnpm-lock.yaml、pnpm-workspace.yaml、astro.config.*、wrangler.*、scripts/、.github/、.claude/、public/_headers、public/_redirects、SITE.md、AGENTS.md など）は変えない。ファイルを消さない
             - 直すのにそれらの変更が必要なら、何も変えずに、ログに原因と必要な変更を書く。このあとのステップが Issue でオーナーに知らせる
             - 範囲の外のファイルが変わっていると、このあとのステップが push せずに止まる
@@ -328,7 +328,7 @@ jobs:
           checker="$RUNNER_TEMP/check_text.py"
           if ! git show "${FAILED_SHA}:scripts/check_text.py" > "$checker" 2>/dev/null; then
             rm -f "$checker"
-            echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。自動修正で変えたファイルを確かめる scripts/check_text.py がないため、コミットも公開もせずに止めました。Claude に『scripts/check_text.py を skills/ から戻して、公開の失敗を直して』と頼んでください。" > "$reason"
+            echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。自動修正で変えたファイルを確かめる scripts/check_text.py がないため、コミットも公開もせずに止めました。Claude に『scripts/check_text.py を git の履歴の前の版から戻して、公開の失敗を直して』と頼んでください。" > "$reason"
             : > "$analysis"
             discard
             exit 1
@@ -407,73 +407,21 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
-      # deploy.yml の「公開後の確認」と同じ内容
+      # deploy.yml の「公開後の確認」と同じ .github/scripts/smoke.sh を動かす。
+      # Claude が書き換えたものを動かさないよう、失敗した版のコミットから $RUNNER_TEMP に写して動かす（check_text.py と同じ）
       - name: 公開後の確認
         if: steps.gate.outputs.action == 'claude' && steps.push.outputs.skip != 'true'
         id: smoke
         env:
           GH_TOKEN: ${{ github.token }}
+          FAILED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          list=.github/smoke-test.txt
-          # 前に成功した deploy があるか（2回目以降の公開か）。読めなければ 0（初めて）として扱う
-          prev_ok=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/runs?status=success&per_page=1" --jq '.total_count' 2>/dev/null || echo 0)
-          case "$prev_ok" in ''|*[!0-9]*) prev_ok=0 ;; esac
-          failed=0
-          checked=0
-          job_start=$(date +%s)
-          if [ -f "$list" ]; then
-            while IFS= read -r line || [ -n "$line" ]; do
-              line="${line%$'\r'}"
-              case "$line" in ''|'#'*) continue ;; esac
-              case "$line" in
-                *'<'*'>'*)
-                  echo "::warning::ひな形の <...> が残っている行を飛ばしました: ${line}"
-                  continue ;;
-              esac
-              url="${line%%[[:space:]]*}"
-              expect="${line#"$url"}"
-              expect="${expect#"${expect%%[![:space:]]*}"}"
-              ok=0
-              tries=0
-              start=$(date +%s)
-              while :; do
-                tries=$((tries + 1))
-                status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url" 2>/dev/null) || status=000
-                if [ "$status" = "200" ] && { [ -z "$expect" ] || grep -qF -- "$expect" page.html; }; then
-                  ok=1
-                  break
-                fi
-                now=$(date +%s)
-                case "$status" in
-                  000|5??)
-                    # そのページで待つ長さと、すべてのページで待つ長さの合計の、どちらかに達したら終える
-                    { [ $((now - start)) -ge "$SMOKE_WAIT_SECONDS" ] || [ $((now - job_start)) -ge "$SMOKE_TOTAL_WAIT_SECONDS" ]; } && break ;;
-                  *) [ "$tries" -ge 5 ] && break ;;
-                esac
-                sleep 10
-              done
-              checked=$((checked + 1))
-              if [ "$ok" = 1 ]; then
-                echo "OK  $url"
-              else
-                echo "::error::NG  $url（状態 ${status}。「${expect}」を含むことを確かめられませんでした）"
-                failed=1
-              fi
-            done < "$list"
-            rm -f page.html
-          else
-            echo "::warning::$list がありません"
+          smoke="$RUNNER_TEMP/smoke.sh"
+          if ! git show "${FAILED_SHA}:.github/scripts/smoke.sh" > "$smoke" 2>/dev/null; then
+            echo "::error::.github/scripts/smoke.sh がありません。skills/web-creator/templates/github/scripts/smoke.sh を .github/scripts/ に置いてください"
+            exit 1
           fi
-          if [ "$checked" = 0 ]; then
-            if [ "$prev_ok" -gt 0 ]; then
-              # 2回目以降の公開で確かめたページが0件のときは、確認が働いていないので失敗にする
-              echo "::error::確かめたページがありません。$list に、公開先の URL とページの文字を書いてください（<...> の行は飛ばされます）"
-              failed=1
-            else
-              echo "::warning::確かめたページがありません。初めての公開なので失敗にはしませんが、次の公開までに $list の <...> を、公開先の URL とページの文字に書き換えてください"
-            fi
-          fi
-          exit "$failed"
+          bash "$smoke" .github/smoke-test.txt
 
       - name: Issue で知らせる
         if: failure() || steps.gate.outputs.action == 'issue'
@@ -527,7 +475,13 @@ jobs:
               echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
             elif [ "$CLAUDE_OUTCOME" = "failure" ]; then
               echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
-              echo "自動修正の Claude が途中で止まりました。自動修正用の鍵の期限切れか、Claude の利用の上限に当たった可能性があります。鍵を発行した日は SITE.md の「技術」の「自動修正用の鍵」にあります（Claude のプランの鍵の有効期限は1年）。"
+              echo "自動修正の Claude が途中で止まりました。考えられる原因は次のとおりです（どれかは、下の「自動修正の実行」のログで分かります）。"
+              echo ""
+              echo "- 自動修正用の鍵の期限切れか、取り消し（鍵を発行した日は SITE.md の「技術」の「自動修正用の鍵」。Claude のプランの鍵の有効期限は1年）"
+              echo "- 鍵の登録の間違い（GitHub の Secrets に貼った値が途中で切れている、別の鍵を貼った、など）"
+              echo "- Claude の利用の上限（プランの利用量か、API の月の上限額）"
+              echo "- Claude や GitHub 側の一時的な不調"
+              echo ""
               echo "Claude に『サイトの公開が失敗しているので直して。自動修正用の鍵の期限も確かめて』と頼んでください。"
             elif [ "$PUBLISH_OUTCOME" = "success" ] && [ "$SMOKE_OUTCOME" = "failure" ]; then
               echo "自動修正で直して公開し直しました。新しい版が表示されています。ただし、公開後の確認（.github/smoke-test.txt に書いたページと文字）が合いませんでした。"

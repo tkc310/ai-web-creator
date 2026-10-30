@@ -106,20 +106,26 @@ Chromium がすでに入っている作業環境では、`python3 -m playwright 
 
 1ページの LP も含めて、すべて Astro のプロジェクトとして作ります。あとからページや記事を足すときも、同じリポジトリに足すだけで済みます。
 
-1. 空のテンプレート（minimal）で、作業用の一時フォルダにプロジェクトを作り、サイトのリポジトリに写す。サイトのリポジトリには skills/、AGENTS.md、CLAUDE.md などがすでにあり、空でないフォルダでは作成のツールが質問で止まるため、別の場所で作る。`cp --update=none` は同じ名前のファイルを上書きしないので、skills/、AGENTS.md、CLAUDE.md、README.md は消えない（`cp -n` は coreutils の版によって、飛ばしたファイルがあると終了コード1を返すので使わない）
+1. 空のテンプレート（minimal）で、作業用の一時フォルダにプロジェクトを作り、サイトのリポジトリに写す。依存パッケージはまだ入れない（`--no-install`）。サイトのリポジトリには skills/、AGENTS.md、CLAUDE.md などがすでにあり、空でないフォルダでは作成のツールが質問で止まるため、別の場所で作る。`cp --update=none` は同じ名前のファイルを上書きしないので、skills/、AGENTS.md、CLAUDE.md、README.md は消えない（`cp -n` は coreutils の版によって、飛ばしたファイルがあると終了コード1を返すので使わない）
 
    ```bash
    tmp="$(mktemp -d)"
    pnpm create astro@latest "$tmp/site" --template minimal --no-install --no-git --skip-houston --yes
    cp -R --update=none "$tmp/site/." .
    rm -rf "$tmp"
-   pnpm install
    ```
 
-   テンプレートを取りに行けずに止まったとき（作業環境から GitHub のファイルを取得できないとき）は、`package.json`（templates/package-json-fields.md の scripts）、`astro.config.mjs`（`defineConfig({})` だけ）、`src/pages/index.astro` を手で作り、`pnpm add astro@latest` で入れる。サンプルのページや部品は残さない
-2. `pnpm add -D wrangler@latest` で wrangler を入れる。公開のワークフロー（wrangler-action）は、入っている版を使うので、公開に使う版が pnpm-lock.yaml で固定され、runtime-update で更新できる（入れないと、公開のたびにその時点の wrangler を入れて動く）
-3. `pnpm astro add sitemap --yes` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
-4. templates/ から、`.node-version`、`package.json` の項目、`pnpm-workspace.yaml`、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローを置く（deploy-and-autofix.md の「初回の設定」）
+   テンプレートを取りに行けずに止まったとき（作業環境から GitHub のファイルを取得できないとき）は、`package.json`（templates/package-json-fields.md の scripts）、`astro.config.mjs`（`defineConfig({})` だけ）、`src/pages/index.astro` を手で作る。`astro` は手順3で入れる。サンプルのページや部品は残さない
+2. `pnpm install` の前に、pnpm と Node.js の設定を置く。templates/ から `.node-version`、`pnpm-workspace.yaml`（公開から3日たっていない版を入れない設定と、インストール時のスクリプトの許可）、`package.json` の項目（`packageManager`、`engines`。templates/package-json-fields.md）を置く。先に入れると、この設定なしで依存パッケージが入り、pnpm-lock.yaml を作り直すことになるため
+3. 依存パッケージを入れる。`pnpm install` はここで1回だけ行う（手で作った場合は、続けて `pnpm add astro@latest`）。続けて `pnpm add -D wrangler@latest` で wrangler を入れる。公開のワークフロー（wrangler-action）は、入っている版を使うので、公開に使う版が pnpm-lock.yaml で固定され、runtime-update で更新できる（入れないと、公開のたびにその時点の wrangler を入れて動く）。`pnpm astro add sitemap --yes` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
+
+   ```bash
+   pnpm install
+   pnpm add -D wrangler@latest
+   pnpm astro add sitemap --yes
+   ```
+
+4. templates/ から、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローと `.github/scripts/smoke.sh` を置く（deploy-and-autofix.md の「初回の設定」）
 5. `src/layouts/Base.astro` に、head（タイトル、description、OGP、canonical、JSON-LD）をまとめる
 6. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
 7. `public/` に robots.txt、llms.txt、favicon、OG 画像を置く

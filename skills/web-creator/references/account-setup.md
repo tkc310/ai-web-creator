@@ -11,10 +11,27 @@
 - 会社のサイトは、担当者が代わっても困らないよう、会社の GitHub の Organization（組織のアカウント。無料）にリポジトリを置き、担当者は自分のアカウントで招待される形を標準にします（下の「会社のサイトのとき」）。Cloudflare も、担当者は自分のログインで、会社の Cloudflare のアカウントの Members に入ります。会社の共有アドレス（info@ など）は、Organization の連絡先や知らせの宛先に使います
 - エージェントはコネクタ（MCP）とブラウザ操作で設定を進めますが、次の4つはオーナーに交代します。
   1. パスワードの入力と登録の確定
-  2. 2段階認証の設定とコード入力
+  2. 2段階認証の設定とコード入力（QR コードと復旧コードが表示される画面を含む）
   3. 支払い情報の入力、規約への同意
-  4. APIトークンなど秘密の文字列のコピーと貼り付け
+  4. APIトークンなど秘密の文字列のコピーと貼り付け（鍵が表示される画面を含む）
 - 交代するときは「今この画面です。やることは2つです」と、画面の位置と操作を番号付きで伝えます。終わったら「できた」と返してもらいます。
+- ブラウザ操作やスクリーンショットで画面を見ながら進めているときは、QR コード、復旧コード、鍵が表示される前に交代します。その画面のスクリーンショットは撮らず、チャットに貼らないよう、先に一文で伝えます。
+- 個人のサイトでは、GitHub の Organization を作りません（下の「会社のサイトのとき」は会社や団体のサイトだけ）。
+
+## オーナーの操作の一覧
+
+始める前に、オーナーに次の一覧と合計の時間を見せます。終わったものは、SITE.md の「アカウントの準備（オーナーの操作）」のチェック欄に写します（段階1では引き継ぎ文の「アカウントの準備」に書き、Claude Code に移ってから SITE.md に写す）。
+
+| いつ | オーナーの操作 | 時間 |
+|---|---|---|
+| GitHub | アカウントを作る（メール、パスワード、ユーザー名、確認コード）。2段階認証を設定し、復旧コードを保存する。「Create repository」を押す。GitHub の接続を許可し、Claude の GitHub アプリを入れる | 15分くらい（アカウントがあれば5分） |
+| GitHub（会社のサイトだけ） | Organization を作り、2人目の Owner を招待する | 10分くらい |
+| Cloudflare | アカウントを作り、確認のメールを開く。2段階認証を設定し、復旧コードを保存する。Claude に Cloudflare のコネクタを足して許可する。API トークンを作ってコピーし、GitHub の Secrets に貼る | 10〜20分くらい |
+| ドメインを買うときだけ | 候補から選び、購入と支払いをする | 10分くらい |
+| Claude Code で初めて公開するとき | 作業環境の通信の許可に、サイトのホストを足す | 3分くらい |
+| 任意 | 自動修正用の鍵を作り、GitHub の Secrets に貼る（下の「3. 自動修正用の Claude の鍵」） | 10〜15分くらい |
+
+合計は、GitHub と Cloudflare と通信の許可で30〜40分くらいです。会社のサイト、ドメインの購入、自動修正用の鍵があれば、その分を足します。
 
 ## 操作の手段
 
@@ -45,9 +62,9 @@
 
 | 持っているもの | 進め方 |
 |---|---|
-| GitHub のアカウント | 下の「1. GitHub」の手順1〜3を飛ばす。手順4で2段階認証が有効かを確かめ、無効なら設定してもらう。会社のサイトを置く場合は、そのアカウントのまま、下の「会社のサイトのとき」で Organization を作ってそこにリポジトリを置く（担当者の個人のリポジトリに置くと、担当者が辞めたときに管理できなくなるため）。すでに会社の Organization があれば、そこに置く |
+| GitHub のアカウント | 下の「1. GitHub」の手順1〜3を飛ばす。手順4で2段階認証が有効かを確かめ、無効なら設定してもらう。有効なら、復旧コードを保存してあるかを聞き、なければ手順4の復旧コードの手順で保存してもらう。会社のサイトを置く場合は、そのアカウントのまま、下の「会社のサイトのとき」で Organization を作ってそこにリポジトリを置く（担当者の個人のリポジトリに置くと、担当者が辞めたときに管理できなくなるため）。すでに会社の Organization があれば、そこに置く |
 | 会社の共有アドレスで作った1つのログインを、複数の人で使っている | 規約に合わないので、この機会に、担当者ごとのログインと Organization の形に移すことを勧める（site-review の「担当者が代わったとき」の最後の段落と同じ手順） |
-| Cloudflare のアカウント | 下の「2. Cloudflare」の手順1〜4を飛ばす。2段階認証が有効か、ほかのサイトやドメインが入っているかを確かめる。ほかのサイトがある場合は、手順7の API トークンの Zone Resources をこのサイトのドメインだけにしぼり、既存の DNS やサイトに触れないことをオーナーに伝える。手順8の workers.dev のサブドメインは、すでにあればそのまま使う |
+| Cloudflare のアカウント | 下の「2. Cloudflare」の手順1〜4を飛ばす。2段階認証が有効か（有効なら、復旧コードを保存してあるか）、ほかのサイトやドメインが入っているかを確かめる。ほかのサイトがある場合は、手順7の API トークンの Zone Resources をこのサイトのドメインだけにしぼり、既存の DNS やサイトに触れないことをオーナーに伝える。手順8の workers.dev のサブドメインは、すでにあればそのまま使う |
 | ドメイン | 手順6の「持っている場合」に進む。今のサイトがあれば migration.md を先に読む |
 | Claude の GitHub アプリ | 「1. GitHub」の手順8で、このサイトのリポジトリが許可に入っているかを確かめ、なければ足してもらう（下の「Claude がリポジトリに書き込むための2つの許可」） |
 | GitHub の Secrets（`CLOUDFLARE_API_TOKEN` など） | 別のサイトのリポジトリに登録した鍵は、このリポジトリには入っていない。リポジトリごとに登録する |
@@ -62,6 +79,8 @@
 2. オーナー: メールアドレス、パスワード、ユーザー名を入力し、パズル認証と確認コードを入力する
 3. エージェント: プランは Free のままにする（非公開リポジトリも無料で作れる）
 4. オーナー: 2段階認証を設定する（Settings → Password and authentication。認証アプリを推奨）
+   - オーナー: 設定の最後に表示される復旧コード（recovery codes。16個で、1つずつ1回だけ使える）を、「Download」か「Print」か「Copy」で保存する。保存先は、パスワードの管理アプリか、印刷した紙を決まった場所に保管する。保存先と中身は SITE.md にもチャットにも書かない。認証アプリの入ったスマートフォンをなくしたり替えたりしたときに、これがないとログインできなくなる
+   - エージェント: 「復旧コードを保存できましたか」と聞き、「できた」をもらってから次に進む。あとからでも、Settings → Password and authentication の「Recovery codes」の「View」で表示して保存できる（GitHub のドキュメント「Configuring two-factor authentication recovery methods」、2026-10-30 確認: https://docs.github.com/en/authentication/securing-your-account-with-two-factor-authentication-2fa/configuring-two-factor-authentication-recovery-methods ）
 5. エージェント: サイト用の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。会社のサイトでは、「Owner」に下の「会社のサイトのとき」で作った Organization を選ぶ。Private を選び、「Add a README file」（README を足す）をオンにする。README がない空のリポジトリには main ブランチがなく、Claude Code のプロジェクトのスレッドが作業を始められないため
 6. オーナー: 「Create repository」を押す
 7. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
@@ -108,6 +127,8 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
 1. エージェント: dash.cloudflare.com/sign-up を開く
 2. オーナー: メールアドレスとパスワードを入力し、届いたメールの確認リンクを開く
 3. オーナー: 2段階認証を設定する
+   - オーナー: 設定の最後に表示される復旧コード（backup codes）を、「Download」か「Print」か「Copy」で保存する。保存先は GitHub の復旧コードと同じ決め方にし、SITE.md にもチャットにも書かない。1つのコードは1回だけ使える
+   - エージェント: 「復旧コードを保存できましたか」と聞き、「できた」をもらってから次に進む。あとからは、My Profile → Authentication の Two-Factor Authentication の「Manage」で作り直せる（作り直すと前のコードは使えなくなる。Cloudflare のドキュメント「Two-factor authentication」、2026-10-30 確認: https://developers.cloudflare.com/fundamentals/user-profiles/2fa/ ）
 4. エージェント: プランは Free を選ぶ。会社のサイトでは、あとで Manage Account → Members から、2人目の管理者（権限は Super Administrator - All Privileges）を招待しておくよう勧める（1人が辞めると管理できなくなるため。Cloudflare のドキュメント「Roles」、2026-10-30 確認: https://developers.cloudflare.com/fundamentals/manage-members/roles/ ）
 5. Claude と Cloudflare をつなぐ（connectors.md の「カスタムコネクタの追加」）
    - オーナー: Claude の「Customize」→「Connectors」→「Add custom connector」で、名前に Cloudflare、URL に `https://mcp.cloudflare.com/mcp` を入れて追加し、Cloudflare の画面で権限を選んで許可する（5分くらい）。コネクタの一覧（ディレクトリ）にある「Cloudflare Developer Platform」は、DNS、Turnstile、メール送信の操作に足りないので選ばない（connectors.md の「カスタムコネクタの追加」）
@@ -166,5 +187,5 @@ B の鍵（`claude setup-token` で作るもの）の有効期限は1年です�
 
 ## 終わったら
 
-- SITE.md の「アカウント」に、サービス名、持ち主（Organization か個人のアカウント）、管理できる人の人数（Organization の Owner、Cloudflare の Super Administrator）、2段階認証の有無だけを書く。パスワードやトークン、メールアドレスは書かない
+- SITE.md の「アカウント」に、サービス名、持ち主（Organization か個人のアカウント）、管理できる人の人数（Organization の Owner、Cloudflare の Super Administrator）、2段階認証の有無と復旧コードを保存したか（「済み」とだけ）を書く。パスワード、トークン、復旧コードとその保存先、メールアドレスは書かない。「アカウントの準備（オーナーの操作）」のチェック欄も更新する
 - 作業ログに、オーナーに交代した回数と、つまずいた画面を書く

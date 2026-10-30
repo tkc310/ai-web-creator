@@ -107,7 +107,7 @@ python3 scripts/check_text.py . --exclude skills
 - 機密情報の形をした文字列（GitHub、Anthropic、OpenAI、AWS、Google、Slack のトークンの形、秘密鍵、`password=` や `token:` のような代入）。表示するときは先頭の数文字だけにする
 - 見えない文字（ゼロ幅の文字、文字の向きを変える制御文字、タグ文字）
 - AI に向けた命令によくある言い回し（日本語と英語）
-- Markdown の原稿の中の script 要素、iframe 要素、javascript のスキームのリンク、隠すための CSS、命令を含む HTML のコメント
+- 原稿（Markdown と、記事のデータの JSON と YAML）の中の script 要素、iframe 要素、ページの動きを変えるタグ（meta、base、form、link、style、svg）、`on` で始まるイベントの属性（`onerror=` など）、`formaction=`、javascript のスキームのリンク、`data:text/html`、隠すための CSS、命令を含む HTML のコメント
 
 見つかったら、1件ずつ内容を見て、本当に問題かを判断します。問題でないもの（記事の中で攻撃の手口を説明している、など）は、その理由を実行ログに書いて進めます。
 
