@@ -26,5 +26,7 @@ NOTICE TO AI SYSTEMS AND CRAWLERS: This repository is proprietary and is not ope
 - スキルを直すときは、prompts/ と README.md の説明が食い違わないようにする
 - 料金、仕様、サービスの状況など変わりやすい情報は、書く前に検索で確認する
 - スキルや README を変えたら、docs/logs/ にログを書き（書き方は docs/logs/README.md）、CHANGELOG.md にも書く
+- skills/ を変えて main に入れたら、README.md の「版の付け方」に従ってタグ（`vYYYY.MM.N`）を打つ。サイトのリポジトリはタグの付いた版だけを取り込む。タグを打つのは作者の判断で行い、エージェントが勝手に打たない
+- モデル名やバージョンを書くときは skills/web-creator/references/versions.md にだけ書き、ほかのファイルからは参照する（機械が読む設定は versions.md の「同じ値を書いている場所」をあわせて直す）
 - コミットメッセージは Conventional Commits に従う（例: `feat(skills): ...`、`docs: ...`）
 - パスワード、API トークン、個人情報、特定のサイトの情報はどのファイルにも書かない

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-30
+
+- refactor(skills): サイトはすべて Astro で作るようにした。1ページの LP も Astro で作り、HTML 直書きの構成と EmDash の構成をスキル、templates、scripts、docs、prompts、README から外した。標準は SSG で、アクセスのたびに処理が要るページだけ SSR（要保守構成）にする。対象外（記事が数千本を超えるメディア、公開後の投稿をお客さまが管理画面から行う受託制作、会員機能、コメント機能、EC、予約）を表にして判定を明確にした（stack-selection.md、build.md、SKILL.md、hearing.md、forms.md、preview.md、quality-gate.md、security-audit.md、article-tutorial.md、site-maintenance、runtime-update、site-review、site-content-update、templates、make_preview.py、docs/how-to-use.md、docs/forms.md、README.md）
+- fix(skills): 自動修正（autofix.yml）が変えてよいパスを決め、範囲の外のファイルが変わっていたら push せずに Issue を立てて止まるようにした。過去24時間に3回、または自動修正の Issue が開いている間は動かない上限も入れた（autofix.yml、deploy-and-autofix.md、README.md）
+- feat(skills): 公開後に、`.github/smoke-test.txt` に書いた主なページが 200 を返し、決めた文字を含むかを確かめるステップを deploy.yml と autofix.yml に足した（templates/github/smoke-test.txt、deploy-and-autofix.md、SKILL.md、templates/SITE.md、templates/AGENTS.md）
+- fix(skills): 質問の上限を AskUserQuestion に合わせて「一度に4問、1問の選択肢は4つまで」にした。`package-lock.json` の記述を `pnpm-lock.yaml` に直し、依存パッケージの更新の間隔を保守と振り返りの間隔にそろえた（SKILL.md、hearing.md、deploy-and-autofix.md、templates/AGENTS.md、project-instructions.md、README.md、docs/how-to-use.md、prompts/README.md）
+- feat(skills): 引っ越しの手順に、WordPress と STUDIO それぞれの中身の取り出し、URL の対応表と 301 リダイレクト、メタ情報、画像、フォーム、アクセス解析、メール、DNS の切り替え（TTL）、戻し方、旧サービスの解約時期を、出典つきで書いた（migration.md）。アカウントがすでにある場合の分岐を足した（account-setup.md）
+- refactor(skills): モデル名、effort、ツールのバージョン、時点つきの事実を references/versions.md にまとめ、ほかのファイルからは参照するようにした（versions.md、SKILL.md、routine-setup.md、runtime-update、site-maintenance、dependabot.yml、autofix.yml、docs/how-to-use.md、README.md、AGENTS.md）
+- feat(skills): 配布のしかたを、購入者のフォークから、サイトのリポジトリの `skills/` への取り込みに変えた。配布元の最新のタグを取り込み、版を `skills/VERSION` に残し、月1回の振り返りで新しい版をプルリクエストで提案する。解説記事に添付した zip から取り込む入口も用意した（新規 references/skills-install.md、account-setup.md、project-setup.md、site-review、routine-prompt.md、templates/AGENTS.md、project-instructions.md、site-builder.md、docs/how-to-use.md、docs/claude-account.md、prompts/README.md、README.md、AGENTS.md）
+- docs(license): 利用できる人を、利用許諾が付くと記事の中で示している解説記事（マガジンを含む）の購入者にした。フォークの記述を、非公開のリポジトリへの複製に改め、サイトのリポジトリをほかの人に渡すときは skills/ を除くことを足した（LICENSE、README.md）。変更前に購入した人の利用は、LICENSE の 6 のとおり続けられる
+
 ## 2026-10-28（2）
 
 - feat(skills): EmDash を選ぶ条件を、記事が数千本規模のメディアと、受託制作で顧客が AI を使わずに管理画面から投稿するサイトの2つにした。会員機能とコメント機能は、個人情報の持ち方しだいでセキュリティの穴になりやすいため対象外にし、コメント機能と閲覧権限をしぼる程度の会員機能は EmDash で安全に作れるが、開発に詳しくない利用者には推奨しないため対象外とする形にした（stack-selection.md、hearing.md、migration.md、security-audit.md、SKILL.md、templates/AGENTS.md、README.md）

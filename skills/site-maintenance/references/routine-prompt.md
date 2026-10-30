@@ -5,10 +5,10 @@
 ```
 これは <サイト名>（<本番URL>）の定期保守です。リポジトリは <owner>/<repo> です。
 
-1. GitHub の tkc310/ai-web-creator にある skills/site-maintenance/SKILL.md と skills/runtime-update/SKILL.md を読み、その手順に従って作業してください。
+1. このリポジトリの skills/site-maintenance/SKILL.md と skills/runtime-update/SKILL.md を読み、その手順に従って作業してください。
 2. 作業の前に、このリポジトリの SITE.md、logs/IMPROVEMENTS.md、logs/ の直近の保守ログを読んでください。
 3. runtime-update の手順で、Node.js、pnpm、依存パッケージ、compatibility_date を最新にしてください（pnpm audit で重大な弱点が見つかったものを先に）。ビルドと動作確認が通ればマージし、壊れているものは直してからマージしてください。GitHub Actions の更新のプルリクエスト（Dependabot）も、check ワークフローが通っていればマージしてください。
-4. データベースの構造が変わる更新、有料プランが必要になる更新、ライセンスが変わる更新はマージせず、GitHub の Issue でオーナーに確認してください。
+4. 有料プランや新しい Cloudflare のサービスが必要になる更新、ライセンスが変わる更新はマージせず、GitHub の Issue でオーナーに確認してください。
 5. 公開から1日たっていない版は入れないでください（pnpm-workspace.yaml の minimumReleaseAge を外さない）。
 6. マージした場合は、公開が成功し、本番のページが正しく表示されることを確かめてください。表示がおかしければ、マージを取り消してオーナーに知らせてください。
 7. 最後に、公開した更新があれば audit-log/YYYY/YYYY-MM-DD.md に「保守」として追記し、logs/ に保守ログを書き、SITE.md の最終実行日を更新して、main に push してください。

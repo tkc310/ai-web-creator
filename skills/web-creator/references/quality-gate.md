@@ -85,8 +85,8 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 - すべてのページに固有の `<title>` と `<meta name="description">` がある
 - `<link rel="canonical">` が本番URLを指している
 - OGP（`og:title`、`og:description`、`og:image`、`og:url`）と `twitter:card` がある。OG画像は 1200×630
-- `sitemap.xml`（Astro は `@astrojs/sitemap` で自動生成、HTML 版は手で作る）
-- `robots.txt` に `Sitemap: https://ドメイン/sitemap-index.xml`（HTML 版は `/sitemap.xml`）を書く
+- `sitemap.xml`（`@astrojs/sitemap` で自動生成。1ページの LP でも入れる）
+- `robots.txt` に `Sitemap: https://ドメイン/sitemap-index.xml` を書く
 - 見出しは h1 が1つ、h2・h3 が順番どおり
 - 引っ越しの場合は、旧URLから新URLへの 301 リダイレクトを `_redirects` に書く（migration.md）
 - 公開後、オーナーの了承を得て Google Search Console にサイトを登録し、サイトマップを送信する。所有権の確認には Cloudflare の DNS に TXT レコードを追加する

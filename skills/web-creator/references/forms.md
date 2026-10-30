@@ -96,9 +96,8 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
 6. エージェント: コネクタで Turnstile のウィジェットを作る。ホスト名に本番のドメインと、確認用の workers.dev のドメインを入れ、モードは Managed にする。サイトキー（公開してよい値）を控える
 7. エージェント: 同じ処理の中で、返ってきたシークレットキーをサイトの Worker の Secret `TURNSTILE_SECRET_KEY` として登録する。処理の結果には登録できたかどうかだけを返し、値をチャット、ログ、リポジトリに出さない（connectors.md の「秘密の値は表に出さない」）。オーナーには、Claude が直接登録して画面には表示していないことを伝える。コネクタが使えない場合は、オーナーが Turnstile の画面でシークレットキーをコピーし、Workers の Settings → Variables and Secrets に貼る
 8. エージェント: templates/forms/ をもとに実装する
-   - Astro: `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは完成済みのページのままにする（stack-selection.md の B-2）
-   - HTML だけのサイト: `html-worker.ts` を `src/worker.ts` に、`contact-handler.ts` を `src/contact-handler.ts` に置く
-   - `wrangler-contact.jsonc` の設定を wrangler.jsonc に足す（`send_email` の接続、`vars`、HTML の場合は `run_worker_first`）
+   - `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは静的に出力したままにする（stack-selection.md の「SSR を使う場面」、build.md の「一部のページだけ SSR にする場合」）。1ページの LP でも同じ
+   - `wrangler-contact.jsonc` の設定（`send_email` の接続と `vars`）を wrangler.jsonc に足す
    - `contact-form.html` をお問い合わせページに入れ、`/contact/thanks/`（送信完了のページ）と、`?error=` の理由ごとの案内文を作る
 9. エージェント: ローカルで `pnpm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
 10. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる
@@ -118,10 +117,6 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
 | メールが届かない | 迷惑メールのフォルダ、Destination Addresses の確認が済んでいるか、Email Sending の登録の状態、Workers のログのエラーの種類（`E_SENDER_NOT_VERIFIED`、`E_RECIPIENT_NOT_ALLOWED` など）。どれも Cloudflare のコネクタで読み取れる |
 | 送信すると「ロボット確認」のエラーになる | Turnstile のホスト名に、今のドメインが入っているか |
 | 無料プランで送れない | 料金の確かめ方に従い、有料プランにするかをオーナーに聞く |
-
-## EmDash のフォームプラグインは使わない
-
-EmDash の公式のフォームプラグイン（@emdash-cms/plugin-forms）は、公開から日が浅く安定していないため、現時点では使いません（2026年10月時点で v0.2。1日1回のまとめ通知が動かない、添付ファイルの上限が効かない、といった不具合の修正が続いている）。EmDash のサイトでも、A〜C のどれかで作ります。オーナーにプラグインを使いたいと言われたら、この理由を伝えます。site-maintenance の保守のときにプラグインの更新履歴を見て、安定したと判断できたら、このファイルと docs/forms.md を見直す提案を IMPROVEMENTS.md に書きます。
 
 ## ほかのサービスを頼まれたとき
 

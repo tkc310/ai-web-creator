@@ -1,15 +1,8 @@
-// フォームを自前で作るときに、wrangler.jsonc に足す設定の例。
-// <...> を埋める。秘密の鍵（TURNSTILE_SECRET_KEY）はここに書かず、Cloudflare の画面で Secret として登録する。
+// フォームを自前で作るときに、wrangler.jsonc に足す設定の例（Astro ＋ @astrojs/cloudflare）。
+// <...> を埋める。秘密の鍵（TURNSTILE_SECRET_KEY）はここに書かず、Workers の Secret として登録する。
+// main と静的アセットの設定は @astrojs/cloudflare のドキュメントに従う（Astro 6 以降は main に
+// "@astrojs/cloudflare/entrypoints/server" を指定し、静的アセットの設定はアダプターが行う。build.md）。
 {
-  // HTML だけのサイトの場合（Astro では adapter の設定に従い、main は "@astrojs/cloudflare/entrypoints/server"）
-  "main": "src/worker.ts",
-  "assets": {
-    "directory": "./public",
-    "binding": "ASSETS",
-    // /api/ だけ Worker を先に通し、ほかのページはファイルをそのまま返す
-    "run_worker_first": ["/api/*"]
-  },
-
   // Email Sending でメールを送るための接続。鍵は要らない
   "send_email": [{ "name": "EMAIL" }],
 

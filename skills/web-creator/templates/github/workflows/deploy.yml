@@ -1,5 +1,10 @@
-# main ブランチに変更が入るたびに、ビルドして Cloudflare に公開する。
-# CI で確認するのは「ビルドが通るか」だけにして、失敗しにくくしている。
+# main ブランチに変更が入るたびに、ビルドして Cloudflare に公開し、公開後に主なページを確かめる。
+# CI で確認するのは「ビルドが通るか」と「公開したページが見られるか」だけにして、失敗しにくくしている。
+#
+# 公開後の確認（スモークテスト）で見るページと文字は、サイトのリポジトリの .github/smoke-test.txt に書く。
+#   1行に1つ、「URL」と「そのページに必ず含まれる文字」を空白で区切って書く。# で始まる行は読まない
+#   例: https://example.co.jp/ 株式会社サンプル
+# 確認に失敗すると、このワークフローは失敗になり、autofix が動く。このときは新しい版がすでに公開されている。
 name: deploy
 
 on:
@@ -21,24 +26,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # pnpm のバージョンは package.json の packageManager から読む（HTML だけのサイトでは使わない）
+      # pnpm のバージョンは package.json の packageManager から読む
       - name: pnpm を用意する
-        if: hashFiles('package.json') != ''
         uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
-          cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
+          cache: pnpm
 
       - name: ビルド
         run: |
-          if [ -f package.json ]; then
-            pnpm install --frozen-lockfile
-            pnpm run build
-          else
-            echo "HTML だけのサイトなのでビルドは不要です"
-          fi
+          pnpm install --frozen-lockfile
+          pnpm run build
 
       - name: 公開
         uses: cloudflare/wrangler-action@v4
@@ -46,3 +46,37 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+
+      # 主なページが 200 を返し、決まった文字を含むかを確かめる。反映を待つため、1ページにつき10秒おきに5回まで試す
+      - name: 公開後の確認
+        run: |
+          list=.github/smoke-test.txt
+          if [ ! -f "$list" ]; then
+            echo "::warning::$list がないため、公開後の確認を省きました"
+            exit 0
+          fi
+          failed=0
+          while IFS= read -r line || [ -n "$line" ]; do
+            line="${line%$'\r'}"
+            case "$line" in ''|'#'*) continue ;; esac
+            url="${line%%[[:space:]]*}"
+            expect="${line#"$url"}"
+            expect="${expect#"${expect%%[![:space:]]*}"}"
+            ok=0
+            for i in 1 2 3 4 5; do
+              status=$(curl -sS -o page.html -w '%{http_code}' --max-time 20 "$url") || status=000
+              if [ "$status" = "200" ] && { [ -z "$expect" ] || grep -qF -- "$expect" page.html; }; then
+                ok=1
+                break
+              fi
+              sleep 10
+            done
+            if [ "$ok" = 1 ]; then
+              echo "OK  $url"
+            else
+              echo "::error::NG  $url（状態 ${status}。「${expect}」を含むことを確かめられませんでした）"
+              failed=1
+            fi
+          done < "$list"
+          rm -f page.html
+          exit "$failed"

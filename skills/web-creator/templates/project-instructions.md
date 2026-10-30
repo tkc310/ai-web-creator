@@ -7,7 +7,7 @@ Claude Code のプロジェクトの「Project instructions」に貼る文章で
 
 ## オーナー
 - <会社・店の名前> の <担当者の立場（例: 代表、総務の担当）> です。IT には詳しくありません
-- 返事は専門用語を避け、次にすることを最初に書いてください。質問は選択肢をつけて、一度に5つまでにしてください
+- 返事は専門用語を避け、次にすることを最初に書いてください。質問は選択肢をつけて、一度に4つまで、1問の選択肢は4つまでにしてください
 - 連絡がつきやすい時間: <例: 平日の昼休みと夕方>
 
 ## オーナーの作業の環境
@@ -19,9 +19,9 @@ Claude Code のプロジェクトの「Project instructions」に貼る文章で
 - ドメインの管理会社: <例: Cloudflare / お名前.com / まだ持っていない>
 
 ## 作業のしかた
-- リポジトリ: <owner>/<repo>（サイト本体）と <owner>/ai-web-creator（スキル。tkc310/ai-web-creator のフォーク）
+- リポジトリ: <owner>/<repo>（サイト本体。スキルはこのリポジトリの skills/ に入っています）
 - 作業の前に、サイトのリポジトリの SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の新しいログ3件を読んでください
-- 作業の内容に合わせて、<owner>/ai-web-creator の skills/ から SKILL.md を読んで従ってください
+- 作業の内容に合わせて、サイトのリポジトリの skills/ から SKILL.md を読んで従ってください。skills/ がまだない場合は、最初に GitHub の tkc310/ai-web-creator（配布元）にある skills/web-creator/references/skills-install.md を読み、その手順で取り込んでください
   - 記事やお知らせの更新: site-content-update
   - それ以外の制作や修正、質問: web-creator
   - 保守: site-maintenance、振り返りとログの整理: site-review

@@ -1,6 +1,5 @@
 // お問い合わせフォームの送信を受け、確かめてから、オーナーにメールで知らせる。
-// Cloudflare Workers で動く。Astro では src/pages/api/contact.ts から、
-// HTML だけのサイトでは src/worker.ts から呼ぶ（references/forms.md）。
+// Cloudflare Workers で動く。src/lib/contact-handler.ts に置き、src/pages/api/contact.ts から呼ぶ（references/forms.md）。
 //
 // 守っていること:
 //   - 送信元が自分のサイトか（Origin）、大きさ、必須項目、文字数、メールアドレスの形を確かめる

@@ -26,7 +26,7 @@ cron では「14日ごと」を正確に書けないため、月2回で2週間�
 |---|---|
 | 名前 | `<サイト名> の保守` |
 | プロンプト | routine-prompt.md の文章（`<...>` を埋める） |
-| モデル | Claude Opus 5.5（考える深さは site-maintenance スキルの設定で medium になる） |
+| モデル | web-creator の references/versions.md のモデル（考える深さは site-maintenance スキルの設定で medium になる） |
 | スケジュール | `7 9 1,15 * *`（オーナーのタイムゾーン） |
 | リポジトリ | サイトのリポジトリ |
 | 環境 | Default（npm のレジストリに接続でき、pnpm で依存パッケージを入れられる） |
@@ -40,7 +40,7 @@ cron では「14日ごと」を正確に書けないため、月2回で2週間�
 
 1. claude.ai/code/routines を開き、「New task」を押す
 2. 名前に `<サイト名> の保守` と入れる
-3. プロンプトに、エージェントが用意した文章（routine-prompt.md を埋めたもの）を貼り、プロンプト欄のモデル選択で Claude Opus 5.5 を選ぶ
+3. プロンプトに、エージェントが用意した文章（routine-prompt.md を埋めたもの）を貼り、プロンプト欄のモデル選択で、web-creator の references/versions.md のモデルを選ぶ
 4. トリガーで「Schedule」を選び、作成後の編集画面で「Custom」にして `7 9 1,15 * *` を入れる
 5. 詳細設定でサイトのリポジトリを選び、環境は Default のままにする
 6. コネクタの一覧から、使わないものを外す

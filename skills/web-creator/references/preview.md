@@ -16,15 +16,15 @@ SITE.md で「確認なしで公開してよい」とされた種類の変更は
 
 ## 作り方
 
-1. ビルドする（`pnpm run build`）。SSR のページや EmDash の場合は、`pnpm run preview`、`wrangler dev` など、ページを返すサーバーを起動する
+1. ビルドする（`pnpm run build`）。SSR のページを見せる場合は、`pnpm run preview`、`wrangler dev` など、ページを返すサーバーを起動する
 2. scripts/make_preview.py で、ページを1つの HTML にまとめる
 
 ```bash
-# ビルド結果から（HTML、Astro の SSG）
+# ビルド結果から（SSG のページ）
 python3 <スキルの場所>/scripts/make_preview.py dist/news/2026-10-holiday/index.html --root dist \
   --out /tmp/preview/<サイト名>-preview.html --label "お知らせ「年末年始の休業」"
 
-# 起動中のサーバーから（SSR、EmDash）
+# 起動中のサーバーから（SSR のページ）
 python3 <スキルの場所>/scripts/make_preview.py http://localhost:4321/news/2026-10-holiday/ \
   --out /tmp/preview/<サイト名>-preview.html --label "お知らせ「年末年始の休業」"
 

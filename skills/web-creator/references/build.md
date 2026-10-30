@@ -73,7 +73,7 @@ python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321
 
 ## 使うツールとバージョン
 
-作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（runtime-update スキルの「最新版の調べ方」）。
+作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（基準は versions.md、調べ方は runtime-update スキルの「最新版の調べ方」）。
 
 - Node.js: 最新の LTS 版（作業する日に、状態が LTS の版のうち一番新しいもの）。`.node-version` に書く（templates/node-version.txt）。Current と奇数番は使わない（runtime-update の Node.js の基準）
 - pnpm: 最新版。`package.json` の `packageManager` に書く（templates/package-json-fields.md）
@@ -81,24 +81,48 @@ python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321
 - pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から1日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
 - GitHub Actions: templates/github/ のワークフローと dependabot.yml（GitHub Actions の更新だけ）を、すべてのサイトに置く
 
-HTML だけのサイト（A）は package.json を置かないので、pnpm と依存パッケージはありません。フォームを自前で作る場合など、Workers のコードを持つときだけ package.json を置きます。
+## 作り始め（どのページの形でも同じ）
 
-## A. HTML / CSS / JavaScript
+1ページの LP も含めて、すべて Astro のプロジェクトとして作ります。あとからページや記事を足すときも、同じリポジトリに足すだけで済みます。
 
-```
-public/
-  index.html
-  assets/ (css, images)
-  robots.txt, sitemap.xml, llms.txt, favicon
-wrangler.jsonc  … assets.directory は "./public"
-```
+1. `pnpm create astro@latest` で、空のテンプレート（minimal）を選んでプロジェクトを作る。サンプルのページや部品は残さない
+2. `pnpm astro add sitemap` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
+3. templates/ から、`.node-version`、`package.json` の項目、`pnpm-workspace.yaml`、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローを置く（deploy-and-autofix.md の「初回の設定」）
+4. `src/layouts/Base.astro` に、head（タイトル、description、OGP、canonical、JSON-LD）をまとめる
+5. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
+6. `public/` に robots.txt、llms.txt、favicon、OG 画像を置く
+7. `pnpm run build` を通し、`dist/` にページができることを確かめる
 
-## B. Astro
+## ページの形ごとの構成
+
+### 1ページの LP
 
 ```
 src/
-  pages/        … index.astro, about.astro, news/[slug].astro など
+  pages/
+    index.astro   … ページはこの1枚。セクションを順に並べる
+    404.astro
+  layouts/
+    Base.astro    … head、OGP、JSON-LD をまとめる
+  components/     … セクションごとの部品（Hero.astro、Features.astro、Contact.astro など）
+  styles/         … 全体の CSS
+public/            … robots.txt、llms.txt、favicon、og 画像、images/
+astro.config.mjs   … site に本番 URL、@astrojs/sitemap を追加
+wrangler.jsonc     … assets.directory は "./dist"
+```
+
+- 文章はセクションの部品の中に書く。お知らせなどの記事がないので、Content Collections は使わない
+- ページ内のリンク（`#features` など）でセクションに移動できるようにし、ヘッダーのメニューもページ内リンクにする
+- お問い合わせは、ヒアリングで選んだ方法で作る（forms.md）。サイトと同じ見た目のフォームを選んだ場合だけ、下の「一部のページだけ SSR にする場合」を行う
+- あとでお知らせやページを足す場合は、下の「複数ページ・記事あり」の構成にそのまま広げる
+
+### 複数ページ・記事あり
+
+```
+src/
+  pages/        … index.astro, about.astro, news/index.astro, news/[slug].astro など
   layouts/      … Base.astro（head、OGP、JSON-LD をまとめる）
+  components/
   content/      … news/*.md, blog/*.md
   content.config.ts … 記事の frontmatter の型（title, date, description, image, draft）
 public/          … robots.txt, llms.txt, favicon, og 画像
@@ -109,9 +133,9 @@ wrangler.jsonc   … assets.directory は "./dist"
 - 記事一覧、記事ページ、タグ一覧は Content Collections から生成する
 - `draft: true` の記事はビルドに含めない
 - llms.txt はビルド時に記事一覧から生成するページ（`src/pages/llms.txt.ts`）にしてもよい
-- アダプターは入れない（B-1）。全ページがビルド時に HTML になり、`dist/` を静的アセットとして配信する
+- アダプターは入れない（SSG のみ）。全ページがビルド時に HTML になり、`dist/` を静的アセットとして配信する
 
-### 一部のページだけ SSR にする場合（B-2）
+## 一部のページだけ SSR にする場合
 
 stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行います。
 
@@ -123,7 +147,7 @@ stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行
 6. site-maintenance スキルの「要保守構成の初期設定」を行う
 
 ```js
-// astro.config.mjs（B-2 の例）
+// astro.config.mjs（一部 SSR の例）
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
@@ -146,11 +170,7 @@ export async function POST({ request }) {
 
 設定の名前はアダプターのバージョンで変わることがあるため、作業時に Astro の公式ドキュメントで確認します。
 
-## C. EmDash
-
-EmDash の公式ドキュメントに従ってセットアップします。テンプレートを選び、Cloudflare 上に Workers、D1、R2 を作成します。作成時は課金の有無をオーナーに確認します。テーマのデザインは B と同じ方針で作ります。
-
-## wrangler.jsonc の例（A・B-1 共通）
+## wrangler.jsonc の例（SSG のみ）
 
 ```jsonc
 {
