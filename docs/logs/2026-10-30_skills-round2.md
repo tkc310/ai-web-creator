@@ -14,7 +14,7 @@
    - 公開後の確認だけが失敗したとき、鍵がないとき、上限に当たったときは、Claude を起動せずに Issue にする。`anthropic_api_key` も渡す
 2. deploy.yml と smoke-test.txt を直した。`<...>` が残った行は確かめずに警告を出す。`curl -L` で転送をたどる。1つも確かめなかったときは警告にする。`&amp;` の書き方を注記した
 3. check_text.py が、見つからないパスと UTF-8 で読めないファイルを「調べられない」として終了コード1で返すようにした。画像などのバイナリは飛ばし、`--exclude` を足した。templates/AGENTS.md の規則9と security-rules.md の例を `core.quotePath=false` と `-z` に直した
-4. account-setup.md に、workers.dev のサブドメインを確かめ、なければ作る手順（手順8）を足した。ネームサーバーは数日前、サイトの向き先は公開のとき、と時期を分けた。自動修正用の鍵を「任意」にし、見送る、Pro / Max の `claude setup-token`、API キー（上限つき）の3つから選ぶ形にした
+4. account-setup.md に、workers.dev のサブドメインを確かめ、なければ作る手順（手順8）を足した。ネームサーバーは数日前、サイトの向き先は公開のとき、と時期を分けた。自動修正用の鍵を「任意」にし、見送る、Claude のプランの `claude setup-token`（有効期限1年）、API キー（上限つき）の3つから選ぶ形にした
 5. skills-install.md の手順を直した。リポジトリの直下に移る、`mkdir -p scripts`、`mktemp -d` の作業用フォルダ、check_text.py の同期、`tag: none` の書き方、古い main を取り込まずに止める確認を入れた。templates/handoff.md を作り、引き継ぎ文の最初の段落を「skills-install.md の手順で取り込んでから」に固定した
 6. 「このファイルを直す」と書いていた4か所（stack-selection.md、forms.md、connectors.md、migration.md）を、「skills/ は直さず、扱いを SITE.md に、違いを logs/IMPROVEMENTS.md に種類『スキル』で書く」にそろえた
 7. migration.md に、DNS の記録の控えの取り方、DKIM との照らし合わせ、MX の向き先の確認、DNSSEC を止めたあとに DS が消えるまで待つこと、旧サイトを読む前の通信の許可、切り替えの瞬間の予告、末尾の / の転送を足した。STUDIO のプランを下げたときの断定を弱めた
@@ -49,6 +49,7 @@
   - DNSSEC を止めてからネームサーバーを変える前に、DS の TTL の間待つ: https://developers.cloudflare.com/dns/dnssec/
   - Workers の静的ファイルの末尾の / の扱い: https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/
   - Google アナリティクスのプライバシーの記載: https://support.google.com/analytics/answer/7318509
+  - `claude setup-token` の鍵は有効期限1年で、Pro、Max、Team、Enterprise で作れる: https://code.claude.com/docs/en/authentication
   - claude.ai に ZIP で登録するスキルの frontmatter は、name、description、license、allowed-tools、compatibility、metadata だけが通る: https://github.com/anthropics/claude-code/issues/24826
 
 ## 確認できなかったこと

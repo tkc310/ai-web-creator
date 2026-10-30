@@ -134,7 +134,7 @@ jobs:
           # Claude が動かすコマンドの環境から、Anthropic などの鍵を取り除く
           CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
         with:
-          # どちらか登録されている方が使われる（Pro / Max は claude_code_oauth_token、API キーは anthropic_api_key）
+          # どちらか登録されている方が使われる（Claude のプランの鍵は claude_code_oauth_token、API キーは anthropic_api_key）
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
