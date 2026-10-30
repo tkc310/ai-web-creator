@@ -21,11 +21,13 @@ Claude Code のプロジェクトの「Project instructions」に貼る文章で
 ## 作業のしかた
 - リポジトリ: <owner>/<repo>（サイト本体。スキルはこのリポジトリの skills/ に入っています）
 - 作業の前に、サイトのリポジトリの SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の新しいログ3件を読んでください
-- 作業の内容に合わせて、サイトのリポジトリの skills/ から SKILL.md を読んで従ってください。skills/ がまだない場合は、最初に GitHub の tkc310/ai-web-creator（配布元）にある skills/web-creator/references/skills-install.md を読み、その手順で取り込んでください
+- 作業の内容に合わせて、サイトのリポジトリの skills/ から SKILL.md を読んで従ってください。skills/ がまだない場合は、最初に `git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-src/src` で配布元を取得し（GitHub の API や、リポジトリをプロジェクトに追加する操作は使わない）、その中の skills/web-creator/references/skills-install.md の手順で取り込んでください
   - 記事やお知らせの更新: site-content-update
   - それ以外の制作や修正、質問: web-creator
   - 保守: site-maintenance、振り返りとログの整理: site-review
 - 公開前の変更は、アーティファクトのプレビューを見せて了承を得てから公開してください。確認なしで公開してよい変更: <例: 誤字の修正>
+- サイトは main ブランチへの push で公開されます。作業用のブランチで作った場合は、私の「OK」のあとに `git push origin HEAD:main` で main に入れてください。プルリクエストは、大きな変更（デザインやページの構成の変更）、スキルの更新、GitHub Actions の更新のときだけ作ってください。プルリクエストの操作は `gh api` で行ってください（`gh pr` はこの環境では使えません）
+- 作業がまとまるごと（デザインの案、ページ、仕上げ、監査）にコミットして push し、SITE.md の「制作の進み具合」を更新してください。利用の上限で止まっても、「続きをお願いします。SITE.md の制作の進み具合を読んでください」で再開できるようにするためです
 - 作業の終わりに logs/ に実行ログを書き、改善点は logs/IMPROVEMENTS.md に足してください（skills/web-creator/references/run-logs.md）
 - skills/ の中は書き換えないでください。スキルの手順がこのサイトに合わないときは、このサイトでの扱いを SITE.md に書き、違いを logs/IMPROVEMENTS.md に種類「スキル」で足してください
 - Cloudflare や Google のサービスの操作は、できるかぎりコネクタで行ってください（skills/web-creator/references/connectors.md）。コネクタがつながっていなければ、接続のカードやリンクをチャットに出して、私に認証を頼んでください

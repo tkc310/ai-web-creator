@@ -19,7 +19,7 @@ deploy-and-autofix.md の「独自ドメインの接続」と、migration.md の
 3. エージェント: 登録されていなければ、ドメインのゾーンを指定して、自動で差し込む設定で登録する（`POST /accounts/{account_id}/rum/site_info`、本文は `{"zone_tag": "<ゾーンの ID>", "auto_install": true}`）。コネクタが使えない場合は、オーナーに Cloudflare のダッシュボードの「Web Analytics」→「Add a site」で、サイトのドメインを選んでもらう
 4. エージェント: 公開したページを開き、HTML に `static.cloudflareinsights.com` の計測用のスクリプトが入っていることを確かめる。入っていない場合は、`public/_headers` に `Cache-Control: no-transform` がないかを確かめる（あると差し込まれない。Cloudflare のドキュメント）
 5. エージェント: Lighthouse の点数が下がっていないかを、トップページで測って確かめる（quality-gate.md）
-6. エージェント: SITE.md の「技術」に「アクセス解析: Cloudflare Web Analytics（有効にした日）」と書き、プライバシーポリシーのページに、アクセスの統計を Cloudflare の仕組みで取っていることを1文足す（forms.md の「プライバシーポリシー」）
+6. エージェント: SITE.md の「技術」に「アクセス解析: Cloudflare Web Analytics（有効にした日）」と書き、プライバシーポリシーのページに、アクセスの統計を Cloudflare の仕組みで取っていることを1文足す（forms.md の「プライバシーポリシー」）。ページの文章を変えるので、足した文をプレビュー（preview.md）でオーナーに見せ、「OK」をもらってから公開する
 
 独自ドメインをつながず、workers.dev の URL だけで公開を続ける場合は、自動で差し込めません。Web Analytics にホスト名を登録して計測用のスクリプト（JS snippet）を受け取り、`src/layouts/Base.astro` の `</body>` の前に置きます。Cloudflare を通っていないサイトとしての登録は、アカウントで10サイトまでです（Cloudflare のドキュメント「Limits」）。
 

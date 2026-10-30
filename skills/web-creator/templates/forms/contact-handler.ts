@@ -3,9 +3,10 @@
 //
 // 守っていること:
 //   - 送信元が自分のサイトか（Origin。本番、www、確認用の workers.dev を SITE_ORIGINS に並べる）、大きさ、必須項目、文字数、メールアドレスの形を確かめる
-//   - 送信回数を制限する（Workers の Rate Limiting の接続 CONTACT_LIMITER がある場合。サイト全体で1分に5件まで）
 //   - ロボットが埋める隠し項目（website）が埋まっていたら、成功したふりをして何もしない
-//   - Cloudflare Turnstile のトークンを、サーバーから siteverify で確かめる（ホスト名も確かめる）
+//   - Cloudflare Turnstile のトークンを、サーバーから siteverify で確かめる（ホスト名も確かめる）。確かめられなかったときも送らない
+//   - Turnstile を通ったあとで、送信回数を制限する（Workers の Rate Limiting の接続 CONTACT_LIMITER がある場合。サイト全体で1分に5件まで）。
+//     Turnstile より前で数えると、トークンを持たない POST を繰り返すだけで、本物の問い合わせを止められてしまうため
 //   - メールは本文をテキストだけで送る（HTML を組み立てない）。件名に改行を入れない
 //   - 送信内容はどこにも保存しない。ログにも個人情報を書かない
 
@@ -43,11 +44,6 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
   const to = (path: string) => Response.redirect(new URL(path, origin).toString(), 303);
   const fail = (reason: string) => to(`/contact/?error=${reason}`);
 
-  // 送信回数の制限。個人を特定しないよう、サイト全体で数える
-  if (env.CONTACT_LIMITER) {
-    const { success } = await env.CONTACT_LIMITER.limit({ key: "contact" });
-    if (!success) return fail("busy");
-  }
   if (Number(request.headers.get("Content-Length") ?? "0") > MAX_BYTES) {
     return new Response("Payload Too Large", { status: 413 });
   }
@@ -87,16 +83,28 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
 
   const token = get("cf-turnstile-response");
   if (!token) return fail("captcha");
-  const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body: new URLSearchParams({
-      secret: env.TURNSTILE_SECRET_KEY,
-      response: token,
-      remoteip: request.headers.get("CF-Connecting-IP") ?? "",
-    }),
-  });
-  const result = (await verify.json()) as { success?: boolean; hostname?: string };
+  let result: { success?: boolean; hostname?: string };
+  try {
+    const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: new URLSearchParams({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: token,
+        remoteip: request.headers.get("CF-Connecting-IP") ?? "",
+      }),
+    });
+    result = (await verify.json()) as { success?: boolean; hostname?: string };
+  } catch {
+    // 確かめられなかったときは送らない（通信の失敗や、想定しない応答）
+    return fail("captcha");
+  }
   if (!result.success || result.hostname !== new URL(origin).hostname) return fail("captcha");
+
+  // 送信回数の制限。Turnstile を通った送信だけを数える。個人を特定しないよう、サイト全体で数える
+  if (env.CONTACT_LIMITER) {
+    const { success } = await env.CONTACT_LIMITER.limit({ key: "contact" });
+    if (!success) return fail("busy");
+  }
 
   const oneLine = (s: string) => s.replace(/[\r\n\t]+/g, " ").slice(0, 100);
   const text = [

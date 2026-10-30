@@ -53,7 +53,7 @@ Claude が「スキルを読み込めません」「GitHub を開けません」
 
 ## 段階2: Claude Code で作る
 
-1. GitHub に、サイト用の空の非公開リポジトリを作る（作り方は Claude が案内します）
+1. GitHub に、サイト用の非公開リポジトリを作る。作るときに「Add a README file」をオンにする（作り方は Claude が案内します）
 2. Claude の GitHub アプリをインストールし、サイトのリポジトリを選ぶ（[アカウント登録ガイド](claude-account.md) の「4. GitHub とつなぐ」）
 3. claude.ai/code を開き、左のメニューの「Projects」から「New project」を押す
 4. Name に「（サイト名）のサイト」と入れ、Context の「Add」から「サイトのリポジトリ」を選んで、「Create project」を押す

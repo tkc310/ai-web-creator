@@ -8,10 +8,13 @@
 #   - 起動条件を「main への push で動いた deploy の失敗」に限っている
 #   - 試行回数に上限がある（下の AUTOFIX_MAX_PER_DAY。自動修正の Issue が開いている間も試さない）
 #
-# Claude を起動しない場合（Issue だけを立てる）:
-#   - 公開後の確認（スモークテスト）だけが失敗した場合。新しい版はもう公開されていて、見出しを意図して変えたのかもしれないため
+# どの段階で失敗したかは、deploy.yml のジョブの名前（build、publish、smoke）と結果で見分ける（ステップの名前は使わない）。
+# Claude を起動するのは、build のジョブが失敗した場合だけ。次の場合は Claude を起動せず、Issue だけを立てて正常に終える:
+#   - publish のジョブだけが失敗した場合（Cloudflare の鍵や設定の問題で、記事や画像では直せない）
+#   - smoke のジョブ（公開後の確認）だけが失敗した場合。新しい版はもう公開されていて、見出しを意図して変えたのかもしれないため
 #   - 自動修正用の鍵（CLAUDE_CODE_OAUTH_TOKEN か ANTHROPIC_API_KEY）が登録されていない場合
-#   - 失敗した版より新しいコミットが main にある場合は、何もせずに終える（新しい版の deploy が動くため）
+#   - 試行回数の上限に達した場合と、自動修正の Issue が開いている場合
+#   - 失敗した版より新しいコミットが main にある場合は、Issue も立てずに終える（新しい版の deploy が動くため）
 #
 # 変えてよい範囲（安全を優先して、記事、画像、ログだけ）:
 #   - Claude が変えたファイルを、ビルドより前に AUTOFIX_ALLOWED_PATHS と AUTOFIX_DENIED_PATHS で確かめる
@@ -31,13 +34,8 @@ permissions:
   issues: write
   actions: read
 
-# deploy と同じグループにして、公開が重ならないようにする
-concurrency:
-  group: publish
-  cancel-in-progress: false
-
 env:
-  # 過去24時間に自動修正をコミットしてよい回数
+  # 過去24時間に自動修正をコミットしてよい回数（ログだけのコミット chore(autofix): は数えない）
   AUTOFIX_MAX_PER_DAY: "3"
   # 自動修正で変えてよいパス。1行に1つの形（* は / をまたいで何文字にも当たる。大文字と小文字は区別しない）
   AUTOFIX_ALLOWED_PATHS: |
@@ -55,6 +53,8 @@ env:
     public/_redirects
     public/_routes.json
     *.mdx
+  # 公開後の確認で、つながらないページを待つ長さ（秒）。deploy.yml と同じ値にする
+  SMOKE_WAIT_SECONDS: "480"
 
 jobs:
   autofix:
@@ -64,6 +64,11 @@ jobs:
       github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # deploy と同じグループにして、公開が重ならないようにする。
+    # ジョブの単位に書くので、上の if で飛ばす実行（deploy が成功したときなど）はグループに入らず、待っている deploy を取り消さない
+    concurrency:
+      group: publish
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
         with:
@@ -71,6 +76,7 @@ jobs:
           fetch-depth: 50
           persist-credentials: false
 
+      # action の値: skip（何もしない）/ issue（Claude を起動せずに Issue だけ）/ claude（Claude に直してもらう）
       - name: 自動修正を試すかを確かめる
         id: gate
         env:
@@ -80,55 +86,84 @@ jobs:
           HAS_KEY: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' || secrets.ANTHROPIC_API_KEY != '' }}
         run: |
           reason="$RUNNER_TEMP/autofix-reason.txt"
+          decide() { echo "action=$1" >> "$GITHUB_OUTPUT"; exit 0; }
           if [ "$(git rev-parse HEAD)" != "$FAILED_SHA" ]; then
             echo "::notice::失敗した版より新しいコミットが main にあるため、自動修正は行いません（新しい版の deploy が動きます）"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
+            decide skip
           fi
-          failed_steps=$(gh run view "$RUN_ID" --json jobs --jq '[.jobs[].steps[]? | select(.conclusion == "failure") | .name] | join(",")' 2>/dev/null || true)
-          if [ "$failed_steps" = "公開後の確認" ]; then
+          # deploy.yml のジョブごとの結果（build、publish、smoke）
+          jobs=$(gh run view "$RUN_ID" --json jobs --jq '.jobs[] | "\(.name)=\(.conclusion)"' 2>/dev/null || true)
+          summary=$(echo "$jobs" | tr '\n' ' ')
+          [ -z "${summary// /}" ] && summary="読めませんでした"
+          echo "deploy のジョブの結果: $summary"
+          result() { echo "$jobs" | sed -n "s/^$1=//p" | head -1; }
+          build=$(result build)
+          publish=$(result publish)
+          smoke=$(result smoke)
+          if [ "$build" = "success" ] && [ "$publish" = "success" ] && [ "$smoke" = "failure" ]; then
             {
               echo "公開そのものは済んでいて、新しい版が表示されています。公開後の確認（.github/smoke-test.txt に書いたページと文字）だけが合いませんでした。"
-              echo "見出しやページの名前を意図して変えた場合は、Claude に『公開後の確認のリストを今のページに合わせて直して』と頼んでください。"
-              echo "表示がおかしい場合は、Claude に『表示がおかしいので、直前の変更を取り消して』と頼んでください。"
+              echo ""
+              echo "- 独自ドメインにつないだ直後なら、つながるまで時間がかかっているだけのことがあります。取り消す前に、数分おいて Claude に『公開後の確認をもう一度して』と頼んでください"
+              echo "- 見出しやページの名前を意図して変えた場合は、Claude に『公開後の確認のリストを今のページに合わせて直して』と頼んでください"
+              echo "- 表示がおかしい場合は、Claude に『表示がおかしいので、直前の変更を取り消して』と頼んでください"
             } > "$reason"
-            exit 1
+            decide issue
+          fi
+          if [ "$build" = "success" ] && [ "$publish" = "failure" ]; then
+            {
+              echo "ビルドは通りましたが、Cloudflare への公開の段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
+              echo "Cloudflare の鍵（GitHub の Secrets の CLOUDFLARE_API_TOKEN）の期限切れや権限の不足、Cloudflare の設定が原因のことが多く、記事や画像の修正では直らないため、自動修正は試していません。"
+              echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
+            } > "$reason"
+            decide issue
+          fi
+          if [ "$build" != "failure" ]; then
+            {
+              echo "公開が途中で止まりました（ジョブの結果: ${summary}）。時間切れや GitHub 側の不調のことがあり、自動修正は試していません。公開中のサイトは、前回公開した状態のまま表示されています。"
+              echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
+            } > "$reason"
+            decide issue
           fi
           if [ "$HAS_KEY" != "true" ]; then
-            echo "自動修正用の鍵が登録されていないため、自動修正を試していません。" > "$reason"
-            exit 1
+            {
+              echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
+              echo "自動修正用の鍵が登録されていないため、自動修正は試していません。Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
+            } > "$reason"
+            decide issue
           fi
           count=$(git log --since="24 hours ago" --grep='^fix(autofix):' --format=%H | wc -l)
           if [ "$count" -ge "$AUTOFIX_MAX_PER_DAY" ]; then
-            echo "過去24時間の自動修正が ${count} 回あり、上限（${AUTOFIX_MAX_PER_DAY} 回）に達したため、自動修正を試していません。" > "$reason"
-            exit 1
+            echo "ビルドの段階で失敗しました。過去24時間の自動修正が ${count} 回あり、上限（${AUTOFIX_MAX_PER_DAY} 回）に達したため、自動修正は試していません。公開中のサイトは、前回公開した状態のまま表示されています。" > "$reason"
+            decide issue
           fi
           open=$(gh issue list --label autofix --state open --json number --jq 'length' 2>/dev/null || echo 0)
           if [ "$open" -gt 0 ]; then
-            echo "前回の自動修正の Issue が開いたままなので、自動修正を試していません。" > "$reason"
-            exit 1
+            echo "ビルドの段階で失敗しました。前回の自動修正の Issue が開いたままなので、自動修正は試していません。公開中のサイトは、前回公開した状態のまま表示されています。" > "$reason"
+            decide issue
           fi
-          echo "skip=false" >> "$GITHUB_OUTPUT"
+          decide claude
 
       - name: pnpm を用意する
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
         uses: pnpm/action-setup@v6
 
       # Claude が手を入れる作業環境なので、依存パッケージのキャッシュは使わない（汚れたものを保存しないため）
       - uses: actions/setup-node@v7
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
         with:
           node-version-file: .node-version
 
       - name: 失敗したときのログを保存
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
         env:
           GH_TOKEN: ${{ github.token }}
         # Claude が読めるよう作業フォルダに置き、範囲の確認の前に消す
         run: gh run view ${{ github.event.workflow_run.id }} --log-failed > .autofix-failed.log || true
 
       - name: Claude に修正を依頼
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
+        id: claude
         uses: anthropics/claude-code-action@v1
         env:
           # Claude が動かすコマンドの環境から、Anthropic などの鍵を取り除く
@@ -140,7 +175,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             このリポジトリは Cloudflare に公開しているウェブサイトです。
-            main ブランチの公開（deploy ワークフロー）が、ビルドか公開の段階で失敗しました。
+            main ブランチの公開（deploy ワークフロー）が、ビルドの段階で失敗しました。
             失敗時のログは .autofix-failed.log にあります。
 
             やってほしいこと:
@@ -148,7 +183,7 @@ jobs:
             2. ログから失敗の原因を特定する
             3. 直前のコミット（git log -5、git diff HEAD~1）の内容に原因があり、下の「変えてよいファイル」の中で直せるなら、意図を保ったまま最小限の変更で直す
                例: 記事の frontmatter の書き間違い、存在しない画像へのリンク、記事の中の閉じ忘れたタグ
-            4. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）
+            4. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）。直せなかったときは、原因と、直すのに必要な変更（どのファイルをどう変えるか）を書く。このログの内容は Issue の本文にも入る
             5. 何かを直した場合は、audit-log/YYYY/YYYY-MM-DD.md（日本時間の今日の日付。日付と時刻は TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M' で確かめる。なければ作る）の末尾に「## HH:MM 自動修正」の見出しで、対象のファイル、直した内容、依頼「自動修正」、確認「自動」を追記する。過去の記録は書き換えない
             6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
 
@@ -175,7 +210,7 @@ jobs:
             --allowedTools "Read,Glob,Grep,Edit(src/content/**),Edit(src/assets/**),Edit(public/**),Edit(logs/**),Edit(audit-log/**),Bash(git log:*),Bash(git diff:*),Bash(git status),Bash(python3 scripts/check_text.py:*),Bash(TZ=Asia/Tokyo date:*)"
 
       - name: 変更の範囲を確かめてコミットする（まだ push しない）
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
         id: scope
         run: |
           reason="$RUNNER_TEMP/autofix-reason.txt"
@@ -189,6 +224,16 @@ jobs:
           done
           # ビルドの出力や依存パッケージをコミットしない（.gitignore がなくても守る）
           git add -A -- . ':!node_modules' ':!dist' ':!.astro' ':!.wrangler' ':!lighthouse-reports' ':!mobile-shots'
+
+          # Claude が書いた実行ログ（原因と必要な変更）を、Issue の本文に使うために控える（ふつうのファイルだけ）
+          analysis="$RUNNER_TEMP/autofix-analysis.md"
+          : > "$analysis"
+          while IFS= read -r -d '' f; do
+            if [ -f "$f" ] && [ ! -L "$f" ]; then
+              cat -- "$f" >> "$analysis"
+              echo "" >> "$analysis"
+            fi
+          done < <(git -c core.quotePath=false diff --cached --name-only --diff-filter=AM -z -- 'logs/*_autofix.md')
 
           shopt -s extglob nocasematch
           # パスがリストのどれかに当たるか（1行に1つの形）
@@ -206,8 +251,9 @@ jobs:
 
           # 日本語のファイル名もそのまま扱うため、core.quotePath=false と -z（NUL 区切り）で読む
           outside=""
+          only_logs=true
           while IFS= read -r -d '' status && IFS= read -r -d '' f; do
-            mode=$(git ls-files -s -- "$f" | cut -d' ' -f1)
+            mode=$(git --literal-pathspecs ls-files -s -- "$f" | cut -d' ' -f1)
             if [ "$status" = "D" ]; then
               outside="${outside}- ${f}（削除）"$'\n'
             elif [ "$mode" != "100644" ]; then
@@ -215,9 +261,11 @@ jobs:
             elif matches "$f" "$AUTOFIX_DENIED_PATHS" || ! matches "$f" "$AUTOFIX_ALLOWED_PATHS"; then
               outside="${outside}- ${f}"$'\n'
             fi
+            case "$f" in logs/*|audit-log/*) ;; *) only_logs=false ;; esac
           done < <(git -c core.quotePath=false diff --cached --name-status --no-renames -z)
           if [ -n "$outside" ]; then
             {
+              echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
               echo "直すには、自動修正で変えてよい範囲（記事、画像、ログ）の外のファイルを変える必要があったため、コミットも公開もせずに止めました。"
               echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
               echo ""
@@ -230,17 +278,26 @@ jobs:
           fi
 
           # 機密情報や汚染が見つかったらコミットせずに止める（このあとの Issue で知らせる）
-          if [ -f scripts/check_text.py ]; then
-            if ! git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 scripts/check_text.py; then
-              echo "自動修正で変えたファイルに、機密情報か AI に向けた命令の疑いが見つかった（または調べられないファイルがあった）ため、コミットも公開もせずに止めました。" > "$reason"
-              git reset -q
-              exit 1
-            fi
+          # 確かめる道具がないときは、確かめずに公開しない
+          if [ ! -f scripts/check_text.py ]; then
+            echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。自動修正で変えたファイルを確かめる scripts/check_text.py がないため、コミットも公開もせずに止めました。Claude に『scripts/check_text.py を skills/ から戻して、公開の失敗を直して』と頼んでください。" > "$reason"
+            : > "$analysis"
+            git reset -q
+            exit 1
+          fi
+          if ! git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 scripts/check_text.py; then
+            echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。自動修正で変えたファイルに、機密情報か AI に向けた命令の疑いが見つかった（または調べられないファイルがあった）ため、コミットも公開もせずに止めました。" > "$reason"
+            git reset -q
+            exit 1
           fi
 
           if git diff --cached --quiet; then
             echo "変更なし（一時的な障害として再公開だけを行います）"
             echo "changed=false" >> "$GITHUB_OUTPUT"
+          elif [ "$only_logs" = true ]; then
+            # ログだけの変更は、試行回数に数えない
+            git commit -q -m "chore(autofix): 公開をやり直す（ログだけ）"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             git commit -q -m "fix(autofix): 公開の失敗を自動で修正"
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -248,7 +305,8 @@ jobs:
 
       # Claude が作業フォルダに残したもの（依存パッケージやビルドの出力を含む）を消し、コミットした状態からビルドし直す
       - name: コミットした状態からビルドする
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
+        id: build
         run: |
           git reset -q --hard HEAD
           git clean -q -ffdx
@@ -256,7 +314,7 @@ jobs:
           pnpm run build
 
       - name: main が進んでいないかを確かめて push する
-        if: steps.gate.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude'
         id: push
         env:
           GH_TOKEN: ${{ github.token }}
@@ -276,7 +334,8 @@ jobs:
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
       - name: 公開
-        if: steps.gate.outputs.skip != 'true' && steps.push.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude' && steps.push.outputs.skip != 'true'
+        id: publish
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -285,7 +344,8 @@ jobs:
 
       # deploy.yml の「公開後の確認」と同じ内容
       - name: 公開後の確認
-        if: steps.gate.outputs.skip != 'true' && steps.push.outputs.skip != 'true'
+        if: steps.gate.outputs.action == 'claude' && steps.push.outputs.skip != 'true'
+        id: smoke
         run: |
           list=.github/smoke-test.txt
           if [ ! -f "$list" ]; then
@@ -306,12 +366,20 @@ jobs:
             expect="${line#"$url"}"
             expect="${expect#"${expect%%[![:space:]]*}"}"
             ok=0
-            for i in 1 2 3 4 5; do
-              status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url") || status=000
+            tries=0
+            start=$(date +%s)
+            while :; do
+              tries=$((tries + 1))
+              status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url" 2>/dev/null) || status=000
               if [ "$status" = "200" ] && { [ -z "$expect" ] || grep -qF -- "$expect" page.html; }; then
                 ok=1
                 break
               fi
+              elapsed=$(( $(date +%s) - start ))
+              case "$status" in
+                000|5??) [ "$elapsed" -ge "$SMOKE_WAIT_SECONDS" ] && break ;;
+                *) [ "$tries" -ge 5 ] && break ;;
+              esac
               sleep 10
             done
             checked=$((checked + 1))
@@ -328,20 +396,55 @@ jobs:
           fi
           exit "$failed"
 
-      - name: 直せなかったときは Issue で知らせる
-        if: failure()
+      - name: Issue で知らせる
+        if: failure() || steps.gate.outputs.action == 'issue'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
           THIS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CLAUDE_OUTCOME: ${{ steps.claude.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          PUSH_OUTCOME: ${{ steps.push.outcome }}
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+          SMOKE_OUTCOME: ${{ steps.smoke.outcome }}
+          CHANGED: ${{ steps.scope.outputs.changed }}
         run: |
           reason="$RUNNER_TEMP/autofix-reason.txt"
+          analysis="$RUNNER_TEMP/autofix-analysis.md"
           {
             if [ -f "$reason" ]; then
               cat "$reason"
-            else
-              echo "自動修正で直せませんでした。公開中のサイトは、前回公開した状態のまま表示されています。"
+            elif [ "$CLAUDE_OUTCOME" = "failure" ]; then
+              echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
+              echo "自動修正の Claude が途中で止まりました。自動修正用の鍵の期限切れか、Claude の利用の上限に当たった可能性があります。鍵を発行した日は SITE.md の「技術」の「自動修正用の鍵」にあります（Claude のプランの鍵の有効期限は1年）。"
+              echo "Claude に『サイトの公開が失敗しているので直して。自動修正用の鍵の期限も確かめて』と頼んでください。"
+            elif [ "$PUBLISH_OUTCOME" = "success" ] && [ "$SMOKE_OUTCOME" = "failure" ]; then
+              echo "自動修正で直して公開し直しました。新しい版が表示されています。ただし、公開後の確認（.github/smoke-test.txt に書いたページと文字）が合いませんでした。"
+              echo "表示がおかしい場合は、Claude に『表示がおかしいので、直前の変更を取り消して』と頼んでください。"
+            elif [ "$PUSH_OUTCOME" = "success" ] && [ "$CHANGED" = "true" ]; then
+              echo "自動修正のコミットを main に入れましたが、Cloudflare への公開の段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
               echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
+            else
+              if [ "$BUILD_OUTCOME" = "failure" ]; then
+                echo "自動修正を試しましたが、ビルドが通りませんでした。公開中のサイトは、前回公開した状態のまま表示されています。"
+              else
+                echo "自動修正で直せませんでした。公開中のサイトは、前回公開した状態のまま表示されています。"
+              fi
+              echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
+            fi
+            # Claude が調べた原因（実行ログ）。機密情報や AI に向けた命令の疑いがあれば載せない
+            if [ -s "$analysis" ] && [ -f scripts/check_text.py ]; then
+              cp "$analysis" "$RUNNER_TEMP/autofix-analysis-check.md"
+              if python3 scripts/check_text.py "$RUNNER_TEMP/autofix-analysis-check.md" > /dev/null 2>&1; then
+                echo ""
+                echo "## 自動修正の Claude が調べた原因"
+                echo ""
+                # 長いときは先頭の3,000文字だけにする（文字の途中で切らない）
+                python3 -c 'import sys; print(open(sys.argv[1], encoding="utf-8", errors="replace").read()[:3000])' "$analysis"
+              else
+                echo ""
+                echo "自動修正の Claude が調べた結果に、確かめが必要な文字があったため、ここには載せていません。下の「自動修正の実行」を Claude に見せてください。"
+              fi
             fi
             echo ""
             echo "Claude が直したら、この Issue を閉じます（自分で閉じてもかまいません）。開いている間は、自動修正は動きません。"

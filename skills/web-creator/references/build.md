@@ -11,6 +11,15 @@
 
 デザインでは、テンプレートのような見た目を避け、業種と対象者に合う書体、色、余白を選びます。
 
+### 利用の上限で止まっても続けられるようにする
+
+制作は長い作業で、Pro のプランでは途中で Claude の利用の上限に当たることがあります。止まっても続きから再開できるように、次のことを守ります。
+
+- 作業のまとまり（3案を見せた、案が決まった、ページを1つ作った、仕上げた、品質チェックをした、監査をした）が終わるたびに、作業用のブランチにコミットして push する
+- 同じときに、SITE.md の「制作の進み具合」の表を更新する（終わったこと、次にすること、オーナーに確かめ中のこと）
+- 上限に当たって止まったら、止まった理由と、上限が戻るおよその時刻をオーナーに一文で伝え、再開のひと言（SKILL.md の「オーナーとの話し方」）を添える
+- 時間とトークンを多く使う作業（全ページの仕上げ、セキュリティ監査）の前は、始めてよいかを先に聞く（security-audit.md の「頼み方」）
+
 ## frontend-design スキルでのブラッシュアップ
 
 デザインの判断（案づくりと仕上げ）には、Anthropic の frontend-design スキルを使います。AI が作るサイトにありがちな、どこかで見たような見た目を避けるためです。
@@ -90,30 +99,32 @@ Chromium がすでに入っている作業環境では、`python3 -m playwright 
 - Node.js: 最新の LTS 版（作業する日に、状態が LTS の版のうち一番新しいもの）。`.node-version` に書く（templates/node-version.txt）。Current と奇数番は使わない（runtime-update の Node.js の基準）
 - pnpm: 最新版。`package.json` の `packageManager` に書く（templates/package-json-fields.md）
 - 依存パッケージ: 最新版。`pnpm create astro@latest`、`pnpm add <パッケージ>@latest` で入れる。npm と yarn は使わない
-- pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から1日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
+- pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から3日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
 - GitHub Actions: templates/github/ のワークフローと dependabot.yml（GitHub Actions の更新だけ）を、すべてのサイトに置く
 
 ## 作り始め（どのページの形でも同じ）
 
 1ページの LP も含めて、すべて Astro のプロジェクトとして作ります。あとからページや記事を足すときも、同じリポジトリに足すだけで済みます。
 
-1. 空のテンプレート（minimal）で、作業用の一時フォルダにプロジェクトを作り、サイトのリポジトリに写す。サイトのリポジトリには skills/、AGENTS.md、CLAUDE.md などがすでにあり、空でないフォルダでは作成のツールが質問で止まるため、別の場所で作る。`cp -n` は同じ名前のファイルを上書きしないので、skills/、AGENTS.md、CLAUDE.md、README.md は消えない
+1. 空のテンプレート（minimal）で、作業用の一時フォルダにプロジェクトを作り、サイトのリポジトリに写す。サイトのリポジトリには skills/、AGENTS.md、CLAUDE.md などがすでにあり、空でないフォルダでは作成のツールが質問で止まるため、別の場所で作る。`cp --update=none` は同じ名前のファイルを上書きしないので、skills/、AGENTS.md、CLAUDE.md、README.md は消えない（`cp -n` は coreutils の版によって、飛ばしたファイルがあると終了コード1を返すので使わない）
 
    ```bash
    tmp="$(mktemp -d)"
    pnpm create astro@latest "$tmp/site" --template minimal --no-install --no-git --skip-houston --yes
-   cp -Rn "$tmp/site/." .
+   cp -R --update=none "$tmp/site/." .
    rm -rf "$tmp"
    pnpm install
    ```
 
    テンプレートを取りに行けずに止まったとき（作業環境から GitHub のファイルを取得できないとき）は、`package.json`（templates/package-json-fields.md の scripts）、`astro.config.mjs`（`defineConfig({})` だけ）、`src/pages/index.astro` を手で作り、`pnpm add astro@latest` で入れる。サンプルのページや部品は残さない
-2. `pnpm astro add sitemap --yes` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
-3. templates/ から、`.node-version`、`package.json` の項目、`pnpm-workspace.yaml`、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローを置く（deploy-and-autofix.md の「初回の設定」）
-4. `src/layouts/Base.astro` に、head（タイトル、description、OGP、canonical、JSON-LD）をまとめる
-5. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
-6. `public/` に robots.txt、llms.txt、favicon、OG 画像を置く
-7. `pnpm run build` を通し、`dist/` にページができることを確かめる
+2. `pnpm add -D wrangler@latest` で wrangler を入れる。公開のワークフロー（wrangler-action）は、入っている版を使うので、公開に使う版が pnpm-lock.yaml で固定され、runtime-update で更新できる（入れないと、公開のたびにその時点の wrangler を入れて動く）
+3. `pnpm astro add sitemap --yes` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
+4. templates/ から、`.node-version`、`package.json` の項目、`pnpm-workspace.yaml`、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローを置く（deploy-and-autofix.md の「初回の設定」）
+5. `src/layouts/Base.astro` に、head（タイトル、description、OGP、canonical、JSON-LD）をまとめる
+6. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
+7. `public/` に robots.txt、llms.txt、favicon、OG 画像を置く
+8. `pnpm run build` を通し、`dist/` にページができることを確かめる
+9. 作業用のブランチ（`claude/` で始まる名前。プロジェクトのスレッドでは、スレッドのブランチ）にコミットして push する。初めての公開（deploy-and-autofix.md）までは main に入れない
 
 ## ページの形ごとの構成
 
@@ -207,4 +218,4 @@ export async function POST({ request }) {
 
 `compatibility_date` は作成した日付にします。
 
-リポジトリの直下に `.node-version`（templates/node-version.txt をコピー）を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。templates/node-version.txt は、最後にこのスキルを直した日の最新の LTS 版です。コピーしたあと、作業する日の最新の LTS 版を runtime-update スキルの「最新版の調べ方」で確かめ、違っていれば書き換えます。
+リポジトリの直下に `.node-version` を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。templates/node-version.txt は埋めて使うひな形で、数字は入っていません。作業する日の最新の LTS 版のメジャー番号を runtime-update スキルの「最新版の調べ方」で調べ、数字だけを書きます（例: `printf '26\n' > .node-version`）。`<` が残ったままだと、GitHub Actions が Node.js を用意できずに失敗します。

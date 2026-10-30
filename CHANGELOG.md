@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-10-30（3）
+
+- docs(license): 受託制作の「受託ライセンス（1サイト分）」をやめた。解説記事の購入者は、お客さまのサイトの制作と保守にも使える（お客さまごとの追加の購入はない）。お客さまのサイトの非公開のリポジトリに skills/ を置けるのは制作か保守を続けている間だけで、手を離すときは、お客さまが購入者でなければ skills/ を除く。お客さまにスキルそのものを渡すことと販売は禁止のまま。変更前に購入した人の利用は、LICENSE の 6 のとおり続けられる（LICENSE、README.md、stack-selection.md、skills-install.md、hearing.md、templates/SITE.md、templates/handoff.md）
+- feat(skills): お客さまにサイトを引き渡すときの手順を足した（鍵とスケジュールタスクの片づけ、skills/ と skills/ への参照を外す、git の履歴の扱い、権限を外す、引き渡したあとの公開の確認）（新規 references/client-handoff.md、SKILL.md、README.md）
+- fix(skills): deploy.yml を build、publish、smoke の3つのジョブに分け、autofix がジョブの名前と結果で失敗の段階を見分けるようにした。Claude を起動するのはビルドの失敗のときだけにし、公開の段階だけの失敗、公開後の確認だけの失敗、鍵がないときなどは、Issue を立てて実行を成功で終える。concurrency をジョブの単位に移した。Issue の本文を、公開中のサイトが前回の版か新しい版か、Claude の実行が止まった（鍵の期限切れか利用の上限）、などで書き分け、Claude が調べた原因を確かめてから入れる。ログだけの変更は `chore(autofix):` にして回数に数えない。check_text.py がなければ公開せずに止まる（deploy.yml、autofix.yml、deploy-and-autofix.md、SKILL.md、README.md、site-maintenance）
+- fix(skills): 公開後の確認で、つながらないときと 5xx のときは最大8分待つようにし、独自ドメインにつないだ直後の失敗で取り消す前に確かめ直す手順を足した（deploy.yml、autofix.yml、deploy-and-autofix.md、migration.md、prompts/README.md）
+- fix(skills): スキルの取り込みの手順を、1回の Bash の呼び出しで実行する2つのかたまりにし、作業用のフォルダを固定した。clone した版の手順を読み直す、main があるかを確かめる、skills/ の独自の変更を見つける、写したものが一致するかを確かめる、を足した。リリースの zip から取り込む手順を書いた。配布元は `git clone` で取得すると書いた（skills-install.md、security-audit.md、templates/handoff.md、templates/project-instructions.md、prompts/README.md、account-setup.md、README.md）
+- fix(skills): 公開は main への push で、プロジェクトのスレッドの作業用のブランチからは、オーナーの OK のあとに `git push origin HEAD:main` で入れると書いた。クラウドの作業環境では `gh pr` と `gh issue` が使えないので、`gh api` に置き換え、ブランチを消さないようにした（templates/project-instructions.md、templates/AGENTS.md.tmpl、SKILL.md、site-maintenance、deploy-and-autofix.md、versions.md）
+- fix(skills): サイトのリポジトリを README つきで作るようにした（account-setup.md、docs/how-to-use.md）
+- fix(skills): 自動修正用の鍵の期限を毎月の振り返りで確かめ、発行から11か月で作り直しを頼むようにした。発行日を書く場所を SITE.md の「技術」にそろえた（site-review、account-setup.md、templates/SITE.md）
+- fix(skills): 依存パッケージの待ち期間（minimumReleaseAge）を1日から3日にし、astro、@astrojs/cloudflare、wrangler のメジャー更新は自動でマージしないようにした（pnpm-workspace.yaml、versions.md、runtime-update、site-maintenance、site-review、build.md、security-audit.md、README.md）
+- fix(skills): お問い合わせフォームのひな形で、送信回数の制限を Turnstile の確認のあとに移し、確認の失敗を受けるようにした（templates/forms/contact-handler.ts、forms.md）
+- feat(skills): 利用の上限で止まっても続けられるよう、作業のまとまりごとのコミットと push、SITE.md の「制作の進み具合」、再開のひと言、監査の前の確認を足した（build.md、templates/SITE.md、SKILL.md、security-audit.md、templates/project-instructions.md）
+- feat(skills): 予約投稿を1回だけ動くタスクにし、日時の連絡、SITE.md への記録、公開されたかの確認を足した。画像の処理の前に Pillow を確かめるようにした（site-content-update）
+- chore(skills): wrangler を devDependency に入れて版を固定する、`cp -R --update=none` にする、templates の CLAUDE.md と AGENTS.md を .tmpl の名前にする、node-version.txt を埋めて使うひな形にする、カスタムコネクタの URL を書く、アクセス解析の1文をプレビューで見せる、取り込みのコミットでは check_text.py に `--exclude skills` を付ける、を直した。skills/ の説明の文の書き方を変え、check_text.py の誤検出をなくした（build.md、runtime-update、templates/、account-setup.md、analytics.md、security-rules.md、forms.md、新規 templates/forms/google-form-embed.html、project-setup.md）
+- docs: main にはタグを打つ版だけを入れること、リリースに zip を付けること、最初のタグの前に自動修正の3つの経路を確かめることを、版の付け方に書いた（README.md、AGENTS.md）
+
 ## 2026-10-30（2）
 
 - fix(skills): 自動修正（autofix.yml）の安全を固めた。変えてよい範囲を記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）に絞り、.astro やレイアウトの修正は Issue にしてオーナーに知らせる。checkout に `persist-credentials: false` を付け、Claude が使えるツールをパスつきの Edit に限り、範囲の確認と秘密の確認をビルドより前に移し、コミットした状態から作り直して公開する。削除、symlink、実行ビット、`public/_redirects` を止める。日本語のファイル名で範囲の確認と秘密の確認が効かなかった不具合（git の既定の core.quotePath）を `core.quotePath=false` と `-z` で直した。`anthropic_api_key` も渡し、鍵がないときは Claude を起動せずに Issue にする。deploy と autofix を同じ concurrency の group にし、push の前に main が進んでいないかを確かめる（autofix.yml、deploy.yml、deploy-and-autofix.md、templates/AGENTS.md、security-rules.md、README.md）

@@ -80,7 +80,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 一部のページを SSR にした場合は、公開されたサイトで依存パッケージのコードが動くため、「要保守構成」として扱います。
 
 - Claude のスケジュールタスク（旧称: ルーティン）が毎月1日と15日に動き、Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しくする。壊れていれば直して、問題なければマージする（[site-maintenance](skills/site-maintenance/SKILL.md)、[runtime-update](skills/runtime-update/SKILL.md)）
-- 公開から1日たっていない版は入れない（乗っ取られた版を公開直後に入れる攻撃を避けるため）。弱点は `pnpm audit` で確かめ、重大なものを先に直す
+- 公開から3日たっていない版は入れない（乗っ取られた版を公開直後に入れる攻撃を避けるため）。弱点は `pnpm audit` で確かめ、重大なものを先に直す
 - Dependabot は GitHub Actions の更新だけに使う（理由は [versions.md](skills/web-creator/references/versions.md) の「時点つきの事実」）。Dependabot のプルリクエストは自動でマージせず、保守や振り返りのときに Claude が変更を読んでオーナーに確認する
 - 有料プランや新しい Cloudflare のサービスが必要になる更新、ライセンスが変わる更新は、自動ではマージせずオーナーに確認する
 
@@ -133,7 +133,7 @@ CI で確認するのは「ビルドが通るか」と、公開後に主なペ�
 
 ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、Issue が開いている間は動きません。
 
-公開後の確認だけで失敗した場合（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
+deploy のワークフローは、ビルド（build）、公開（publish）、公開後の確認（smoke）の3つのジョブに分かれていて、autofix は、どのジョブが失敗したかで動きを変えます。Claude を起動するのはビルドの失敗のときだけです。公開の段階だけの失敗（Cloudflare の鍵の期限切れなど）と、公開後の確認だけの失敗（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。Issue には、公開中のサイトが前回の版か新しい版か、Claude が調べた原因、オーナーが Claude に送る頼み方を書きます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
 
 ### デザインは frontend-design スキルで仕上げ、iPhone SE の幅まで確かめる
 
@@ -175,6 +175,7 @@ skills/
 │   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
 │   │   ├── analytics.md         … アクセス解析（Cloudflare Web Analytics）
 │   │   ├── migration.md         … WordPress や STUDIO からの引っ越し
+│   │   ├── client-handoff.md    … 受託制作で、お客さまにサイトを引き渡すとき（skills/ を除く手順）
 │   │   ├── preview.md
 │   │   ├── article-tutorial.md  … 公開後に、オーナーと1本目の記事を追加するチュートリアル
 │   │   ├── run-logs.md          … 実行ログと改善ループ
@@ -182,7 +183,7 @@ skills/
 │   │   ├── security-audit.md    … 公開前と機能の変更時のセキュリティ監査
 │   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
 │   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
-│   └── templates/               … SITE.md、AGENTS.md、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
+│   └── templates/               … SITE.md、AGENTS.md.tmpl と CLAUDE.md.tmpl（サイトの直下に置くときに .tmpl を外す）、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
 │   ├── scripts/                 … optimize_images.py（写真のメタ情報の削除と軽量化）
@@ -201,16 +202,30 @@ skills/
 スキルの版は Git のタグで表します。サイトのリポジトリは、このタグを見て新しい版を取り込みます（[skills-install.md](skills/web-creator/references/skills-install.md)）。
 
 - タグの名前は `vYYYY.MM.N`。YYYY.MM はタグを打つ年月、N はその月の通し番号で 0 から始める（例: `v2026.11.0`、`v2026.11.1`）
-- skills/、prompts/、docs/ を変えて main に入れたら、CHANGELOG.md に書いてからタグを打つ。サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない
+- main には、タグを打つ版だけを入れる。作業はブランチで行い、CHANGELOG.md に書いてからプルリクエストで main に入れ、すぐにタグを打つ。段階1のチャットは main を読むので、main とタグの版がずれないようにするため
+- サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない
 - タグが1つもない間は、サイトのリポジトリは main の最新のコミットを取り込み、`skills/VERSION` に `tag: none` とそのコミットを書いて固定する。今の作り方になる前の古い main（`skills/web-creator/references/skills-install.md` がない版）は取り込まずに止まる
-- 配布元を非公開にする場合は、同じ版の skills/ と LICENSE、`VERSION`（タグとコミット）を zip にして解説記事に添付する。zip の作り方を変えたら skills-install.md も直す
+- タグを打つたびに、同じ版の `skills/`、`LICENSE`、`VERSION`（source、tag、commit の3行）を入れた zip（`ai-web-creator-<タグ>.zip`）を作り、GitHub のリリースに添付する。clone できない作業環境で、オーナーがダウンロードしてチャットに添付する（skills-install.md の「B の zip から取り込むとき」）。配布元を非公開にする場合は、同じ zip を解説記事に添付する。zip の作り方を変えたら skills-install.md も直す
+
+  ```bash
+  tag=v2026.11.0
+  out="$(mktemp -d)"
+  git archive --format=tar "$tag" skills LICENSE | tar -x -C "$out"
+  printf 'source: https://github.com/tkc310/ai-web-creator\ntag: %s\ncommit: %s\n' "$tag" "$(git rev-list -n 1 "$tag")" > "$out/VERSION"
+  (cd "$out" && zip -qr "ai-web-creator-$tag.zip" skills LICENSE VERSION)
+  gh release create "$tag" "$out/ai-web-creator-$tag.zip" --title "$tag" --notes-file <(sed -n "/^## $tag/,/^## /p" CHANGELOG.md | sed '$d')
+  ```
 
 最初のタグは、次の順に打ちます。
 
 1. 作業ブランチのプルリクエストを main にマージする
 2. CHANGELOG.md のいちばん上の見出しに版の名前を入れ（例: `## v2026.11.0（2026-11-01）`）、main にコミットする
-3. 空のリポジトリで、skills-install.md の初回の手順をそのまま試し、`skills/VERSION` が書かれることを確かめる（タグを打つ前なので `tag: none` になる）
-4. タグを打って送る
+3. 空のリポジトリ（README だけのもの）で、skills-install.md の初回の手順をそのまま試し、`skills/VERSION` が書かれることを確かめる（タグを打つ前なので `tag: none` になる）
+4. 使い捨てのサイトのリポジトリで、自動修正の3つの経路を1回ずつ起こして確かめる。結果は skills/web-creator/references/versions.md の「時点つきの事実」に確かめた日と一緒に書く
+   - 記事の frontmatter をわざと壊して push する → Claude が直して公開し直す（build のジョブの失敗）
+   - `.astro` の閉じ忘れを push する → 範囲の外の修正が要るとして、push せずに Issue が立つ
+   - `.github/smoke-test.txt` にページにない文字を書いて push する → Claude は起動せず、公開後の確認だけの失敗の Issue が立つ
+5. タグを打って送る
 
    ```bash
    git switch main && git pull
@@ -218,7 +233,8 @@ skills/
    git push origin v2026.11.0
    ```
 
-5. `git ls-remote --tags https://github.com/tkc310/ai-web-creator` で、タグが見えることを確かめる
+6. `git ls-remote --tags https://github.com/tkc310/ai-web-creator` で、タグが見えることを確かめる
+7. 上の zip を作り、リリースに添付する
 
 スキルの更新は期間を区切らずに続けます。止めるときは、3か月前にこの README と note で知らせます。
 
@@ -234,7 +250,7 @@ skills/
 
 - 使えるのは、note で販売している解説記事のうち、利用許諾が付くと記事の中で示しているもの（マガジンを含む）の購入者だけです。購入者が会社や団体のために使う場合は、その会社や団体の中で使えます。担当者が代わっても、後任の担当者が同じサイトのために使い続けられます
 - 自分や自社のサイトの制作、公開、更新、保守に使えます。そのために、スキルをサイトの非公開のリポジトリに写し、新しい版に更新できます
-- ほかの人から依頼を受けてサイトを作る仕事に使う場合は、note で販売している「受託ライセンス（1サイト分）」を、お客さまのサイト1つにつき1つ購入してください。お客さまのリポジトリに skills/ を置けるのは、制作か保守を続けている間です
+- ほかの人から依頼を受けて、お客さまのサイトを作る仕事や保守にも使えます。お客さまごとの追加の購入は要りません。お客さまのサイトの非公開のリポジトリに skills/ を置けるのは、制作か保守を続けている間です。手を離すときは、お客さま自身が購入者でなければ skills/ を除きます（スキルの再配布にあたるため。手順は [client-handoff.md](skills/web-creator/references/client-handoff.md)）
 - スキルやプロンプトの配布、販売、購入者でない人への受け渡し、似たものを作って配ることはできません
 - AI の学習や学習用データセット、RAG の索引、購入者以外への回答に使う知識ベースへの取り込みと、そのためのクローリングは禁止しています。購入者が自分の AI エージェントに読み込ませるのは問題ありません
 - スキルで作ったサイトのページ、文章、コード、ログは、購入者のものです。自由に使えます。サイトのリポジトリをほかの人に渡すときは、skills/ を除いてください（相手も購入者なら除かなくてかまいません）

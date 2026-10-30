@@ -37,7 +37,7 @@ web-creator で公開するときに、一度だけ行います。
 ### 1. 状況を読む
 
 1. SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の直近の保守ログを読む
-2. 開いている GitHub Actions の更新のプルリクエスト（Dependabot）を一覧にする（`gh pr list --label dependencies --state open`。`gh` が使えない場合は GitHub のツールで同じ一覧を取る）
+2. 開いている GitHub Actions の更新のプルリクエスト（Dependabot）を一覧にする（`gh api 'repos/{owner}/{repo}/pulls?state=open' --jq '.[] | select(any(.labels[]; .name == "dependencies")) | "\(.number) \(.title)"'`。クラウドの作業環境では `gh pr` が使えないため、REST の `gh api` を使う。versions.md の「時点つきの事実」。どちらも使えない場合は GitHub のツールで同じ一覧を取る）
 
 ### 2. 更新する
 
@@ -52,7 +52,8 @@ runtime-update スキルの手順で、Node.js、pnpm、依存パッケージ、
 | 状況 | 判断 |
 |---|---|
 | パッチ・マイナー更新で、ビルドと動作確認が通った | マージする |
-| メジャー更新で、アップグレードガイドの対応を済ませ、ビルドと動作確認が通った | マージする |
+| astro、@astrojs/cloudflare、wrangler のメジャー更新 | 自動ではマージしない。アップグレードガイドの対応を済ませ、ビルドと動作確認が通ったら、主なページのプレビュー（preview.md）と変更の要点をオーナーに見せ、「OK」をもらってからマージする。オーナーがいないときはプルリクエストを残し、次に話すときに確認する |
+| そのほかのメジャー更新で、アップグレードガイドの対応を済ませ、ビルドと動作確認が通った | マージする |
 | 有料プランや新しい Cloudflare のサービス（バインディング）が必要になる | マージせず、オーナーに確認する |
 | ライセンスが変わる | マージせず、オーナーに確認する |
 | 2回直しても失敗する | マージせず、プルリクエストにコメントを残し、次回に回す。2回続けて失敗したらオーナーに知らせる |
@@ -66,7 +67,7 @@ runtime-update スキルの手順で、Node.js、pnpm、依存パッケージ、
 3. check ワークフローが通っていることを確かめる
 4. オーナーに「公開の仕組みの部品（GitHub Actions）の新しい版があります。変わるのは次の点です。よければ『OK』と返してください」と1行で伝え、了承を得てからマージする。スケジュールタスクで動いていてオーナーがいないときは、プルリクエストを残し、次にオーナーと話すときに確認する
 
-マージは `gh pr merge <番号> --squash --delete-branch` で行います。`gh` が使えない場合は、ローカルでブランチを main に取り込んで push します。GitHub Actions の更新のブランチが古く競合している場合は、プルリクエストに `@dependabot rebase` とコメントし、次回に回します。
+マージは `gh api -X PUT 'repos/{owner}/{repo}/pulls/<番号>/merge' -f merge_method=squash` で行います（クラウドの作業環境では `gh pr merge` が使えず、ブランチの削除も拒否されるため、ブランチは消さない）。`gh api` が使えない場合は、ローカルでブランチを main に取り込んで push します。GitHub Actions の更新のブランチが古く競合している場合は、プルリクエストに `@dependabot rebase` とコメントし、次回に回します。
 
 オーナーに確認するときは、GitHub の Issue に、何が変わるのか、何が起きうるのか、元に戻せるのかを専門用語を避けて書きます。
 
@@ -80,7 +81,7 @@ runtime-update の「記録」の形で、Node.js、pnpm、依存パッケージ
 
 1. deploy ワークフローの結果を確認する（`gh run list --workflow deploy --branch main --limit 1`）
 2. 失敗していたら、autofix ワークフローの結果を待つ。それでも失敗していれば、原因を調べて直す
-3. deploy の「公開後の確認」が OK になっていることと、SSR のページ（お問い合わせの送信など）が動くことを確かめる
+3. deploy の smoke のジョブ（公開後の確認）が成功していることと、SSR のページ（お問い合わせの送信など）が動くことを確かめる
 4. 表示がおかしい場合は、マージしたコミットを `git revert` で取り消して push し、オーナーに知らせる
 
 ### 6. 記録する

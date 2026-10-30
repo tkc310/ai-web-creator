@@ -54,16 +54,17 @@
 
 ## 1. GitHub（設計図の保管庫）
 
-所要時間: 10分くらい（アカウントがある場合は5分くらい）
+所要時間: 15分くらい（アカウントがある場合は5分くらい）
 
 1. エージェント: github.com/signup を開く
 2. オーナー: メールアドレス、パスワード、ユーザー名を入力し、パズル認証と確認コードを入力する
 3. エージェント: プランは Free のままにする（非公開リポジトリも無料で作れる）
 4. オーナー: 2段階認証を設定する（Settings → Password and authentication。認証アプリを推奨）
-5. エージェント: サイト用の空の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。Private を選ぶ
+5. エージェント: サイト用の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。Private を選び、「Add a README file」（README を足す）をオンにする。README がない空のリポジトリには main ブランチがなく、Claude Code のプロジェクトのスレッドが作業を始められないため
 6. オーナー: 「Create repository」を押す
 7. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
 8. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。リポジトリの選択で、サイトのリポジトリを選ぶ（権限の許可にあたるため、オーナーが行う）
+9. エージェント: Claude Code の作業環境の通信の許可に github.com が入っているかを確かめる。スキルの取り込み（skills-install.md）で、配布元を `git clone` するため。既定の「Trusted」なら入っている。「None」や「Custom」にしている場合は、オーナーに、会話の名前の右の「∨」→「Edit cloud environment」→「Network access」で github.com を足してもらう（3分くらい）
 
 非公開のリポジトリで Claude Code が作業するには、Claude の GitHub アプリのインストールが必要です。Claude Code のプロジェクト（project-setup.md）に入れるリポジトリは、サイトのリポジトリ1つだけです。スキルは、制作に入るときに Claude がサイトのリポジトリの `skills/` に取り込みます（skills-install.md）。配布元のフォークは作りません（公開リポジトリのフォークは必ず公開になるため）。
 
@@ -95,7 +96,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
 3. オーナー: 2段階認証を設定する
 4. エージェント: プランは Free を選ぶ
 5. Claude と Cloudflare をつなぐ（connectors.md の「カスタムコネクタの追加」）
-   - オーナー: Claude の「Customize」→「Connectors」で Cloudflare の公式の MCP サーバーを追加し、Cloudflare の画面で権限を選んで許可する（5分くらい）
+   - オーナー: Claude の「Customize」→「Connectors」→「Add custom connector」で、名前に Cloudflare、URL に `https://mcp.cloudflare.com/mcp` を入れて追加し、Cloudflare の画面で権限を選んで許可する（5分くらい）。コネクタの一覧（ディレクトリ）にある「Cloudflare Developer Platform」は、DNS、Turnstile、メール送信の操作に足りないので選ばない（connectors.md の「カスタムコネクタの追加」）
    - 以降の DNS の確認と変更、アカウントIDの読み取り、Workers の設定は、エージェントがコネクタで行う。コネクタが使えない場合は、これまでどおりブラウザ操作で行う
 6. ドメイン
    - 持っていない場合: 候補をエージェントが3つほど出し、空き状況を確認する。購入と支払いはオーナーが行う
@@ -113,7 +114,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
    - エージェント: 決まったサブドメインを SITE.md の「技術」に書き、`.github/smoke-test.txt` の `<...>` を埋める（deploy-and-autofix.md の「初回の設定」）
 9. GitHub に鍵を登録する
    - エージェント: サイトのリポジトリの Settings → Secrets and variables → Actions → New repository secret を開く
-   - オーナー: 名前 `CLOUDFLARE_API_TOKEN` で、コピーしたトークンを貼り付けて保存する
+   - オーナー: 名前に `CLOUDFLARE_API_TOKEN` と入れ、コピーしたトークンを値の欄に貼り、保存する
    - エージェント: `CLOUDFLARE_ACCOUNT_ID` を同じ画面で登録する（値はアカウントID）
 10. Claude の作業環境から、公開したサイトに届くようにする（公開後の品質チェックで使う。3分くらい）
     - エージェント: オーナーがチャット（Cowork）とコード（Claude Code）のどちらで作業しているかを確かめる（設定の画面が違うため。SITE.md に書いてなければ選択肢をつけて聞き、答えを SITE.md に書く）
@@ -146,7 +147,7 @@ C の手順:
 2. オーナー: 使いすぎを防ぐため、Console の利用の上限（月の上限額）を設定する。自動修正は失敗したときだけ動き、1回の実行は30ターンまで
 3. オーナー: API キーを作ってコピーし、名前 `ANTHROPIC_API_KEY` で GitHub の Secrets に登録する
 
-B の鍵（`claude setup-token` で作るもの）の有効期限は1年です（versions.md の「時点つきの事実」）。発行した日を SITE.md の「技術」の「自動修正用の鍵」に書き、年に1回の点検（site-review の「年に1回の点検」）で期限を確かめます。鍵の発行方法、有効期限、画面の名前は変わることがあるため、案内の前に anthropics/claude-code-action の README と Claude Code のドキュメントで最新の手順を確認します。autofix.yml は両方の入力を渡しているので、B と C のどちらを選んでもワークフローは書き換えません。
+B の鍵（`claude setup-token` で作るもの）の有効期限は1年です（versions.md の「時点つきの事実」）。発行した日を SITE.md の「技術」の「自動修正用の鍵」に書きます。月1回の振り返り（site-review の「1. 読む」の5）で、発行から11か月を過ぎていたら、オーナーに作り直しを頼みます。振り返りを設定していないサイトでは、発行から11か月後の日付を、オーナーのカレンダーに入れてもらいます。鍵の発行方法、有効期限、画面の名前は変わることがあるため、案内の前に anthropics/claude-code-action の README と Claude Code のドキュメントで最新の手順を確認します。autofix.yml は両方の入力を渡しているので、B と C のどちらを選んでもワークフローは書き換えません。
 
 ## 終わったら
 

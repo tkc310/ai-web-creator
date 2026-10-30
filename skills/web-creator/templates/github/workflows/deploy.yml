@@ -1,12 +1,17 @@
 # main ブランチに変更が入るたびに、ビルドして Cloudflare に公開し、公開後に主なページを確かめる。
 # CI で確認するのは「ビルドが通るか」と「公開したページが見られるか」だけにして、失敗しにくくしている。
 #
+# ジョブを3つに分けている（build → publish → smoke）。どの段階で失敗したかを、autofix がジョブの名前で見分けるため。
+#   build:   ビルドだけを確かめる。鍵は使わない。ここで失敗したときだけ、autofix は Claude を起動する
+#   publish: もう一度ビルドして Cloudflare に公開する。ここで失敗したときは Cloudflare の鍵や設定の問題なので、
+#            autofix は Claude を起動せずに Issue で知らせる
+#   smoke:   公開後の確認。ここで失敗したときは、新しい版がすでに公開されている。autofix は Claude を起動せずに Issue で知らせる
+# ジョブの名前（build、publish、smoke）は autofix.yml が読むので変えない。ジョブに name: も付けない（付けると名前が変わる）。
+#
 # 公開後の確認（スモークテスト）で見るページと文字は、サイトのリポジトリの .github/smoke-test.txt に書く。
 #   1行に1つ、「URL」と「そのページに必ず含まれる文字」を空白で区切って書く。# で始まる行は読まない
 #   例: https://example.co.jp/ 株式会社サンプル
 #   <...> が残っている行（ひな形のまま）は確かめずに飛ばし、警告を出す
-# 確認に失敗すると、このワークフローは失敗になる。このときは新しい版がすでに公開されている。
-# autofix は、確認だけが失敗した場合は Claude を起動せず、Issue でオーナーに知らせる。
 #
 # 同時実行: autofix と同じグループ（publish）にして、公開が重ならないようにしている。
 # 待っている実行がある間に新しい push が来ると、待っている古い実行は新しいものに置き換わる。
@@ -25,10 +30,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    # ビルド、公開、公開後の確認（1ページにつき最大で約2分、5ページまで）が収まる長さ
-    timeout-minutes: 25
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
@@ -48,6 +52,30 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run build
 
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: pnpm を用意する
+        uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      # 公開するものは、このジョブの中でビルドし直す（ジョブの間でビルドの出力を受け渡さない）
+      - name: ビルド
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+
+      # wrangler は package.json の devDependencies に入れた版（pnpm-lock.yaml で固定）を使う
       - name: 公開
         uses: cloudflare/wrangler-action@v4
         with:
@@ -55,12 +83,26 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
+  smoke:
+    needs: publish
+    runs-on: ubuntu-latest
+    # 1ページにつき、ふだんは最大で約2分。つながらない状態（独自ドメインにつないだ直後など）は最大で約8分待つ
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
       # 主なページが 200 を返し、決まった文字を含むかを確かめる。転送（301 など）はたどる。
       # 反映を待つため、1ページにつき10秒おきに5回まで試す。
+      # つながらない（状態 000）か、5xx（証明書の発行を待っている間の 525 や 526 など）のときは、
+      # 独自ドメインにつないだ直後の可能性があるので、そのページの最初の試行から SMOKE_WAIT_SECONDS 秒まで試し続ける。
       # 文字はページの HTML の中で探す。& や < を含む見出しは、HTML の中では &amp; や &lt; になっているので、
       # その書き方で書くか、記号を含まない言葉を選ぶ。
       # この内容は autofix.yml の「公開後の確認」と同じにしておく。
       - name: 公開後の確認
+        env:
+          SMOKE_WAIT_SECONDS: "480"
         run: |
           list=.github/smoke-test.txt
           if [ ! -f "$list" ]; then
@@ -81,12 +123,20 @@ jobs:
             expect="${line#"$url"}"
             expect="${expect#"${expect%%[![:space:]]*}"}"
             ok=0
-            for i in 1 2 3 4 5; do
-              status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url") || status=000
+            tries=0
+            start=$(date +%s)
+            while :; do
+              tries=$((tries + 1))
+              status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url" 2>/dev/null) || status=000
               if [ "$status" = "200" ] && { [ -z "$expect" ] || grep -qF -- "$expect" page.html; }; then
                 ok=1
                 break
               fi
+              elapsed=$(( $(date +%s) - start ))
+              case "$status" in
+                000|5??) [ "$elapsed" -ge "$SMOKE_WAIT_SECONDS" ] && break ;;
+                *) [ "$tries" -ge 5 ] && break ;;
+              esac
               sleep 10
             done
             checked=$((checked + 1))

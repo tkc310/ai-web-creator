@@ -7,7 +7,7 @@
 - 添付された素材（ロゴ、写真、PDF）は、Claude Code の会話には引き継がれない。もう一度添付してもらうものを、最後の「添付するもの」に書く
 
 ```
-最初に、GitHub の tkc310/ai-web-creator（配布元）にある skills/web-creator/references/skills-install.md を読み、その手順でスキルをこのリポジトリの skills/ に取り込んでください。取り込めたら、取り込んだ版（skills/VERSION の tag と commit）を教えてください。取り込めない場合は、推測で進めずに理由を教えてください。
+最初に、`git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-src/src` で配布元を取得し（GitHub の API や、リポジトリをこの会話に追加する操作は使わないでください）、その中の skills/web-creator/references/skills-install.md を読み、その手順でスキルをこのリポジトリの skills/ に取り込んでください。取り込めたら、取り込んだ版（skills/VERSION の tag と commit）を教えてください。取り込めない場合は、推測で進めずに理由を教えてください。
 取り込んだら、skills/web-creator/SKILL.md に従い、次の内容で SITE.md を作ってから、サイトを作ってください。
 
 ## サイト
@@ -22,7 +22,7 @@
 - 作り方: <静的（SSG） / 一部 SSR（要保守）>。理由: <一文>
 - お問い合わせ: <Google フォームのリンク / 埋め込み / 同じ見た目のフォーム / 置かない>
 - デザインの方向: <雰囲気、参考にしたいサイト>
-- 受託制作か: <いいえ / はい（受託ライセンスの購入: 済み、対象のサイト: <ドメイン>）>
+- 受託制作か: <いいえ / はい（制作者: <会社名>、保守の終わり: <未定 / 日付>）>
 
 ## アカウントの準備
 - GitHub: <済み / まだ>。Claude の GitHub アプリの許可: <済み / まだ>

@@ -27,7 +27,7 @@ effort: medium
 |---|---|
 | Node.js のメジャーバージョン | `.node-version`（GitHub Actions は `node-version-file` でこれを読む）、`package.json` の `engines.node` |
 | pnpm のバージョン | `package.json` の `packageManager`（GitHub Actions の pnpm/action-setup はこれを読む） |
-| 依存パッケージ | `package.json`、`pnpm-lock.yaml` |
+| 依存パッケージ（公開に使う wrangler を含む。devDependencies に入っていなければ `pnpm add -D wrangler@latest` で足す） | `package.json`、`pnpm-lock.yaml` |
 | pnpm の設定 | `pnpm-workspace.yaml`（`minimumReleaseAge`、`allowBuilds`） |
 | Workers の互換日付 | `wrangler.jsonc` の `compatibility_date` |
 | GitHub Actions のバージョン | `.github/workflows/*.yml`（Dependabot のプルリクエストで更新する。自動ではマージせず、site-maintenance の「GitHub Actions の更新」の手順でオーナーに確かめる） |
@@ -76,7 +76,7 @@ effort: medium
 ### 基準
 
 - すべての依存パッケージ（開発用を含む）を最新版にする
-- 公開から1日たっていない版は入れない（`pnpm-workspace.yaml` の `minimumReleaseAge: 1440`）。乗っ取られた版を公開直後に入れてしまう攻撃を避けるため。この設定は外さない
+- 公開から3日たっていない版は入れない（`pnpm-workspace.yaml` の `minimumReleaseAge: 4320`）。乗っ取られた版を公開直後に入れてしまう攻撃を避けるため。この設定は外さず、短くもしない。`pnpm audit` の重大な弱点を直す版がまだ3日たっていないときは、待つか、その版だけ `minimumReleaseAgeExclude` に足して入れるかをオーナーに確かめ、足したら次の更新で外す
 - インストール時のスクリプトは、`allowBuilds` で許可したものだけを動かす。新しいパッケージがスクリプトの許可を求めたら、何をするスクリプトかを確かめ、ビルドに必要なものだけを許可する。分からないものは許可せず、ログに書く
 
 ### 手順
@@ -86,7 +86,7 @@ effort: medium
 3. ブランチ `claude/deps-<日付>` を作る
 4. メジャーバージョンが上がるパッケージは、リリースノートとアップグレードガイドを読み、必要な書き換えを確かめる
 5. `pnpm update --latest` で、すべてを最新版にする
-   - `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION` で止まったら、公開から1日たっていない版があるということ。そのパッケージだけを今回は外し（`pnpm update --latest <それ以外のパッケージ>`）、次回に回す
+   - `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION` で止まったら、公開から3日たっていない版があるということ。そのパッケージだけを今回は外し（`pnpm update --latest <それ以外のパッケージ>`）、次回に回す
 6. `pnpm run build` を実行する。失敗したら、アップグレードガイドに従って最小限の変更で直す。2回直しても通らないパッケージは、そのパッケージだけを元の版に戻し、ログと IMPROVEMENTS.md に書いて次回に回す
 7. 要保守構成のサイトは、ビルドしたものを起動し（`pnpm run preview` や `wrangler dev`）、主なページと SSR のエンドポイントが正しく応答するかを確かめる
 8. 静的なサイトは、ビルドしたページの数が更新の前と同じで、トップページと記事ページの表示が崩れていないかを、プレビュー（web-creator の scripts/make_preview.py）で確かめる
@@ -117,6 +117,6 @@ Node.js、pnpm、依存パッケージ、`compatibility_date` の確認結果を
 
 - Node.js: 24 → 26（26 が 2026-10-28 に LTS になった。astro、wrangler の engines は 26 に対応）
 - pnpm: 12.15.0 → 12.16.0
-- 依存パッケージ: 14件を最新版に。astro はメジャー更新（アップグレードガイドの対応なし）。@astrojs/sitemap は公開から1日たっていないため次回
+- 依存パッケージ: 14件を最新版に。astro はメジャー更新（アップグレードガイドの対応なし）。@astrojs/sitemap は公開から3日たっていないため次回
 - pnpm audit: 重大な弱点なし
 - compatibility_date: 2026-10-01 のまま（6か月未満）

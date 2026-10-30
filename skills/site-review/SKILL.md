@@ -27,6 +27,7 @@ effort: medium
 2. logs/IMPROVEMENTS.md を読む
 3. 前回の振り返りより後の実行ログをすべて読む
 4. `skills/VERSION` の版と、配布元 tkc310/ai-web-creator の最新の版（タグ。タグがまだなければ main のコミット）を比べる。新しい版があれば、CHANGELOG の差分を3行までにまとめ、`skills/` を差し替えるプルリクエストを作る（web-creator の references/skills-install.md の「新しい版への更新」）。マージはオーナーの「OK」を得てから行い、「6. 記録する」の手順4のオーナーへの連絡に、3行のまとめとプルリクエストの URL を含める
+5. 自動修正用の鍵の期限を確かめる（毎月）。SITE.md の「技術」の「自動修正用の鍵」が `CLAUDE_CODE_OAUTH_TOKEN` で、発行した日から11か月を過ぎていたら、オーナーに作り直しを頼む（有効期限は1年。web-creator の references/account-setup.md の「3. 自動修正用の Claude の鍵」）。値は読まず、書いてある日付だけで判断する。発行した日が書かれていなければ、オーナーに聞いて書く。切れると、自動修正は動かず、Issue に「Claude が途中で止まりました」と出るだけになる
 
 ### 2. 改善点を整理する
 
@@ -59,7 +60,7 @@ effort: medium
 
 毎年1月の振り返りで、止まると気づきにくいものを確かめます。結果は振り返りのログに書き、対応が必要なものだけオーナーに伝えます。
 
-1. 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` か `ANTHROPIC_API_KEY`）と、Cloudflare の API トークンに期限がないか。値は読まず、登録した日（SITE.md の「アカウント」）と、発行した画面の説明で確かめる。期限が近ければ、オーナーに作り直しを頼む（web-creator の references/account-setup.md の手順）
+1. Cloudflare の API トークンと、自動修正用の鍵が `ANTHROPIC_API_KEY` の場合のキーに、期限がないか（`CLAUDE_CODE_OAUTH_TOKEN` は毎月の「1. 読む」の5で確かめる）。値は読まず、登録した日（SITE.md の「技術」）と、発行した画面の説明で確かめる。期限が近ければ、オーナーに作り直しを頼む（web-creator の references/account-setup.md の手順）
 2. スケジュールタスク（保守、振り返り）が止まっていないか。前回の実行日が、予定より1か月以上前なら止まっている（GitHub の接続が切れたなど。site-maintenance の references/routine-setup.md の「注意」）
 3. ドメインの更新の期限と、支払いの方法が今も使えるか（オーナーに確かめてもらう）
 4. SITE.md の「アカウント」の持ち主と登録メールが、今の担当者に合っているか。担当者が代わっていたら、下の「担当者が代わったとき」をオーナーに伝える
@@ -127,7 +128,7 @@ effort: medium
 2. 作業の前に、このリポジトリの SITE.md と logs/IMPROVEMENTS.md を読んでください。
 3. 改善点を整理し、オーナーの確認がいらないものは直してください。
 4. 保管期間を過ぎたログを月ごとに要約し、元のログを削除してください。
-5. 静的なサイトなので、skills/runtime-update/SKILL.md の手順で、Node.js、pnpm、依存パッケージを最新にしてください（公開から1日たっていない版は入れない）。GitHub Actions の更新のプルリクエストはマージせず、skills/site-maintenance/SKILL.md の「GitHub Actions の更新」の手順で確かめて、オーナーへの確認事項に入れてください。
+5. 静的なサイトなので、skills/runtime-update/SKILL.md の手順で、Node.js、pnpm、依存パッケージを最新にしてください（公開から3日たっていない版は入れない）。GitHub Actions の更新のプルリクエストはマージせず、skills/site-maintenance/SKILL.md の「GitHub Actions の更新」の手順で確かめて、オーナーへの確認事項に入れてください。
 6. skills/VERSION の版より新しいスキルの版が配布元 tkc310/ai-web-creator にあれば、skills/ を差し替えるプルリクエストを作り、マージせずに残してください（skills/web-creator/references/skills-install.md）。
 7. 最後に振り返りのログを書き、SITE.md の最終振り返り日を更新して、main に push してください。
 

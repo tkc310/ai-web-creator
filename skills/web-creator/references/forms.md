@@ -53,11 +53,7 @@ Google フォームには、Claude の公式のコネクタも、Google 公式�
 ### サイトに入れる
 
 - A: お問い合わせページと、ヘッダー・フッターのお問い合わせのリンク先を、Google フォームの URL にする。別のタブで開くことと、Google のページに移ることを、ボタンの近くに一言書く（例: 「Google フォームが開きます」）
-- B: お問い合わせページにだけ埋め込む。トップページなどほかのページには埋め込まない
-  ```html
-  <iframe src="<埋め込み用の URL>" title="お問い合わせフォーム" width="100%" height="1200" loading="lazy" style="border:0"></iframe>
-  <p><a href="<フォームの URL>">フォームが表示されない場合はこちら</a></p>
-  ```
+- B: お問い合わせページにだけ埋め込む。トップページなどほかのページには埋め込まない。書き方は templates/forms/google-form-embed.html（埋め込みの枠と、表示されないときのリンク）
   - `loading="lazy"` で、ページの表示を待たせない
   - 高さはフォームの長さに合わせて調整し、スマホで内側にスクロールが出すぎないようにする
   - Lighthouse で問い合わせページを計測し、点数が下がった場合は理由をオーナーに伝える（quality-gate.md）
@@ -97,7 +93,7 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
 7. エージェント: 同じ処理の中で、返ってきたシークレットキーをサイトの Worker の Secret `TURNSTILE_SECRET_KEY` として登録する。処理の結果には登録できたかどうかだけを返し、値をチャット、ログ、リポジトリに出さない（connectors.md の「秘密の値は表に出さない」）。オーナーには、Claude が直接登録して画面には表示していないことを伝える。コネクタが使えない場合は、オーナーが Turnstile の画面でシークレットキーをコピーし、Workers の Settings → Variables and Secrets に貼る
 8. エージェント: templates/forms/ をもとに実装する
    - `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは静的に出力したままにする（stack-selection.md の「SSR を使う場面」、build.md の「一部のページだけ SSR にする場合」）。1ページの LP でも同じ
-   - `wrangler-contact.jsonc` の設定（`send_email` の接続、送信回数の制限の `ratelimits`、`vars`）を wrangler.jsonc に足す。`SITE_ORIGINS` には、本番、www、確認用の workers.dev の3つを並べる。送信回数の制限（Rate Limiting の接続）が今のプランで使えずに公開が失敗した場合は、`ratelimits` を外して公開し、Turnstile だけで守ることを SITE.md の「決めたことと理由」に書く
+   - `wrangler-contact.jsonc` の設定（`send_email` の接続、送信回数の制限の `ratelimits`、`vars`）を wrangler.jsonc に足す。`SITE_ORIGINS` には、本番、www、確認用の workers.dev の3つを並べる。送信回数の制限（Rate Limiting の接続）が今のプランで使えずに公開が失敗した場合は、`ratelimits` を外して公開し、Turnstile だけで守ることを SITE.md の「決めたことと理由」に書く。回数は Turnstile を通った送信だけを数える（トークンのない送信で本物の問い合わせを止められないようにするため）
    - `contact-form.html` をお問い合わせページに入れ、`/contact/thanks/`（送信完了のページ）と、`?error=` の理由ごとの案内文を作る
 9. エージェント: ローカルで `pnpm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
 10. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる

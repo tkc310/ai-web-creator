@@ -9,7 +9,7 @@
 2. 作業の前に、このリポジトリの SITE.md、logs/IMPROVEMENTS.md、logs/ の直近の保守ログを読んでください。
 3. runtime-update の手順で、Node.js、pnpm、依存パッケージ、compatibility_date を最新にしてください（pnpm audit で重大な弱点が見つかったものを先に）。ビルドと動作確認が通ればマージし、壊れているものは直してからマージしてください。GitHub Actions の更新のプルリクエスト（Dependabot）はマージせず、site-maintenance の「GitHub Actions の更新」の手順で確かめて、オーナーへの確認事項に入れてください。
 4. 有料プランや新しい Cloudflare のサービスが必要になる更新、ライセンスが変わる更新はマージせず、GitHub の Issue でオーナーに確認してください。
-5. 公開から1日たっていない版は入れないでください（pnpm-workspace.yaml の minimumReleaseAge を外さない）。
+5. 公開から3日たっていない版は入れないでください（pnpm-workspace.yaml の minimumReleaseAge を外さない）。
 6. マージした場合は、公開が成功し、本番のページが正しく表示されることを確かめてください。表示がおかしければ、マージを取り消してオーナーに知らせてください。
 7. 最後に、公開した更新があれば audit-log/YYYY/YYYY-MM-DD.md に「保守」として追記し、logs/ に保守ログを書き、SITE.md の最終実行日を更新して、main に push してください。
 8. 今日が毎月1日なら、続けて skills/site-review/SKILL.md を読み、改善点の整理と、古いログの要約と削除を行ってください。
