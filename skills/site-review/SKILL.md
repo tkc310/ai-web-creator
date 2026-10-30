@@ -71,8 +71,8 @@ effort: medium
 
 引き継ぐもの:
 
-1. GitHub と Cloudflare のログインと2段階認証（共有アドレスで作っていれば、パスワードと、認証のアプリを後任のスマートフォンに移す）
-2. 個人の名義でアカウントを作っていた場合は、後任を GitHub のリポジトリの Collaborator と、Cloudflare の Members に招待する
+1. GitHub と Cloudflare への招待（標準）。後任を、リポジトリを置いた GitHub の Organization（なければリポジトリの Collaborator）と、Cloudflare の Members に招待する。前の担当者は、後任が入ったら自分を外す
+2. 会社の共有のアドレスでアカウントを作っていた場合だけ、そのパスワードと、2段階認証のアプリを後任のスマートフォンに移す
 3. 知らせの宛先（GitHub に登録したメールアドレス。Issue のメールが届く先）
 4. 解説記事を買った note のアカウント（会社で買った場合）
 
