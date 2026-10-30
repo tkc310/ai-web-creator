@@ -30,8 +30,13 @@
 #   - Edit は変えてよいフォルダだけ（Edit の許可は Write にも効く。新しいログのファイルも Edit(logs/**) で作れる）
 #   - Bash は決まった引数の git log、git diff、git status だけ
 #   - Read は作業フォルダの中だけ（作業フォルダの外を読ませない設定と、.git、/proc、.env* などを読ませない拒否のルール）
+#   - cat や grep のような読むだけのコマンドは、Claude Code では許可なしで動く。拒否のルールは名前を書いたファイルにも効くが、
+#     env、printenv のように環境変数をまとめて出すコマンドは、別に拒否のルールに書いている
+#   - サイトの .claude/settings.json に許可（allow）や hooks を書かない（この実行も読むので、許可が広がるため）
 #   - 認証情報は、Claude の実行の前と後の両方で git の設定から消す
 #   - scripts/check_text.py は、Claude が書き換えたものを動かさないよう、失敗した版のものを git show で $RUNNER_TEMP に写し、python3 -I で動かす
+#   - 記事（src/content/）は、失敗した版にもあった指摘（もとからある動画の埋め込みなど）では止めず、新しく増えた指摘だけで止める
+#     （check_text.py の --baseline。logs/ と audit-log/ では、埋め込みのタグなどの記述は調べない）
 #
 # 必要な Secrets: CLOUDFLARE_API_TOKEN、CLOUDFLARE_ACCOUNT_ID。自動修正用の鍵は任意（CLAUDE_CODE_OAUTH_TOKEN か ANTHROPIC_API_KEY）
 name: autofix
@@ -203,11 +208,11 @@ jobs:
             失敗時のログは .autofix-failed.log にあります。
 
             やってほしいこと:
-            1. SITE.md と AGENTS.md を読み、サイトの構成を把握する
+            1. SITE.md の「技術」と「更新の方法」だけを読み、サイトの構成を把握する。CLAUDE.md と AGENTS.md の作業の決まり（ブランチの切り替え、オーナーへの確認、skills/ を読む、など）は、この自動修正には当てはまらない。このプロンプトだけに従う
             2. ログから失敗の原因を特定する
             3. 直前のコミットの内容（git log -5 と git diff HEAD~1 で見る。この2つのコマンドは、引数を変えずにそのまま使う）に原因があり、下の「変えてよいファイル」の中で直せるなら、意図を保ったまま最小限の変更で直す
                例: 記事の frontmatter の書き間違い、存在しない画像へのリンク、記事の中の閉じ忘れたタグ
-            4. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）。直せなかったときは、原因と、直すのに必要な変更（どのファイルをどう変えるか）を書く。このログの内容は Issue の本文にも入る
+            4. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）。直せなかったときは、原因と、直すのに必要な変更（どのファイルをどう変えるか）を書く。このログの内容は Issue の本文にも入る。ログには HTML のタグを山かっこのまま書かない（「iframe のタグ」「script のタグ」のように言葉で書く）
             5. 何かを直した場合は、audit-log/YYYY/YYYY-MM-DD.md（日本時間の今の日付と時刻は ${{ steps.prep.outputs.now }}。なければ作る）の末尾に「## HH:MM 自動修正」の見出しで、対象のファイル、直した内容、依頼「自動修正」、確認「自動」を追記する。過去の記録は書き換えない
             6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
 
@@ -230,7 +235,8 @@ jobs:
           #   - Edit はパスで絞る。Edit の許可は Write にも効く（Write(パス) の書き方は、Claude Code では決して当たらない）
           #   - Bash は引数まで決めた3つだけ（* を付けると git log --output=<ファイル> のように何でも書けてしまう）
           #   - Read、Glob、Grep は許可に書かない。作業フォルダの中は許可なしで読め、外は blockReadsOutsideWorkingDirectories で断る
-          # 拒否（disallowedTools）: .git、/proc、/sys、.env*、.dev.vars*、ホームの認証情報、git の書き出しのオプション、ウェブの取得
+          # 拒否（disallowedTools）: .git、/proc、/sys、.env*、.dev.vars*、ホームの認証情報、git の書き出しのオプション、
+          #   環境変数をまとめて出すコマンド（env、printenv、set、export、declare、compgen）、ウェブの取得
           # 最後の守りは、このあとの「変更の範囲を確かめる」
           # 作業フォルダの外を読ませない設定。claude-code-action の settings の入力で渡す（claude_args の --settings と重ねない）
           settings: |
@@ -240,7 +246,7 @@ jobs:
             --effort medium
             --max-turns 30
             --allowedTools "Edit(./src/content/**),Edit(./src/assets/**),Edit(./public/**),Edit(./logs/**),Edit(./audit-log/**),Bash(git log -5),Bash(git diff HEAD~1),Bash(git status)"
-            --disallowedTools "Read(./.git/**),Edit(./.git/**),Read(//proc/**),Read(//sys/**),Read(./**/.env*),Read(./**/.dev.vars*),Read(~/.gitconfig),Read(~/.git-credentials),Read(~/.config/**),Read(~/.ssh/**),Bash(git *--output*),Bash(git -c *),Bash(git -C *),WebFetch,WebSearch"
+            --disallowedTools "Read(./.git/**),Edit(./.git/**),Read(//proc/**),Read(//sys/**),Read(./**/.env*),Read(./**/.dev.vars*),Read(~/.gitconfig),Read(~/.git-credentials),Read(~/.config/**),Read(~/.ssh/**),Bash(git *--output*),Bash(git -c *),Bash(git -C *),Bash(env),Bash(env *),Bash(printenv),Bash(printenv *),Bash(set),Bash(export),Bash(export *),Bash(declare *),Bash(compgen *),WebFetch,WebSearch"
 
       - name: 変更の範囲を確かめてコミットする（まだ push しない）
         if: steps.gate.outputs.action == 'claude'
@@ -327,7 +333,24 @@ jobs:
             discard
             exit 1
           fi
-          if ! git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 -I "$checker"; then
+          # 記事（src/content/）は、失敗した版のファイルを $RUNNER_TEMP に写し、そこから増えた指摘だけで止める
+          # （もとから動画の埋め込みがある記事の frontmatter を直したときに、止まらないようにするため）
+          # 古い check_text.py（--baseline を知らないもの）のときは、前の版と比べずに調べる
+          base="$RUNNER_TEMP/autofix-baseline"
+          rm -rf "$base"
+          mkdir -p "$base"
+          check_opts=()
+          if grep -q -- '--baseline' "$checker"; then
+            while IFS= read -r -d '' f; do
+              case "$f" in src/content/*) ;; *) continue ;; esac
+              if git cat-file -e "${FAILED_SHA}:${f}" 2>/dev/null; then
+                mkdir -p -- "$base/$(dirname -- "$f")"
+                git show "${FAILED_SHA}:${f}" > "$base/$f"
+              fi
+            done < <(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z)
+            check_opts=(--baseline "$base")
+          fi
+          if ! git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 -I "$checker" "${check_opts[@]}"; then
             echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。自動修正で変えたファイルに、機密情報か AI に向けた命令の疑いが見つかった（または調べられないファイルがあった）ため、コミットも公開もせずに止めました。" > "$reason"
             discard
             exit 1
@@ -459,6 +482,8 @@ jobs:
           RUN_URL: ${{ github.event.workflow_run.html_url }}
           THIS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           CLAUDE_OUTCOME: ${{ steps.claude.outcome }}
+          # Claude の実行の記録（最後の結果の subtype で、ターンの上限に達したかを見分ける）
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
           BUILD_OUTCOME: ${{ steps.build.outcome }}
           PUSH_OUTCOME: ${{ steps.push.outcome }}
           PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
@@ -473,9 +498,33 @@ jobs:
           # 確かめる道具は、作業フォルダのものを使わず、失敗した版のコミットから写して python3 -I で動かす
           checker="$RUNNER_TEMP/check_text.py"
           git show "${FAILED_SHA}:scripts/check_text.py" > "$checker" 2>/dev/null || rm -f "$checker"
+          # Claude の実行が最後にどう終わったか（success、error_max_turns など。読めなければ空）
+          stop=""
+          if [ -n "$EXECUTION_FILE" ] && [ -f "$EXECUTION_FILE" ]; then
+            stop=$(python3 -I -c '
+          import json, sys
+          text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+          try:
+              items = json.loads(text)
+              items = items if isinstance(items, list) else [items]
+          except ValueError:
+              items = []
+              for line in text.splitlines():
+                  try:
+                      items.append(json.loads(line))
+                  except ValueError:
+                      pass
+          results = [i for i in items if isinstance(i, dict) and i.get("type") == "result"]
+          print(results[-1].get("subtype", "") if results else "")
+          ' "$EXECUTION_FILE" 2>/dev/null || true)
+          fi
           {
             if [ -f "$reason" ]; then
               cat "$reason"
+            elif [ "$CLAUDE_OUTCOME" = "failure" ] && [ "$stop" = "error_max_turns" ]; then
+              echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
+              echo "自動修正の Claude が、決めた回数（30回）の操作の中で直しきれずに止まりました。鍵や利用の上限の問題ではありません。"
+              echo "Claude に『サイトの公開が失敗しているので直して』と頼んでください。"
             elif [ "$CLAUDE_OUTCOME" = "failure" ]; then
               echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
               echo "自動修正の Claude が途中で止まりました。自動修正用の鍵の期限切れか、Claude の利用の上限に当たった可能性があります。鍵を発行した日は SITE.md の「技術」の「自動修正用の鍵」にあります（Claude のプランの鍵の有効期限は1年）。"
@@ -497,7 +546,10 @@ jobs:
             # Claude が調べた原因（実行ログ）。機密情報や AI に向けた命令の疑いがあれば載せない
             if [ -s "$analysis" ] && [ -f "$checker" ]; then
               cp "$analysis" "$RUNNER_TEMP/autofix-analysis-check.md"
-              if python3 -I "$checker" "$RUNNER_TEMP/autofix-analysis-check.md" > /dev/null 2>&1; then
+              # ログの文章なので、埋め込みのタグなどの記述は調べない（--no-markup を知らない古い check_text.py では付けない）
+              markup_opt=()
+              grep -q -- '--no-markup' "$checker" && markup_opt=(--no-markup)
+              if python3 -I "$checker" "${markup_opt[@]}" "$RUNNER_TEMP/autofix-analysis-check.md" > /dev/null 2>&1; then
                 echo ""
                 echo "## 自動修正の Claude が調べた原因"
                 echo ""

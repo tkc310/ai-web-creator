@@ -27,7 +27,9 @@ Claude Code に移ります。プロジェクトの指示の下書きと、最�
 ```
 最初に、git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-src/src で配布元を取得し
 （GitHub の API や、リポジトリをこの会話に追加する操作は使わないでください）、
-その中の skills/web-creator/references/skills-install.md の手順でスキルをこのリポジトリの skills/ に取り込んでください。取り込めたら、取り込んだ版を教えてください。
+その中の skills/web-creator/references/skills-install.md の手順でスキルをこのリポジトリの skills/ に取り込んでください。
+clone が失敗したら、https://raw.githubusercontent.com/tkc310/ai-web-creator/main/skills/web-creator/references/skills-install.md の「C」の手順を試し、
+それも失敗したら、推測で進めずに、スキルの zip を添付するよう私に頼んでください。取り込めたら、取り込んだ版を教えてください。
 そのあと、skills/web-creator/SKILL.md に従ってサイトを作ってください。
 チャットで相談した内容は次のとおりです。
 （相談の内容を貼る）

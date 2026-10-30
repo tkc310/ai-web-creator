@@ -9,11 +9,13 @@
 
 ## 制作を始めるときに決めておくこと
 
-あとで引き渡しやすいよう、アカウントはお客さまの名義で作り、制作者は招待で入ります（stack-selection.md の「受託制作のとき」）。
+あとで引き渡しやすいよう、アカウントはお客さまの名義で作り、制作者は自分のログインで招待されて入ります（stack-selection.md の「受託制作のとき」）。お客さまが会社なら、リポジトリはお客さまの GitHub の Organization に置きます（account-setup.md の「会社のサイトのとき」）。ログインは人ごとに分け、お客さまのログインを制作者が使ったり、制作者のログインをお客さまに渡したりしません（GitHub 利用規約の B.3）。
+
+Claude は、制作者が自分の Claude の契約で、自分で操作します。お客さまに制作者の Claude のログインを渡さず、共有もしません。
 
 | もの | 持ち主 | 制作者の入り方 |
 |---|---|---|
-| GitHub のリポジトリ | お客さま | お客さまが制作者を Collaborator に招待する |
+| GitHub のリポジトリ | お客さま（会社なら Organization） | お客さまが制作者を Organization のメンバーか、リポジトリの共同作業者（Collaborator）に招待する |
 | Claude の GitHub アプリ | お客さま | お客さまが自分のアカウントにインストールし、サイトのリポジトリを許可する |
 | Cloudflare のアカウント | お客さま | お客さまが Manage Account → Members から制作者を招待する |
 | GitHub の Secrets の Cloudflare の鍵 | お客さま | お客さまのアカウントで作ったトークンを、お客さまが貼る |
@@ -45,9 +47,9 @@ git の履歴には、過去の skills/ が残ります。履歴ごと渡すと�
 次の順に進めます。順番を変えると、Claude が push できないか、Secrets がないまま公開が動いて失敗します。
 
 1. お客さま: 新しい非公開のリポジトリを作る。今の状態を1つのコミットで入れるので、「Add a README file」はオフにする（README もほかのファイルも入れない）
-2. お客さま: 新しいリポジトリの Settings → Collaborators で制作者を招待する。あわせて、Claude の GitHub アプリの許可（GitHub の Settings → Applications → Claude の「Configure」）に新しいリポジトリを足す
+2. お客さま: 新しいリポジトリの Settings → Collaborators（Organization なら「Collaborators and teams」）で制作者を招待する。あわせて、Claude の GitHub アプリの許可（GitHub の Settings → Applications → Claude の「Configure」）に新しいリポジトリを足す
 3. 制作者: 招待を承認し、作業しているプロジェクト（またはセッション）に新しいリポジトリを足す。追加できない（空のリポジトリが選べない）場合は、お客さまに README を1つ作ってもらい、下の4で、その README の上に重ねてコミットする
-4. Claude: 今のリポジトリの最新の状態（`.git` を除く）を新しいリポジトリに写し、1つのコミットで main に push する。ワークフローのファイルの push が拒否されたら、deploy-and-autofix.md の「ワークフローのファイルを push できないとき」に進む。この時点では Secrets がないので、deploy は publish のジョブで失敗し、知らせの Issue（ラベル deploy-notice）が立つ（公開中のサイトは変わらない。Issue は5のあとに閉じる）
+4. Claude: 写す前に、新しいリポジトリが非公開かを確かめる（新しいリポジトリの作業フォルダで `gh api 'repos/{owner}/{repo}' --jq .private` が `true` か。`false` なら写さずに止め、お客さまに Settings → General の「Change visibility」で Private にしてもらう。確かめられなければ、お客さまに画面で「Private」と出ているかを見てもらう）。そのあと、今のリポジトリの最新の状態（`.git` を除く）を新しいリポジトリに写し、1つのコミットで main に push する。ワークフローのファイルの push が拒否されたら、deploy-and-autofix.md の「ワークフローのファイルを push できないとき」に進む。この時点では Secrets がないので、deploy は publish のジョブで失敗し、知らせの Issue（ラベル deploy-notice）が立つ（公開中のサイトは変わらない。Issue は5のあとに閉じる）
 5. お客さま: 新しいリポジトリに Secrets（`CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、使うなら自動修正用の鍵）を登録する。登録したら、Claude が deploy をやり直し（Actions の画面の「Re-run all jobs」か、下の「4. 引き渡したあとに一度公開して確かめる」）、公開できることを確かめる
 6. お客さま: 古いリポジトリを、引き渡しの確認が終わってから削除するかアーカイブする（取り消せない操作なので、確認してから）
 
@@ -55,7 +57,7 @@ git の履歴には、過去の skills/ が残ります。履歴ごと渡すと�
 
 ### 3. 権限を外す
 
-1. お客さま: GitHub の Collaborators から制作者を外す
+1. お客さま: GitHub の Organization のメンバーか Collaborators から制作者を外す
 2. お客さま: Cloudflare の Members から制作者を外す
 3. 制作者: 自分の Claude のプロジェクトから、お客さまのリポジトリを外す
 

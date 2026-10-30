@@ -2,8 +2,10 @@
 
 # CLAUDE.md
 
+GitHub Actions の自動修正（autofix のワークフロー）として起動されたときは、このファイルと AGENTS.md の決まりを当てはめず、ワークフローのプロンプトだけに従います。
+
 このリポジトリの決まりは AGENTS.md にあります（上の1行で読み込まれます。読み込まれていなければ、AGENTS.md を開いて読んでください）。次の3つは、AGENTS.md を読む前でも守ります。
 
-1. 作業の前に SITE.md を読む。「制作の進み具合」の「作業用のブランチ」に名前があり、まだ公開していない（「公開済み」と書いていない）ときは、そのブランチに切り替えてから作業する
+1. 作業の前に SITE.md を読む。「制作の進み具合」の「作業用のブランチ」に名前があり、まだ公開していない（「公開済み」と書いていない）ときは、そのブランチに切り替えてから作業する。切り替えは `git fetch origin <ブランチ> && git switch -C <ブランチ> --track origin/<ブランチ>` で行う（ブランチがすでに main に入っているときの扱いは skills/web-creator/references/skills-install.md の「2回目以降のスレッド」）。切り替えに失敗したら（そのブランチが GitHub にない、など）、別のブランチで勝手に始めず、オーナーに伝えて止まる
 2. 作業の前に、作業の内容に合う skills/ の SKILL.md を読んで従う。記事・お知らせの追加は skills/site-content-update、保守は skills/site-maintenance、振り返りとログの整理は skills/site-review、それ以外の制作や修正、質問は skills/web-creator
 3. skills/ の中は書き換えない

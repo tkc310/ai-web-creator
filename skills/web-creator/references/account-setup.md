@@ -7,7 +7,8 @@
 ## 基本方針
 
 - アカウントはオーナー本人の名義で作ります。エージェントや制作者の名義で作ると、将来オーナーが自分で管理できなくなるためです。
-- メールアドレスは、担当者が変わっても受け取れる会社の共有アドレス（info@ など）を勧めます。
+- ログインは人ごとに分けます。1つのログインを複数の人で使いません。GitHub の利用規約も「a single login may not be shared by multiple people」と、ログインの共有を認めていません（GitHub 利用規約の B.3、2026-10-30 確認: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service ）
+- 会社のサイトは、担当者が代わっても困らないよう、会社の GitHub の Organization（組織のアカウント。無料）にリポジトリを置き、担当者は自分のアカウントで招待される形を標準にします（下の「会社のサイトのとき」）。Cloudflare も、担当者は自分のログインで、会社の Cloudflare のアカウントの Members に入ります。会社の共有アドレス（info@ など）は、Organization の連絡先や知らせの宛先に使います
 - エージェントはコネクタ（MCP）とブラウザ操作で設定を進めますが、次の4つはオーナーに交代します。
   1. パスワードの入力と登録の確定
   2. 2段階認証の設定とコード入力
@@ -44,7 +45,8 @@
 
 | 持っているもの | 進め方 |
 |---|---|
-| GitHub のアカウント | 下の「1. GitHub」の手順1〜3を飛ばす。手順4で2段階認証が有効かを確かめ、無効なら設定してもらう。名義が個人で、会社のサイトを置く場合は、会社の共有アドレスで別に作るか、そのまま使うかをオーナーに決めてもらう（担当者が辞めると管理できなくなるため） |
+| GitHub のアカウント | 下の「1. GitHub」の手順1〜3を飛ばす。手順4で2段階認証が有効かを確かめ、無効なら設定してもらう。会社のサイトを置く場合は、そのアカウントのまま、下の「会社のサイトのとき」で Organization を作ってそこにリポジトリを置く（担当者の個人のリポジトリに置くと、担当者が辞めたときに管理できなくなるため）。すでに会社の Organization があれば、そこに置く |
+| 会社の共有アドレスで作った1つのログインを、複数の人で使っている | 規約に合わないので、この機会に、担当者ごとのログインと Organization の形に移すことを勧める（site-review の「担当者が代わったとき」の最後の段落と同じ手順） |
 | Cloudflare のアカウント | 下の「2. Cloudflare」の手順1〜4を飛ばす。2段階認証が有効か、ほかのサイトやドメインが入っているかを確かめる。ほかのサイトがある場合は、手順7の API トークンの Zone Resources をこのサイトのドメインだけにしぼり、既存の DNS やサイトに触れないことをオーナーに伝える。手順8の workers.dev のサブドメインは、すでにあればそのまま使う |
 | ドメイン | 手順6の「持っている場合」に進む。今のサイトがあれば migration.md を先に読む |
 | Claude の GitHub アプリ | 「1. GitHub」の手順8で、このサイトのリポジトリが許可に入っているかを確かめ、なければ足してもらう（下の「Claude がリポジトリに書き込むための2つの許可」） |
@@ -60,10 +62,21 @@
 2. オーナー: メールアドレス、パスワード、ユーザー名を入力し、パズル認証と確認コードを入力する
 3. エージェント: プランは Free のままにする（非公開リポジトリも無料で作れる）
 4. オーナー: 2段階認証を設定する（Settings → Password and authentication。認証アプリを推奨）
-5. エージェント: サイト用の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。Private を選び、「Add a README file」（README を足す）をオンにする。README がない空のリポジトリには main ブランチがなく、Claude Code のプロジェクトのスレッドが作業を始められないため
+5. エージェント: サイト用の非公開リポジトリを作る画面（github.com/new）を開き、名前を提案する。会社のサイトでは、「Owner」に下の「会社のサイトのとき」で作った Organization を選ぶ。Private を選び、「Add a README file」（README を足す）をオンにする。README がない空のリポジトリには main ブランチがなく、Claude Code のプロジェクトのスレッドが作業を始められないため
 6. オーナー: 「Create repository」を押す
 7. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
-8. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。リポジトリの選択で、サイトのリポジトリを選ぶ（権限の許可にあたるため、オーナーが行う）
+8. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。インストール先は、リポジトリを置いたアカウント（会社のサイトでは Organization）を選び、リポジトリの選択で、サイトのリポジトリを選ぶ（権限の許可にあたるため、オーナーが行う。Organization へのインストールには、その Organization の Owner の権限が要る）
+
+### 会社のサイトのとき（Organization に置く）
+
+所要時間: 10分くらい。会社や団体のサイトでは、手順5の前に行います。個人のサイトでは要りません。
+
+1. オーナー: 自分の GitHub のアカウントで、右上の自分の画像 → 「Settings」→ 左の「Access」の「Organizations」→ 「New organization」を押す（GitHub のドキュメント「Creating a new organization from scratch」）
+2. オーナー: プランは Free を選ぶ。Organization の名前（会社名の英数字）と、連絡先のメールアドレス（会社の共有アドレスでよい）を入れ、会社のものであることを選ぶ画面が出たら、会社を選んで会社名を入れる。画面の項目は変わることがあるので、エージェントはスクリーンショットを見て案内する
+3. オーナー: できるだけ、2人目の Owner（代表や、もう1人の担当者。自分の GitHub のアカウントを持っている人）を、Organization の「People」から招待する。Owner が1人だけだと、その人が辞めたときに管理できなくなるため。すぐに招待できなければ、SITE.md の「アカウント」に「Owner は1人」と書き、年に1回の点検で確かめる（site-review の「5. 年に1回の点検」）
+4. エージェント: SITE.md の「アカウント」に、Organization の名前と Owner の人数を書く（名前と立場だけ。メールアドレスは書かない）
+
+担当者が代わったときは、後任を Organization に招待し、前の担当者を外します（site-review の「担当者が代わったとき」）。
 
 Claude Code の作業環境の通信の許可（Network access）に github.com を足す必要はありません。GitHub の操作（スキルの取り込みの `git clone` を含む）は、通信の許可の設定と関係なく、GitHub 専用の中継を通ります（versions.md の「時点つきの事実」）。
 
@@ -95,7 +108,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
 1. エージェント: dash.cloudflare.com/sign-up を開く
 2. オーナー: メールアドレスとパスワードを入力し、届いたメールの確認リンクを開く
 3. オーナー: 2段階認証を設定する
-4. エージェント: プランは Free を選ぶ
+4. エージェント: プランは Free を選ぶ。会社のサイトでは、あとで Manage Account → Members から、2人目の管理者（権限は Super Administrator - All Privileges）を招待しておくよう勧める（1人が辞めると管理できなくなるため。Cloudflare のドキュメント「Roles」、2026-10-30 確認: https://developers.cloudflare.com/fundamentals/manage-members/roles/ ）
 5. Claude と Cloudflare をつなぐ（connectors.md の「カスタムコネクタの追加」）
    - オーナー: Claude の「Customize」→「Connectors」→「Add custom connector」で、名前に Cloudflare、URL に `https://mcp.cloudflare.com/mcp` を入れて追加し、Cloudflare の画面で権限を選んで許可する（5分くらい）。コネクタの一覧（ディレクトリ）にある「Cloudflare Developer Platform」は、DNS、Turnstile、メール送信の操作に足りないので選ばない（connectors.md の「カスタムコネクタの追加」）
    - 以降の DNS の確認と変更、アカウントIDの読み取り、Workers の設定は、エージェントがコネクタで行う。コネクタが使えない場合は、これまでどおりブラウザ操作で行う
@@ -108,6 +121,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
 7. APIトークン（GitHub から公開するための鍵）。強い権限が要るため、コネクタでは作らない
    - エージェント: My Profile → API Tokens → Create Token を開き、「Edit Cloudflare Workers」テンプレートを選ぶところまで進める
    - オーナー: 「Create Token」を押し、表示されたトークンをコピーする
+   - 会社のサイトで、Manage Account → Account API tokens（アカウントのトークン。作った人が抜けても使い続けられるように作られている）が使える場合は、そちらで同じ権限のトークンを作るのを勧める（Cloudflare のドキュメント「Account API tokens」、2026-10-30 確認: https://developers.cloudflare.com/fundamentals/api/get-started/account-owned-tokens/ ）。同じテンプレートが選べるかは画面で確かめ、選べなければ上の My Profile のトークンで作り、担当者が代わったときに作り直す（site-review の「担当者が代わったとき」）
    - エージェント: アカウントIDを読み取る（コネクタがあればコネクタで、なければダッシュボードの右側の英数字）。アカウントIDは秘密ではないので、エージェントが扱ってよい
 8. workers.dev のサブドメイン（確認用の URL `https://<Worker の名前>.<サブドメイン>.workers.dev` の部分）を確かめる。初めての公開と、公開後の確認（`.github/smoke-test.txt`）で使う。2分くらい
    - エージェント: コネクタで `GET /accounts/{account_id}/workers/subdomain` を呼び、サブドメインがあるかを確かめる
@@ -117,7 +131,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
    - エージェント: サイトのリポジトリの Settings → Secrets and variables → Actions → New repository secret を開く
    - オーナー: 名前に `CLOUDFLARE_API_TOKEN` と入れ、コピーしたトークンを値の欄に貼り、保存する
    - エージェント: `CLOUDFLARE_ACCOUNT_ID` を同じ画面で登録する（値はアカウントID）
-10. Claude の作業環境から、公開したサイトに届くようにする（公開後の品質チェックで使う。3分くらい）
+10. Claude の作業環境から、公開したサイトに届くようにする（公開後の品質チェックで使う。3分くらい）。段階1のチャットでは行わず、Claude Code に移ったあと、初めて公開するとき（workers.dev の URL が決まったとき）に頼む。チャットの設定を変えても、Claude Code の作業環境には効かないため
     - エージェント: オーナーがチャット（Cowork）とコード（Claude Code）のどちらで作業しているかを確かめる（設定の画面が違うため。SITE.md に書いてなければ選択肢をつけて聞き、答えを SITE.md に書く）
     - オーナー: 許可に、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインを使うならそのドメイン）を足す。チャットなら「設定」→「機能」（英語の画面では「Capabilities」）→「外部ネットワークへの通信を許可」、コードなら会話の名前の右の「∨」→「Edit cloud environment」→「Network access」（手順は quality-gate.md の「作業環境から本番のサイトに届かないとき」）
 
@@ -129,7 +143,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
 
 | 選択肢 | 手間 | 費用 | 向いている人 |
 |---|---|---|---|
-| A. 見送る（あとで足せる） | なし | なし | パソコンを使わない人、まず公開したい人 |
+| A. 見送る（あとで足せる） | なし | なし | パソコンを使わない人、まず公開したい人、1ページのサイト（文章が .astro のページにあり、自動修正で直せることが少ない。deploy-and-autofix.md の「autofix の範囲」） |
 | B. Claude のプランの鍵（`CLAUDE_CODE_OAUTH_TOKEN`） | パソコンで1行のコマンドを打つ。15分くらい | プランの利用量の中で使う | パソコンがあり、Pro、Max、Team、Enterprise のどれかを使っている人 |
 | C. API キー（`ANTHROPIC_API_KEY`） | Claude Console でキーを作る。10分くらい | 使った分だけ料金がかかる（プランとは別の支払い） | パソコンがない、または会社で API の契約がある人 |
 
@@ -152,5 +166,5 @@ B の鍵（`claude setup-token` で作るもの）の有効期限は1年です�
 
 ## 終わったら
 
-- SITE.md の「アカウント」に、サービス名、登録メールアドレスの種類（例: 共有アドレス）、2段階認証の有無だけを書く。パスワードやトークンは書かない
+- SITE.md の「アカウント」に、サービス名、持ち主（Organization か個人のアカウント）、管理できる人の人数（Organization の Owner、Cloudflare の Super Administrator）、2段階認証の有無だけを書く。パスワードやトークン、メールアドレスは書かない
 - 作業ログに、オーナーに交代した回数と、つまずいた画面を書く

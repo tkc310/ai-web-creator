@@ -71,14 +71,13 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 4. 「Allowed domains」にサイトのホストを1行ずつ入れ、「Also include default list of common package managers」にチェックを入れる
 5. 保存する
 
-新しい会話を始める画面からも、メッセージ欄の下の環境の選択から同じ設定を開けます。手順と表示名は、案内の前に Claude Code のドキュメント（https://code.claude.com/docs/en/cloud-environments の Network access）で確認します。
+新しい会話を始める画面からも、メッセージ欄の下の環境の選択から同じ設定を開けます。プロジェクトのスレッドは、Project settings → Environment で選んだ環境で動くので、その環境に同じ変更をします（変更は新しいスレッドから効く。Claude Code のドキュメント「Projects」の Project settings reference、2026-10-30 確認: https://code.claude.com/docs/en/claude-projects ）。手順と表示名は、案内の前に Claude Code のドキュメント（https://code.claude.com/docs/en/cloud-environments の Network access）で確認します。
 
 足すホストは、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインなら `example.co.jp` と `www.example.co.jp`）です。パッケージの配布元（npm）も使うので、既定の許可（パッケージマネージャー）は残します。
 
 - 追加のドメインが効かないという不具合の報告があります（2026年10月時点）。足しても届かない場合だけ、計測のあいだ「すべてのドメイン」にし、終わったら元に戻すよう伝えます。守りが弱くなることも一文で伝えます
 - Team・Enterprise のプランでは、この設定は組織の管理者しか変えられないことがあります。その場合は、管理者に同じ設定を頼んでもらいます
 - 画面の表示名は変わることがあります。オーナーが見つけられないときは、スクリーンショットを貼ってもらって場所を伝えます
-- 公開の前（account-setup.md の Cloudflare の手順）に済ませておくと、計測で止まりません
 
 ## 2. SEO（検索エンジン向け）
 

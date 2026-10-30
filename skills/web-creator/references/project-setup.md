@@ -55,7 +55,7 @@ GitHub のアカウント、サイト用の非公開リポジトリ、Claude の
 
 ## スキルの読み込み
 
-クラウドのスレッドは、リポジトリの `.claude/skills/` にあるスキルを読み込みません。読み込むのは、claude.ai のアカウントでオンにしたスキルと、各リポジトリの CLAUDE.md です。そのため、スキル一式をサイトのリポジトリの `skills/` に取り込み（skills-install.md）、サイトの CLAUDE.md（`@AGENTS.md` の1行。AGENTS.md のひな形は templates/AGENTS.md.tmpl）に「作業の前に skills/ の該当する SKILL.md を読む」と書きます。プロジェクトの指示にも同じことを書きます（templates/project-instructions.md）。
+クラウドのスレッドは、リポジトリの `.claude/skills/` にあるスキルを読み込みません。読み込むのは、claude.ai のアカウントでオンにしたスキルと、各リポジトリの CLAUDE.md です。そのため、スキル一式をサイトのリポジトリの `skills/` に取り込み（skills-install.md）、サイトの CLAUDE.md（ひな形は templates/CLAUDE.md.tmpl。先頭の `@AGENTS.md` の1行で AGENTS.md も読み込む。AGENTS.md のひな形は templates/AGENTS.md.tmpl）に「作業の前に skills/ の該当する SKILL.md を読む」と書きます。プロジェクトの指示にも同じことを書きます（templates/project-instructions.md）。
 
 新しい版への更新は、月1回の振り返りで確かめ、プルリクエストでオーナーに確認します（skills-install.md の「新しい版への更新」）。
 

@@ -109,11 +109,13 @@ autofix が直すのは「直前の変更が原因で、ビルドか公開がで
 
 autofix.yml の `AUTOFIX_ALLOWED_PATHS` に書いた形のファイルだけです。標準は、安全を優先して次のものに限っています。
 
-- 記事とデータ: `src/content/` の `.md`、`.json`、`.yaml`
-- 画像: `src/content/`、`src/assets/`、`public/` の jpg、png、webp、avif、gif
+- 記事とデータ: `src/content/` の `.md`、`.json`、`.yaml`、`.yml`（下のフォルダも含む）
+- 画像: `src/content/`、`src/assets/`、`public/` の jpg、jpeg、png、webp、avif、gif
 - 実行ログ（`logs/`）と監査ログ（`audit-log/`）の `.md`
 
 その中でも、`public/_headers`、`public/_redirects`、`public/_routes.json` と、実行できるコードを書ける `.mdx` は `AUTOFIX_DENIED_PATHS` で外しています。ページの部品やレイアウト（`.astro`）、CSS、設定、依存パッケージの修正が必要な場合は、autofix は直さず、Issue でオーナーに知らせます。オーナーが Claude に「サイトの公開が失敗しているので直して」と頼むと、プロジェクトの会話で直します。
+
+1ページのサイト（お知らせの一覧がないサイト）は、文章が `.astro` のページに入っているので、autofix で直せるのは画像とログくらいです。ビルドの失敗のほとんどは Issue での知らせになります。オーナーには、公開するときに「1ページのサイトでは、公開の失敗は自動では直らないことが多く、知らせのメールが来たら Claude に頼んでください」と伝えます。
 
 Claude が変えたあと、ワークフローがビルドより前に、追加、変更、削除、名前の変更のすべてのパスを確かめます。日本語のファイル名もそのまま読めるように、`core.quotePath=false` と NUL 区切りで読みます。範囲の外のファイル、ファイルの削除、シンボリックリンク、実行できるファイルが1つでもあれば、コミットも push もせずに、変わったファイルの一覧を書いた Issue を立てて止まります。サイトの構成に合わせて範囲を変える場合は、SITE.md の「決めたことと理由」に理由を書きます。
 
@@ -125,6 +127,7 @@ Claude が変えたあと、ワークフローがビルドより前に、追加�
   - Edit は変えてよいフォルダだけ。Edit の許可は Write にも効くので、新しいログのファイル（`logs/` と `audit-log/`）も作れる。`Write(パス)` の書き方は Claude Code では当たらないので使わない
   - Bash は引数まで決めた `git log -5`、`git diff HEAD~1`、`git status` だけ。`Bash(git log:*)` のように `*` を付けると、`git log --output=<ファイル>` でどんなファイルにも書けてしまうため。日付と時刻は、ワークフローが調べてプロンプトに入れる
   - 作業フォルダの外は読ませない（`blockReadsOutsideWorkingDirectories`）。作業フォルダの中でも、`.git/`、`.env*`、`.dev.vars*` は拒否のルールで読ませない。`/proc`、`/sys`、ホームの git の認証情報も拒否する
+  - `cat`、`head`、`grep`、`ls` のような読むだけのコマンドは、Claude Code では許可なしで動く。Read の拒否のルールは、`cat .git/config` のようにファイルの名前を書いたコマンドにも効くが、名前を書かずに読むコマンド（フォルダの中を `grep -r` で探す、など）や、スクリプトが自分で開くファイルには効かない（Claude Code のドキュメント「Configure permissions」の Read-only commands と Read and Edit）。そのため、環境変数をまとめて出す `env`、`printenv`、`set`、`export`、`declare`、`compgen` は Bash の拒否のルールに書き、鍵そのものは `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` で環境から取り除き、最後に check_text.py でログと Issue に鍵の形の文字がないかを確かめる。実際に読めないことは、使い捨てのリポジトリで確かめる（配布元の README の「版の付け方」の手順4。未確認）
   - ウェブの取得（WebFetch、WebSearch）は使わせない
   - 決まりの書き方は Claude Code のドキュメント「Configure permissions」による（versions.md の「時点つきの事実」）。実際に読めないことは、使い捨てのリポジトリで確かめる（配布元の README の「版の付け方」の手順4）
 - scripts/check_text.py は、作業フォルダのものを動かさない。失敗した版のコミットから `git show` で `$RUNNER_TEMP` に写し、`python3 -I`（作業フォルダやスクリプトのフォルダから Python のファイルを読み込まない）で動かす。Claude が作業フォルダに置いたファイルが、確かめる道具に読み込まれないようにするため
@@ -133,12 +136,15 @@ Claude が変えたあと、ワークフローがビルドより前に、追加�
 - 依存パッケージのキャッシュは使わない（Claude が手を入れる作業環境のものを保存しないため）
 - push は、ビルドが通ったあと、main が進んでいないことを確かめてから行う
 - scripts/check_text.py がないときは、変えたファイルを確かめずに公開しないよう、コミットせずに止める
+- 記事（`src/content/`）は、失敗した版のファイルを `$RUNNER_TEMP` に写して check_text.py の `--baseline` で比べ、新しく増えた指摘だけで止める。もとから動画の埋め込み（iframe のタグ）がある記事の frontmatter を直しただけで止まらないようにするため。実行ログと監査ログ（`logs/`、`audit-log/`）では、埋め込みやスクリプトのタグの記述は調べない（公開されるページにならないため。機密情報、見えない文字、AI に向けた命令の疑いは調べる）。プロンプトでも「ログにはタグを山かっこのまま書かない」と頼んでいる
+- autofix の Claude は、CLAUDE.md と AGENTS.md を読み込んでも、プロンプトだけに従う（CLAUDE.md のひな形の先頭と、プロンプトの手順1に書いている）。作業用のブランチへの切り替えやオーナーへの確認のような、ふだんの作業の決まりを当てはめないため
+- サイトの `.claude/settings.json` には、許可（`permissions.allow`）と hooks を書かない。autofix の Claude もこのファイルを読むので、許可が広がるため。templates/claude/settings.json はモデルと effort だけにしている
 
 ### 試行回数の上限
 
 - 過去24時間に autofix のコミット（`fix(autofix):`）が `AUTOFIX_MAX_PER_DAY` 回（標準は3回）あったら、Claude を起動せずに Issue で知らせる。Claude が変えたのがログ（`logs/`、`audit-log/`）だけのときは、コミットを `chore(autofix):` にして、回数に数えない（一時的な障害で公開をやり直しただけのため）
 - ラベル `autofix` の Issue が開いている間は、Claude を起動せず、その Issue にコメントを足す。Claude を起動しない知らせ（下の「Claude を起動しないもの」の公開だけ、公開後の確認だけの失敗など）は、ラベル `deploy-notice` の Issue にするので、開いていても自動修正は止まらない
-- 1回の実行で Claude が使えるのは30ターンまで（`--max-turns 30`）
+- 1回の実行で Claude が使えるのは30ターンまで（`--max-turns 30`）。上限で止まったときは、Issue の本文で、鍵や利用の上限で止まった場合と書き分ける（claude-code-action の `execution_file` の最後の結果が `error_max_turns` かで見分ける。Claude Code のドキュメント「How the agent loop works」の Handle the result。`execution_file` の形は実機で確かめる）
 
 ### Claude を起動しないもの
 
@@ -151,7 +157,7 @@ Claude を起動するのは、deploy の `build` のジョブが失敗したと
 
 次は Claude が起動しても直せないので、Issue で知らせることになります。
 
-- 無料枠の上限（GitHub Actions の実行時間。非公開リポジトリは Free プランで月2,000分。最新の値は GitHub のドキュメントで確認する）
+- 無料枠の上限（GitHub Actions の実行時間。非公開リポジトリは、Free プランで毎月12ドル分。Linux の標準のランナーで約2,000分。GitHub のドキュメント「GitHub Actions billing」、2026-10-30 確認: https://docs.github.com/en/billing/concepts/product-billing/github-actions 。最新の値は作業の日に確かめる）
 - 記事、画像、ログの外のファイル（`.astro`、設定、依存パッケージ）の修正が必要な問題
 
 ### Issue の本文
@@ -162,6 +168,7 @@ Issue の本文は、何が起きたかで書き分けます。どの場合も�
 |---|---|---|
 | ビルドの失敗を直せなかった、範囲の外の修正が要る | 前回の版のまま | 「サイトの公開が失敗しているので直して」 |
 | Claude の実行が途中で止まった | 前回の版のまま | 鍵の期限切れか利用の上限の可能性。鍵の発行日は SITE.md の「技術」。「公開が失敗しているので直して。自動修正用の鍵の期限も確かめて」 |
+| Claude が30ターンの上限で止まった | 前回の版のまま | 鍵や利用の上限の問題ではない。「サイトの公開が失敗しているので直して」 |
 | 公開の段階だけの失敗 | 前回の版のまま | Cloudflare の鍵や設定の可能性。「サイトの公開が失敗しているので直して」 |
 | 公開後の確認だけの失敗（deploy でも autofix の公開のあとでも） | 新しい版 | 上の3つの頼み方 |
 
@@ -171,13 +178,15 @@ Claude が調べた原因（autofix が書いた `logs/*_autofix.md`）は、che
 
 ## Issue を閉じる人
 
-autofix と deploy-notice の Issue は、Claude が原因を直して公開し直したあとに閉じます。オーナーが「直して」と頼んだ会話の中で、公開後の確認が OK になったことを確かめてから閉じ、オーナーに「◯日の公開の失敗は、◯◯を直して公開し直しました」と一言伝えます。オーナーが自分で閉じてもかまいません。閉じるまで autofix は動きません。
+autofix と deploy-notice の Issue は、Claude が原因を直して公開し直したあとに閉じます。オーナーが「直して」と頼んだ会話の中で、公開後の確認が OK になったことを確かめてから閉じ、オーナーに「◯日の公開の失敗は、◯◯を直して公開し直しました」と一言伝えます。オーナーが自分で閉じてもかまいません。ラベル autofix の Issue（題名「サイトの公開に失敗しました」）は、閉じるまで autofix が動きません。ラベル deploy-notice の Issue（題名「サイトの公開について確認してください」）は、開いていても autofix を止めません。
 
 クラウドの作業環境では `gh issue` と `gh pr` が使えません（GitHub の GraphQL が拒否される。versions.md の「時点つきの事実」）。Issue やプルリクエストの操作は、REST の `gh api` で行います。
 
 - Issue を閉じる: `gh api -X PATCH 'repos/{owner}/{repo}/issues/<番号>' -f state=closed`
 - 開いている autofix の Issue を探す: `gh api 'repos/{owner}/{repo}/issues?state=open&labels=autofix' --jq '.[].number'`（知らせは `labels=deploy-notice`）
 - プルリクエストを作る: `gh api 'repos/{owner}/{repo}/pulls' -f title='<題名>' -f head='<ブランチ>' -f base=main -f body='<本文>'`
+- Issue を作る（保守や振り返りでオーナーに確かめたいことを知らせる）: `gh api 'repos/{owner}/{repo}/issues' -f title='<題名>' -f body="$(cat <本文のファイル>)" -f 'labels[]=owner-check'`。本文はファイルに書いて check_text.py で確かめてから渡す。ラベルがまだなければ、先に `gh api 'repos/{owner}/{repo}/labels' -f name=owner-check -f color=0E8A16 -f description='オーナーに確かめたいこと'` で作る（すでにあれば 422 が返るだけなので、そのまま進める）
+- `gh api` も GitHub のツールも使えないときは、Issue の代わりに SITE.md の「オーナーへの確認待ち」に書き、次にオーナーと話すときに伝える
 - 失敗したジョブをやり直す: `gh run rerun <実行の番号> --failed`（REST なので使える）
 
 autofix が自動で直した場合は、次にオーナーと話すときに「◯日に記事の画像の指定に誤りがあり、自動で直して公開しました」と一言伝えます。
@@ -186,11 +195,16 @@ autofix が自動で直した場合は、次にオーナーと話すときに「
 
 Claude の GitHub アプリ経由では、`.github/workflows/` のファイルを足したり変えたりする push が拒否される、という報告があります（2026年10月時点で未確認。GitHub では、アプリがワークフローのファイルを変えるには workflows の権限が要る）。初回の設定や、スキルの更新でワークフローを変えるときに、push が `refusing to allow ... workflow` のような理由で拒否されたら、次の手順に切り替えます。所要時間は、ファイル1つにつき5分くらいです。
 
+標準は、ファイルを渡して GitHub の画面に置いてもらう方法（Upload files）です。長い中身を貼り付けるより、写し間違いが起きません。
+
 1. Claude: ワークフローのファイル以外の変更だけを、先にコミットして push する
-2. Claude: 足すファイルの中身を、そのままコピーできる形でオーナーに見せる（ファイルごとに、置く場所と中身。アーティファクトか、チャットのコードのかたまり）
-3. オーナー: GitHub のリポジトリの画面で「Add file」→「Create new file」を押し、名前の欄に `.github/workflows/deploy.yml` のように置く場所を入れ、中身を貼って「Commit changes」を押す。変えるファイルは、そのファイルを開いて鉛筆のボタン（Edit this file）から貼り替える
-4. Claude: `git pull` で取り込み、置いたファイルが見せた中身と同じかを確かめる
-5. Dependabot の GitHub Actions の更新のプルリクエスト（ワークフローのファイルを変えるもの）も、Claude がマージできないことがある。そのときは、Claude が変更を読んで要点を伝え、オーナーにプルリクエストの画面の「Merge pull request」を押してもらう
+2. Claude: 置くファイルを、オーナーがダウンロードできる形で渡す（ファイルを保存できるボタンを付けたアーティファクトなど）。ファイルの名前はリポジトリでの名前と同じ（`deploy.yml` など）にし、置く場所（`.github/workflows/`）を一緒に伝える。比べるために、作業用のフォルダ（リポジトリの外）に同じファイルを残しておく
+3. オーナー: ブラウザで `https://github.com/<owner>/<repo>/upload/main/.github/workflows` を開き（Claude が URL を渡す。リポジトリの画面の「Add file」→「Upload files」と同じ画面で、置く場所が `.github/workflows/` になっている）、ダウンロードしたファイルをドラッグして置き、「Commit changes」を押す。同じ名前のファイルがあれば上書きされる。所要時間は3分くらい
+4. Claude: 取り込んで、置いたファイルが渡したものと同じかを確かめる（`git pull --ff-only origin main && cmp .github/workflows/deploy.yml <作業用のフォルダ>/deploy.yml && echo 同じです`）。違っていたら、どこが違うかを伝えて置き直してもらう
+5. 上の URL の画面が開けない、ファイルを渡せない、またはドラッグできない（スマートフォンだけ、など）ときは、貼り付けに切り替える。Claude が中身をコピーできる形で見せ、オーナーが「Add file」→「Create new file」で、名前の欄に `.github/workflows/deploy.yml` のように置く場所を入れ、中身を貼って「Commit changes」を押す。変えるファイルは、そのファイルを開いて鉛筆のボタン（Edit this file）から貼り替える。確かめ方は4と同じ
+6. Dependabot の GitHub Actions の更新のプルリクエスト（ワークフローのファイルを変えるもの）も、Claude がマージできないことがある。そのときは、Claude が変更を読んで要点を伝え、オーナーにプルリクエストの画面の「Merge pull request」を押してもらう
+
+`upload/<ブランチ>/<フォルダ>` の URL で、まだないフォルダ（`.github/workflows/`）に置けるかは、作者が配布元の README の「版の付け方」の手順3で確かめる（未確認）。
 
 拒否されたかどうかと、この手順で進めたことは、SITE.md の「決めたことと理由」に書きます。拒否されるかは、作者が配布元の README の「版の付け方」の手順3で確かめ、結果を versions.md の「時点つきの事実」に書きます。
 
@@ -228,7 +242,7 @@ GitHub は、ワークフローが失敗すると push した人に通知メー�
 
 ## 失敗を減らすための決まり
 
-- 依存パッケージは `pnpm-lock.yaml` で固定する。更新は runtime-update スキルでまとめて行う（要保守構成は2週間ごとの保守、静的なサイトは月1回の振り返り）。それ以外の作業のついでに更新しない
+- 依存パッケージは `pnpm-lock.yaml` で固定する。更新は runtime-update スキルでまとめて行う（要保守構成は毎月1日と15日の保守、静的なサイトは月1回の振り返り）。それ以外の作業のついでに更新しない
 - 記事の追加では、エージェントが push の前に手元でビルドを通す
 - Node.js のバージョンは `.node-version` の1か所で決める。ワークフローは `node-version-file` でこのファイルを読む
 - 振り返りのスケジュールタスクを作らなかった静的なサイトでは、使っている Node.js のサポート終了日を SITE.md の「技術」に書いておき、その半年前にオーナーへ更新を提案する（runtime-update スキル）
