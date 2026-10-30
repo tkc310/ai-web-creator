@@ -12,7 +12,7 @@
 - docs(skills): プロジェクトのスレッドが確認を待つときに、Overview の「Waiting on you」から許可を押す手順と、公開の前の「OK」はスレッドの中で返すことを書いた（project-setup.md、docs/how-to-use.md、templates/project-instructions.md、templates/AGENTS.md.tmpl）
 - docs(skills): Cloudflare のコネクタの権限に、アクセス解析、転送のルール、DNSSEC を足し、権限が足りないときの分岐（つなぎ直す、オーナーがダッシュボードで操作する）を書いた（connectors.md、versions.md）
 - docs(skills): お客さまの新しいリポジトリへの引き渡しの順番を、作る → 招待と許可 → セッションに足す → push → Secrets にした。お客さまが購入者かは本人に聞いて SITE.md に残す（client-handoff.md、templates/SITE.md）
-- docs(skills): 担当者が代わったときを、引き継ぐものと後任の Claude で作り直すもの、前の担当者が外すものに分けた（site-review）
+- docs(skills): 担当者が代わったときを、引き継ぐものと後任の Claude で作り直すもの、前の担当者が外すものに分けた。GitHub と Cloudflare は後任を招待するのを標準にし、共有のアドレスで作った場合だけパスワードと2段階認証のアプリを移す（site-review）
 - docs: AGENTS.md の利用条件に、お客さまのサイト（LICENSE の 2）を足した。アクセス解析を有効にする時期を「独自ドメインをつないだとき」にそろえた。README の「版の付け方」に、タグは作者のパソコンから push することと、ワークフローのファイルを足して push できるかの確認を足した（AGENTS.md、analytics.md、README.md）
 - chore(skills): check_text.py が、絵文字をつなぐ ZWJ を見えない文字として数えないようにした。設定の画面の「機能」に英語の名前（Capabilities）を併記した（scripts/check_text.py、quality-gate.md、account-setup.md）
 
