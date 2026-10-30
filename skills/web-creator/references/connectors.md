@@ -42,8 +42,14 @@ Cloudflare や Google のサービスの操作は、できるかぎりコネク�
 ### 権限の選び方
 
 - 選べる場合は、サイトのアカウントだけに絞る
-- このスキルで使うのは、Workers、DNS、Turnstile、Email Service（Email Sending）、アカウントの情報の読み取り。ほかの製品の権限は許可しない
-- 権限の名前は Cloudflare の画面で変わることがあるので、画面に出た一覧を見て、オーナーと一緒に選ぶ
+- このスキルで使うのは、Workers、DNS、Turnstile、Email Service（Email Sending）、アカウントの情報の読み取り。独自ドメインをつなぐときと引っ越しでは、さらに次の3つを使う。ほかの製品の権限は許可しない
+  - アクセス解析（Web Analytics。analytics.md）: Web Analytics（RUM）の設定の読み書きと、分析の読み取り
+  - 転送のルール（migration.md の `?p=` の転送、www あり・なしの統一）: ゾーンのルール（Rulesets、Redirect Rules）の読み書き
+  - DNSSEC（migration.md の段階1）: ゾーンの設定（DNS の設定）の読み書き
+- 権限の名前は Cloudflare の画面で変わることがあり、上の3つが画面のどの名前に当たるかは確かめていない（2026-10-30 時点）。画面に出た一覧を見て、オーナーと一緒に選ぶ。選んだ名前は SITE.md の「決めたことと理由」に書く
+- Cloudflare の MCP サーバーは、つないだあとで足りない権限が要る操作をすると、その権限の許可を求める（step-up authorization。versions.md の「時点つきの事実」）。Claude のコネクタで、この追加の許可の画面が出るかは確かめていない。出ない、または権限が足りないと返ったときは、次のどちらかにする
+  1. オーナーに、コネクタをつなぎ直して（「Customize」→「Connectors」で Cloudflare の「Disconnect」→「Connect」）、足りない権限を選んでもらう（5分くらい）
+  2. その操作だけ、オーナーに Cloudflare のダッシュボードで行ってもらう。エージェントが、開く画面（Web Analytics、Rules → Redirect Rules、DNS → Settings の DNSSEC）と押す順を1手順ずつ案内する
 - 作業が終わってしばらく使わない場合は、コネクタを外すか、チャットの「+」でオフにしてもらう
 
 ## コネクタで操作するときの決まり

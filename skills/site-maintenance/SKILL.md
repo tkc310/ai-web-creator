@@ -69,6 +69,8 @@ runtime-update スキルの手順で、Node.js、pnpm、依存パッケージ、
 
 マージは `gh api -X PUT 'repos/{owner}/{repo}/pulls/<番号>/merge' -f merge_method=squash` で行います（クラウドの作業環境では `gh pr merge` が使えず、ブランチの削除も拒否されるため、ブランチは消さない）。`gh api` が使えない場合は、ローカルでブランチを main に取り込んで push します。GitHub Actions の更新のブランチが古く競合している場合は、プルリクエストに `@dependabot rebase` とコメントし、次回に回します。
 
+ワークフローのファイルを変えるマージが拒否された場合（Claude の GitHub アプリの権限が足りないとき）は、オーナーにプルリクエストの画面の「Merge pull request」を押してもらいます（skills/web-creator/references/deploy-and-autofix.md の「ワークフローのファイルを push できないとき」）。
+
 オーナーに確認するときは、GitHub の Issue に、何が変わるのか、何が起きうるのか、元に戻せるのかを専門用語を避けて書きます。
 
 ### 4. 更新の結果を確かめる

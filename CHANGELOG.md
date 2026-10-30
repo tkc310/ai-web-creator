@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-10-30（4）
+
+- fix(skills): 自動修正（autofix.yml）で Claude に渡す権限を狭めた。Bash は引数まで決めた `git log -5`、`git diff HEAD~1`、`git status` だけにし（`Bash(git log:*)` では `--output=` でどのファイルにも書けた）、日付はワークフローがプロンプトに入れる。Read、Glob、Grep を許可から外し、作業フォルダの外を読ませない設定（`blockReadsOutsideWorkingDirectories`）と、`.git/`、`/proc`、`/sys`、`.env*`、`.dev.vars*`、ホームの認証情報、git の書き出しのオプション、WebFetch と WebSearch の拒否を足した。認証情報の掃除を Claude の実行の前にも行う。scripts/check_text.py は、失敗した版のコミットから `git show` で `$RUNNER_TEMP` に写して `python3 -I` で動かす。範囲の外や機密情報の疑いのときは `git reset --hard` と `git clean -ffdx` で作業フォルダを戻す（autofix.yml、deploy-and-autofix.md、versions.md）
+- fix(skills): Claude を起動しない知らせ（公開だけ、公開後の確認だけの失敗など）の Issue を、ラベル `deploy-notice` にし、開いていても自動修正を止めないようにした（autofix.yml、deploy-and-autofix.md、README.md）
+- fix(skills): 公開後の確認で、確かめたページが0件のときは、2回目以降の公開で失敗にした。すべてのページで待つ長さの合計に12分の上限を設け、smoke のジョブの時間の上限を25分にした。ひな形の確認の grep をコメントの行に当たらない形にし、1ページのサイトでは /news/ の行を消すと書いた（deploy.yml、autofix.yml、smoke-test.txt、deploy-and-autofix.md）
+- fix(skills): スキルの取り込みのコミットを、初回だけ `git push origin HEAD:main` で main にも入れるようにした（プロジェクトのスレッドは毎回 main から始まるため）。SITE.md を取り込みのときに置き、作業用のブランチの名前を書く。CLAUDE.md のひな形に、SITE.md の作業用のブランチに切り替えることと、skills/ の SKILL.md を読むことを直接書いた（skills-install.md、build.md、templates/CLAUDE.md.tmpl、AGENTS.md.tmpl、project-instructions.md、versions.md）
+- fix(skills): 取り込みの手順で、コミットしていない skills/ が残っているだけなら消して進める、main の確認を `git ls-remote --exit-code --heads origin main` にする、`pipefail` を付ける、を直した。zip で取り込んだサイトの更新の手順（2つの skills/ を `diff -r` で比べる）を足した。通信の許可に github.com を足す手順（account-setup.md の手順9）を消した（skills-install.md、account-setup.md、versions.md）
+- fix(skills): 引っ越しで、`?p=` の転送は Bulk Redirects でも `_redirects` でもできず、リダイレクトのルール（無料で10件）だけで行うと直し、パーマリンクの設定を確かめる順を書いた。WXR の個人情報の扱い（社内の決まりの確認、リポジトリの外で読む、コミットしない、終わったら消す）と、`.gitignore` の除外を足した。SPF の `a` の書き換え、DNSSEC の分担、切り替えの当日の確かめ方、studio.site の住所のままの場合、管理者の権限がない場合を足した（migration.md、templates/gitignore.txt）
+- docs(skills): Claude の GitHub アプリでワークフローのファイルを push できないときの手順（オーナーが GitHub の画面で置く、Dependabot のマージを押す）を書いた（deploy-and-autofix.md、skills-install.md、client-handoff.md、site-maintenance）
+- docs(skills): プロジェクトのスレッドが確認を待つときに、Overview の「Waiting on you」から許可を押す手順と、公開の前の「OK」はスレッドの中で返すことを書いた（project-setup.md、docs/how-to-use.md、templates/project-instructions.md、templates/AGENTS.md.tmpl）
+- docs(skills): Cloudflare のコネクタの権限に、アクセス解析、転送のルール、DNSSEC を足し、権限が足りないときの分岐（つなぎ直す、オーナーがダッシュボードで操作する）を書いた（connectors.md、versions.md）
+- docs(skills): お客さまの新しいリポジトリへの引き渡しの順番を、作る → 招待と許可 → セッションに足す → push → Secrets にした。お客さまが購入者かは本人に聞いて SITE.md に残す（client-handoff.md、templates/SITE.md）
+- docs(skills): 担当者が代わったときを、引き継ぐものと後任の Claude で作り直すもの、前の担当者が外すものに分けた（site-review）
+- docs: AGENTS.md の利用条件に、お客さまのサイト（LICENSE の 2）を足した。アクセス解析を有効にする時期を「独自ドメインをつないだとき」にそろえた。README の「版の付け方」に、タグは作者のパソコンから push することと、ワークフローのファイルを足して push できるかの確認を足した（AGENTS.md、analytics.md、README.md）
+- chore(skills): check_text.py が、絵文字をつなぐ ZWJ を見えない文字として数えないようにした。設定の画面の「機能」に英語の名前（Capabilities）を併記した（scripts/check_text.py、quality-gate.md、account-setup.md）
+
 ## 2026-10-30（3）
 
 - docs(license): 受託制作の「受託ライセンス（1サイト分）」をやめた。解説記事の購入者は、お客さまのサイトの制作と保守にも使える（お客さまごとの追加の購入はない）。お客さまのサイトの非公開のリポジトリに skills/ を置けるのは制作か保守を続けている間だけで、手を離すときは、お客さまが購入者でなければ skills/ を除く。お客さまにスキルそのものを渡すことと販売は禁止のまま。変更前に購入した人の利用は、LICENSE の 6 のとおり続けられる（LICENSE、README.md、stack-selection.md、skills-install.md、hearing.md、templates/SITE.md、templates/handoff.md）

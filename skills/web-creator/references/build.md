@@ -124,7 +124,7 @@ Chromium がすでに入っている作業環境では、`python3 -m playwright 
 6. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
 7. `public/` に robots.txt、llms.txt、favicon、OG 画像を置く
 8. `pnpm run build` を通し、`dist/` にページができることを確かめる
-9. 作業用のブランチ（`claude/` で始まる名前。プロジェクトのスレッドでは、スレッドのブランチ）にコミットして push する。初めての公開（deploy-and-autofix.md）までは main に入れない
+9. 作業用のブランチ（`claude/` で始まる名前。プロジェクトのスレッドでは、スレッドのブランチ）にコミットして push する。ブランチの名前は SITE.md の「制作の進み具合」の「作業用のブランチ」に書く。サイトの中身は、初めての公開（deploy-and-autofix.md）まで main に入れない。ただし、skills/、scripts/check_text.py、SITE.md、AGENTS.md、CLAUDE.md は、取り込みのときに main にも入れる（skills-install.md の初回の手順の8。プロジェクトのスレッドは、新しく始まるたびに main から始まるため）
 
 ## ページの形ごとの構成
 

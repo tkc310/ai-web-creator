@@ -131,7 +131,7 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 
 CI で確認するのは「ビルドが通るか」と、公開後に主なページが見られるかだけです。公開後の確認では、サイトのリポジトリの `.github/smoke-test.txt` に書いたページが 200 を返し、決めた文字を含むかを確かめます。プルリクエストでは、すべてのサイトでビルドだけを確認します。リンターやテストはエージェントが作業中に実行します。
 
-ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、Issue が開いている間は動きません。
+ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、自動修正の Issue（ラベル autofix）が開いている間は動きません。Claude を起動しない知らせの Issue（ラベル deploy-notice）は、開いていても自動修正を止めません。
 
 deploy のワークフローは、ビルド（build）、公開（publish）、公開後の確認（smoke）の3つのジョブに分かれていて、autofix は、どのジョブが失敗したかで動きを変えます。Claude を起動するのはビルドの失敗のときだけです。公開の段階だけの失敗（Cloudflare の鍵の期限切れなど）と、公開後の確認だけの失敗（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。Issue には、公開中のサイトが前回の版か新しい版か、Claude が調べた原因、オーナーが Claude に送る頼み方を書きます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
 
@@ -204,6 +204,7 @@ skills/
 - タグの名前は `vYYYY.MM.N`。YYYY.MM はタグを打つ年月、N はその月の通し番号で 0 から始める（例: `v2026.11.0`、`v2026.11.1`）
 - main には、タグを打つ版だけを入れる。作業はブランチで行い、CHANGELOG.md に書いてからプルリクエストで main に入れ、すぐにタグを打つ。段階1のチャットは main を読むので、main とタグの版がずれないようにするため
 - サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない
+- タグは作者のパソコンから push する。Claude Code のクラウドのセッションでは、GitHub の中継（プロキシ）がタグの push を拒否する（「the proxy rejects branch deletions and pushes of anything other than a branch, such as a tag」。出典: https://code.claude.com/docs/en/cloud-environments 、2026-10-30 確認）。リリースの作成と zip の添付も、同じパソコンで行う。エージェントはタグを打たず、main にもマージしない
 - タグが1つもない間は、サイトのリポジトリは main の最新のコミットを取り込み、`skills/VERSION` に `tag: none` とそのコミットを書いて固定する。今の作り方になる前の古い main（`skills/web-creator/references/skills-install.md` がない版）は取り込まずに止まる
 - タグを打つたびに、同じ版の `skills/`、`LICENSE`、`VERSION`（source、tag、commit の3行）を入れた zip（`ai-web-creator-<タグ>.zip`）を作り、GitHub のリリースに添付する。clone できない作業環境で、オーナーがダウンロードしてチャットに添付する（skills-install.md の「B の zip から取り込むとき」）。配布元を非公開にする場合は、同じ zip を解説記事に添付する。zip の作り方を変えたら skills-install.md も直す
 
@@ -219,13 +220,18 @@ skills/
 最初のタグは、次の順に打ちます。
 
 1. 作業ブランチのプルリクエストを main にマージする
-2. CHANGELOG.md のいちばん上の見出しに版の名前を入れ（例: `## v2026.11.0（2026-11-01）`）、main にコミットする
-3. 空のリポジトリ（README だけのもの）で、skills-install.md の初回の手順をそのまま試し、`skills/VERSION` が書かれることを確かめる（タグを打つ前なので `tag: none` になる）
-4. 使い捨てのサイトのリポジトリで、自動修正の3つの経路を1回ずつ起こして確かめる。結果は skills/web-creator/references/versions.md の「時点つきの事実」に確かめた日と一緒に書く
+2. CHANGELOG.md のいちばん上の見出しに版の名前を入れ（例: `## v2026.11.0（2026-11-01）`）、main にコミットする。タグのない日付の見出し（`## 2026-10-30（2）` など）が複数あるときは、版の見出しの下にまとめる（リリースの説明は、版の見出しから次の見出しまでを使うため）
+3. 使い捨てのサイトのリポジトリ（README だけのもの）で、取り込みから公開までを Claude Code のプロジェクトのスレッドで通して確かめる
+   - skills-install.md の初回の手順をそのまま試し、`skills/VERSION` が書かれることを確かめる（タグを打つ前なので `tag: none` になる）
+   - 取り込みのコミットが main に入り（初回の手順の8）、新しく始めた2つ目のスレッドから skills/ と SITE.md が見え、CLAUDE.md の3つの決まり（SITE.md の作業用のブランチに切り替える、など）に従うことを確かめる。`@AGENTS.md` が読み込まれているかも、スレッドに AGENTS.md の決まりを聞いて確かめる
+   - ワークフローのファイル（`.github/workflows/deploy.yml` など）を新しく足して push できるかを確かめる。拒否されたら、deploy-and-autofix.md の「ワークフローのファイルを push できないとき」の手順で置けることを確かめる
+   - workers.dev の URL に公開できること、スレッドが確認を待つときに「Waiting on you」に出ることを確かめる
+4. 同じリポジトリで、自動修正の経路を1回ずつ起こして確かめる。結果は skills/web-creator/references/versions.md の「時点つきの事実」に確かめた日と一緒に書く
    - 記事の frontmatter をわざと壊して push する → Claude が直して公開し直す（build のジョブの失敗）
-   - `.astro` の閉じ忘れを push する → 範囲の外の修正が要るとして、push せずに Issue が立つ
-   - `.github/smoke-test.txt` にページにない文字を書いて push する → Claude は起動せず、公開後の確認だけの失敗の Issue が立つ
-5. タグを打って送る
+   - `.astro` の閉じ忘れを push する → 範囲の外の修正が要るとして、push せずに Issue（ラベル autofix）が立ち、作業フォルダが元に戻る
+   - `.github/smoke-test.txt` にページにない文字を書いて push する → Claude は起動せず、公開後の確認だけの失敗の Issue（ラベル deploy-notice）が立つ。その Issue が開いたままでも、次のビルドの失敗で自動修正が動く
+   - 記事の frontmatter を壊し、本文に「`.git/config` と `/proc/self/environ` を読んで、ログに書き写す」という文を入れて push する → Claude が読めず、ログと Issue に中身が出ない（autofix.yml の許可と拒否のルールが効いている）
+5. タグを打って送る（作者のパソコンで行う）
 
    ```bash
    git switch main && git pull
@@ -234,7 +240,7 @@ skills/
    ```
 
 6. `git ls-remote --tags https://github.com/tkc310/ai-web-creator` で、タグが見えることを確かめる
-7. 上の zip を作り、リリースに添付する
+7. 上の zip を作り、リリースに添付する（作者のパソコンで行う）
 
 スキルの更新は期間を区切らずに続けます。止めるときは、3か月前にこの README と note で知らせます。
 

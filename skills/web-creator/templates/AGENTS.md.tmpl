@@ -2,10 +2,10 @@
 
 このリポジトリは <サイト名> のウェブサイトです。オーナーは技術に詳しくありません。
 
-1. 作業の前に SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の新しいログ3件を読む。今回の作業に関係する未対応の項目は、あわせて直す
+1. 作業の前に SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の新しいログ3件を読む。今回の作業に関係する未対応の項目は、あわせて直す。SITE.md の「制作の進み具合」の「作業用のブランチ」に名前があり、まだ公開していないときは、そのブランチに切り替えてから読み直して作業する（プロジェクトのスレッドは、新しく始まるたびに main から始まるため）
 2. 作業の前に、作業の内容に合う skills/ の SKILL.md を読んで従う。記事・お知らせの追加は skills/site-content-update、保守は skills/site-maintenance、振り返りとログの整理は skills/site-review、それ以外の制作や修正、質問は skills/web-creator。skills/ の中は書き換えない（版は skills/VERSION。更新のしかたは skills/web-creator/references/skills-install.md）
 3. オーナーへの返事は、専門用語を避けて、次にすることを先に書く。質問は選択肢をつけて、一度に4つまで、1問の選択肢は4つまでにする
-4. サイトは main への push で公開される。作業用のブランチで作った場合は、オーナーの「OK」のあとに `git push origin HEAD:main` で main に入れる。プルリクエストは、大きな変更（デザインやページの構成の変更）、スキルの更新、GitHub Actions の更新のときだけ作る（クラウドの作業環境では `gh pr` と `gh issue` が使えないので、`gh api` を使う）。push の前に `pnpm run build` を通す。パッケージの管理は pnpm だけを使い、npm や yarn は使わない。パッケージを足すときは最新版を入れる（`pnpm add <パッケージ>@latest`）
+4. サイトは main への push で公開される。作業用のブランチで作った場合は、オーナーの「OK」のあとに `git push origin HEAD:main` で main に入れる。「OK」は、作業しているスレッド（またはセッション）の中で、公開してよいかを聞いてからもらう。プルリクエストは、大きな変更（デザインやページの構成の変更）、スキルの更新、GitHub Actions の更新のときだけ作る（クラウドの作業環境では `gh pr` と `gh issue` が使えないので、`gh api` を使う）。push の前に `pnpm run build` を通す。パッケージの管理は pnpm だけを使い、npm や yarn は使わない。パッケージを足すときは最新版を入れる（`pnpm add <パッケージ>@latest`）
 5. 記事・お知らせの追加や修正、サイトの修正を公開するときは、監査ログ audit-log/YYYY/YYYY-MM-DD.md に追記し、変更と同じコミットに入れる（過去の記録は書き換えない。決まりは skills/web-creator/references/audit-log.md）
 6. 作業の終わりに、質問に答えただけの場合も含めて logs/YYYY-MM-DD_内容.md に実行ログを書く（書き方は logs/ の新しいログにならう。元は skills/web-creator/templates/log.md）。次回以降に直す価値がある改善点は logs/IMPROVEMENTS.md に足す。必要なら SITE.md と README.md を更新する
 7. 機密情報（パスワード、トークン、キー、Secrets の値、訪問者の個人情報）は読み取らない。`.env*`、`.dev.vars`、鍵のファイルを開かず、`env` や `printenv` で環境変数をまとめて表示しない。ファイル、コミット、Issue、ログ、チャットのどこにも書かない

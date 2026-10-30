@@ -49,6 +49,13 @@ SECRET_PATTERNS = [
 # 代入の値として許すもの（ひな形の書き方や、環境変数の参照）
 PLACEHOLDER = re.compile(r"^(?:<.*>|\$\{\{.*|\$\{?[A-Z_]+\}?|secrets\.|env\.|process\.env|x{4,}|\*{4,}|your[-_]|example)", re.I)
 
+# 絵文字をつなぐ ZWJ（U+200D。家族や職業の絵文字の中に入る）は、前後が絵文字のときだけ見えない文字に数えない
+EMOJI_ZWJ = re.compile(
+    "(?<=[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F\U0001F3FB-\U0001F3FF])"
+    "\u200D"
+    "(?=[\U0001F000-\U0001FAFF\u2600-\u27BF])"
+)
+
 # 見えない文字
 INVISIBLE = re.compile(r"[​-‏‪-‮⁠-⁤⁦-⁩﻿\U000e0000-\U000e007f]")
 
@@ -126,7 +133,7 @@ def check(path: pathlib.Path):
                 if label == "パスワードやトークンの代入" and PLACEHOLDER.match(value):
                     continue
                 findings.append((no, "機密情報", f"{label}: {mask(value)}"))
-        inv = INVISIBLE.findall(line)
+        inv = INVISIBLE.findall(EMOJI_ZWJ.sub("", line))
         if inv and not (no == 1 and inv == ["﻿"] and line.startswith("﻿")):
             codes = ", ".join(sorted({f"U+{ord(c):04X}" for c in inv}))
             findings.append((no, "見えない文字", codes))

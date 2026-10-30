@@ -64,7 +64,8 @@
 6. オーナー: 「Create repository」を押す
 7. エージェント: claude.ai/code で GitHub に接続する手順を案内する（docs/claude-account.md の「4. GitHub とつなぐ」）
 8. オーナー: GitHub の接続を許可し、Claude の GitHub アプリをインストールする。リポジトリの選択で、サイトのリポジトリを選ぶ（権限の許可にあたるため、オーナーが行う）
-9. エージェント: Claude Code の作業環境の通信の許可に github.com が入っているかを確かめる。スキルの取り込み（skills-install.md）で、配布元を `git clone` するため。既定の「Trusted」なら入っている。「None」や「Custom」にしている場合は、オーナーに、会話の名前の右の「∨」→「Edit cloud environment」→「Network access」で github.com を足してもらう（3分くらい）
+
+Claude Code の作業環境の通信の許可（Network access）に github.com を足す必要はありません。GitHub の操作（スキルの取り込みの `git clone` を含む）は、通信の許可の設定と関係なく、GitHub 専用の中継を通ります（versions.md の「時点つきの事実」）。
 
 非公開のリポジトリで Claude Code が作業するには、Claude の GitHub アプリのインストールが必要です。Claude Code のプロジェクト（project-setup.md）に入れるリポジトリは、サイトのリポジトリ1つだけです。スキルは、制作に入るときに Claude がサイトのリポジトリの `skills/` に取り込みます（skills-install.md）。配布元のフォークは作りません（公開リポジトリのフォークは必ず公開になるため）。
 
@@ -118,7 +119,7 @@ zip での引き継ぎは、添付の漏れに気づきにくい方法です。�
    - エージェント: `CLOUDFLARE_ACCOUNT_ID` を同じ画面で登録する（値はアカウントID）
 10. Claude の作業環境から、公開したサイトに届くようにする（公開後の品質チェックで使う。3分くらい）
     - エージェント: オーナーがチャット（Cowork）とコード（Claude Code）のどちらで作業しているかを確かめる（設定の画面が違うため。SITE.md に書いてなければ選択肢をつけて聞き、答えを SITE.md に書く）
-    - オーナー: 許可に、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインを使うならそのドメイン）を足す。チャットなら「設定」→「機能」→「外部ネットワークへの通信を許可」、コードなら会話の名前の右の「∨」→「Edit cloud environment」→「Network access」（手順は quality-gate.md の「作業環境から本番のサイトに届かないとき」）
+    - オーナー: 許可に、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインを使うならそのドメイン）を足す。チャットなら「設定」→「機能」（英語の画面では「Capabilities」）→「外部ネットワークへの通信を許可」、コードなら会話の名前の右の「∨」→「Edit cloud environment」→「Network access」（手順は quality-gate.md の「作業環境から本番のサイトに届かないとき」）
 
 ## 3. 自動修正用の Claude の鍵（任意）
 

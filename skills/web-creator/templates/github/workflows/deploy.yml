@@ -12,6 +12,7 @@
 #   1行に1つ、「URL」と「そのページに必ず含まれる文字」を空白で区切って書く。# で始まる行は読まない
 #   例: https://example.co.jp/ 株式会社サンプル
 #   <...> が残っている行（ひな形のまま）は確かめずに飛ばし、警告を出す
+#   確かめたページが0件のときは、初めての公開なら警告だけ、2回目以降（前に成功した deploy がある）なら失敗にする
 #
 # 同時実行: autofix と同じグループ（publish）にして、公開が重ならないようにしている。
 # 待っている実行がある間に新しい push が来ると、待っている古い実行は新しいものに置き換わる。
@@ -86,8 +87,13 @@ jobs:
   smoke:
     needs: publish
     runs-on: ubuntu-latest
-    # 1ページにつき、ふだんは最大で約2分。つながらない状態（独自ドメインにつないだ直後など）は最大で約8分待つ
-    timeout-minutes: 20
+    # 前に成功した deploy があるかを読むため（2回目以降の公開で、確かめたページが0件なら失敗にする）
+    permissions:
+      contents: read
+      actions: read
+    # 1ページにつき、ふだんは最大で約2分。つながらない状態（独自ドメインにつないだ直後など）は、
+    # 1ページで最大8分、すべてのページの合計で最大12分まで待つ。5ページなら、合わせて20分ほどで終わる
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
@@ -96,59 +102,74 @@ jobs:
       # 主なページが 200 を返し、決まった文字を含むかを確かめる。転送（301 など）はたどる。
       # 反映を待つため、1ページにつき10秒おきに5回まで試す。
       # つながらない（状態 000）か、5xx（証明書の発行を待っている間の 525 や 526 など）のときは、
-      # 独自ドメインにつないだ直後の可能性があるので、そのページの最初の試行から SMOKE_WAIT_SECONDS 秒まで試し続ける。
+      # 独自ドメインにつないだ直後の可能性があるので、そのページの最初の試行から SMOKE_WAIT_SECONDS 秒まで試し続ける
+      # （すべてのページで待つ長さの合計は、最初の確認から SMOKE_TOTAL_WAIT_SECONDS 秒まで）。
       # 文字はページの HTML の中で探す。& や < を含む見出しは、HTML の中では &amp; や &lt; になっているので、
       # その書き方で書くか、記号を含まない言葉を選ぶ。
       # この内容は autofix.yml の「公開後の確認」と同じにしておく。
       - name: 公開後の確認
         env:
+          GH_TOKEN: ${{ github.token }}
           SMOKE_WAIT_SECONDS: "480"
+          SMOKE_TOTAL_WAIT_SECONDS: "720"
         run: |
           list=.github/smoke-test.txt
-          if [ ! -f "$list" ]; then
-            echo "::warning::$list がないため、公開後の確認を省きました"
-            exit 0
-          fi
+          # 前に成功した deploy があるか（2回目以降の公開か）。読めなければ 0（初めて）として扱う
+          prev_ok=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/deploy.yml/runs?status=success&per_page=1" --jq '.total_count' 2>/dev/null || echo 0)
+          case "$prev_ok" in ''|*[!0-9]*) prev_ok=0 ;; esac
           failed=0
           checked=0
-          while IFS= read -r line || [ -n "$line" ]; do
-            line="${line%$'\r'}"
-            case "$line" in ''|'#'*) continue ;; esac
-            case "$line" in
-              *'<'*'>'*)
-                echo "::warning::ひな形の <...> が残っている行を飛ばしました: ${line}"
-                continue ;;
-            esac
-            url="${line%%[[:space:]]*}"
-            expect="${line#"$url"}"
-            expect="${expect#"${expect%%[![:space:]]*}"}"
-            ok=0
-            tries=0
-            start=$(date +%s)
-            while :; do
-              tries=$((tries + 1))
-              status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url" 2>/dev/null) || status=000
-              if [ "$status" = "200" ] && { [ -z "$expect" ] || grep -qF -- "$expect" page.html; }; then
-                ok=1
-                break
-              fi
-              elapsed=$(( $(date +%s) - start ))
-              case "$status" in
-                000|5??) [ "$elapsed" -ge "$SMOKE_WAIT_SECONDS" ] && break ;;
-                *) [ "$tries" -ge 5 ] && break ;;
+          job_start=$(date +%s)
+          if [ -f "$list" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              line="${line%$'\r'}"
+              case "$line" in ''|'#'*) continue ;; esac
+              case "$line" in
+                *'<'*'>'*)
+                  echo "::warning::ひな形の <...> が残っている行を飛ばしました: ${line}"
+                  continue ;;
               esac
-              sleep 10
-            done
-            checked=$((checked + 1))
-            if [ "$ok" = 1 ]; then
-              echo "OK  $url"
-            else
-              echo "::error::NG  $url（状態 ${status}。「${expect}」を含むことを確かめられませんでした）"
-              failed=1
-            fi
-          done < "$list"
-          rm -f page.html
+              url="${line%%[[:space:]]*}"
+              expect="${line#"$url"}"
+              expect="${expect#"${expect%%[![:space:]]*}"}"
+              ok=0
+              tries=0
+              start=$(date +%s)
+              while :; do
+                tries=$((tries + 1))
+                status=$(curl -sSL -o page.html -w '%{http_code}' --max-time 15 "$url" 2>/dev/null) || status=000
+                if [ "$status" = "200" ] && { [ -z "$expect" ] || grep -qF -- "$expect" page.html; }; then
+                  ok=1
+                  break
+                fi
+                now=$(date +%s)
+                case "$status" in
+                  000|5??)
+                    # そのページで待つ長さと、すべてのページで待つ長さの合計の、どちらかに達したら終える
+                    { [ $((now - start)) -ge "$SMOKE_WAIT_SECONDS" ] || [ $((now - job_start)) -ge "$SMOKE_TOTAL_WAIT_SECONDS" ]; } && break ;;
+                  *) [ "$tries" -ge 5 ] && break ;;
+                esac
+                sleep 10
+              done
+              checked=$((checked + 1))
+              if [ "$ok" = 1 ]; then
+                echo "OK  $url"
+              else
+                echo "::error::NG  $url（状態 ${status}。「${expect}」を含むことを確かめられませんでした）"
+                failed=1
+              fi
+            done < "$list"
+            rm -f page.html
+          else
+            echo "::warning::$list がありません"
+          fi
           if [ "$checked" = 0 ]; then
-            echo "::warning::確かめたページがありません。$list の <...> を、公開先の URL とページの文字に書き換えてください"
+            if [ "$prev_ok" -gt 0 ]; then
+              # 2回目以降の公開で確かめたページが0件のときは、確認が働いていないので失敗にする
+              echo "::error::確かめたページがありません。$list に、公開先の URL とページの文字を書いてください（<...> の行は飛ばされます）"
+              failed=1
+            else
+              echo "::warning::確かめたページがありません。初めての公開なので失敗にはしませんが、次の公開までに $list の <...> を、公開先の URL とページの文字に書き換えてください"
+            fi
           fi
           exit "$failed"
