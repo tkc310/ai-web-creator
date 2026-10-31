@@ -6,6 +6,8 @@
 
 ### 2026-10-31
 
+- docs(skills): お問い合わせフォームの C（Cloudflare Email Sending）は要保守構成になり、更新しない月も Claude を無料のプランに下げられないことを、選び方の表と C を選ぶ前に伝える項目、オーナー向けの説明に足した（forms.md、docs/forms.md）
+- docs(skills): オーナーの操作の一覧の合計（30〜40分）は一覧の操作だけで、Claude のアカウント、コネクタ、プロジェクトの準備を含めると全体で1時間〜1時間半くらいと伝える注を足した。静的なサイトでは部品の更新も月1回の振り返りで行い、設定しないと止まることを伝える1文を足した（account-setup.md、SKILL.md）
 - feat(skills): 作り終えた静的なサイトで、更新しない月に Claude を無料のプラン（Free）に下げる使い方に対応した。下げる前の確認（要保守構成でないか、予約投稿、開いている Issue とプルリクエスト、確認待ち、最新の公開、鍵の種類）と、Pro に戻した日の作業（スケジュールタスクがオンか、無料の月の GitHub の画面での編集を監査ログに書く、Issue の片付け、保守と振り返りをまとめて1回）を足した。SITE.md に「Claude のプラン」を足し、「無料の月」のまま会話が始まったら戻した日の作業を先に行う（site-review、site-maintenance、templates/SITE.md、templates/AGENTS.md.tmpl、templates/CLAUDE.md.tmpl、templates/project-instructions.md、AGENTS.md）
 - feat(skills): autofix で、自動修正用の鍵が受け付けられなかったとき（`execution_file` の `authentication_failed` など）を見分け、「Claude が無料のプランなどで使えないため、自動修正は止まっています。Pro に戻すか、GitHub の画面で直してください」という Issue（ラベル autofix-paused）にした。自動修正を止めず、同じ Issue にコメントを足し、自動修正がまた動いたら閉じる。見分けられないときの「考えられる原因」の先頭に無料のプランを足した（autofix.yml、deploy-and-autofix.md）
 - docs(skills): オーナー向けの README に、無料の月に GitHub の画面で記事の文章を直す手順（5手順）、写真と新しい記事は Pro に戻してから、失敗したときと戻し方、Pro に戻した日に送るひと言を足した（templates/README.owner.md、docs/how-to-use.md、docs/claude-account.md、prompts/README.md）
