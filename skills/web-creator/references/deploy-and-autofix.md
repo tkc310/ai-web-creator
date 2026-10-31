@@ -147,6 +147,7 @@ Claude が変えたあと、ワークフローがビルドより前に、追加�
 
 - 過去24時間に autofix のコミット（`fix(autofix):`）が `AUTOFIX_MAX_PER_DAY` 回（標準は3回）あったら、Claude を起動せずに Issue で知らせる。Claude が変えたのがログ（`logs/`、`audit-log/`）だけのときは、コミットを `chore(autofix):` にして、回数に数えない（一時的な障害で公開をやり直しただけのため）
 - ラベル `autofix` の Issue が開いている間は、Claude を起動せず、その Issue にコメントを足す。Claude を起動しない知らせ（下の「Claude を起動しないもの」の公開だけ、公開後の確認だけの失敗など）は、ラベル `deploy-notice` の Issue にするので、開いていても自動修正は止まらない
+- 自動修正用の鍵が受け付けられなかったとき（Claude を無料のプランに下げた月、鍵の期限切れや取り消しなど）は、ラベル `autofix-paused` の Issue（題名「Claude が使えないため、自動修正が止まっています」）にする。開いていても自動修正は止めないので、Pro に戻せばそのまま動く。同じラベルの Issue が開いていれば、新しく立てずにコメントを足す。自動修正の Claude が次に動いたら、ワークフローの最後のステップがこの Issue を閉じる。見分け方は、`execution_file` の assistant のメッセージの `error` が `authentication_failed` か `oauth_org_not_allowed` のとき、または結果の文に認証の失敗の文言（`Failed to authenticate`、`Invalid API key`、`API Error: 401` など）があり、料金（`total_cost_usd`）が 0 のとき（Agent SDK のドキュメント「TypeScript reference」の SDKAssistantMessageError と、Claude Code のドキュメント「Errors」の OAuth token revoked or expired、2026-10-31 確認: https://code.claude.com/docs/en/agent-sdk/typescript 、https://code.claude.com/docs/en/errors ）。認証の文言が出ずに `is_error: true` だけで終わる例も報告されている（anthropics/claude-code-action の Issue #1281）。見分けられなかったときは、下の「Claude の実行が途中で止まった」の Issue になり、その先頭にも無料のプランを書いている。無料のプランの鍵で実際にどう失敗するかは、作者が配布元の README の「版の付け方」の手順4で確かめる（未確認）
 - 1回の実行で Claude が使えるのは30ターンまで（`--max-turns 30`）。上限で止まったときは、Issue の本文で、鍵や利用の上限で止まった場合と書き分ける（claude-code-action の `execution_file` の最後の結果が `error_max_turns` かで見分ける。Claude Code のドキュメント「How the agent loop works」の Handle the result。`execution_file` の形は実機で確かめる）
 
 ### Claude を起動しないもの
@@ -170,25 +171,26 @@ Issue の本文は、何が起きたかで書き分けます。どの場合も�
 | 起きたこと | 公開中のサイト | 本文に書く頼み方 |
 |---|---|---|
 | ビルドの失敗を直せなかった、範囲の外の修正が要る | 前回の版のまま | 「サイトの公開が失敗しているので直して」 |
-| Claude の実行が途中で止まった | 前回の版のまま | 考えられる原因を並べる（鍵の期限切れか取り消し、鍵の登録の間違い、利用の上限、一時的な不調）。鍵の発行日は SITE.md の「技術」。「公開が失敗しているので直して。自動修正用の鍵の期限も確かめて」 |
+| 自動修正用の鍵が受け付けられなかった（ラベル `autofix-paused`） | 前回の版のまま | 「Claude が無料のプランなどで使えないため、自動修正は止まっています。Pro に戻すか、GitHub の画面で直してください」。Pro に戻した日に送るひと言と、Pro のままなら鍵を直すよう頼む文も書く |
+| Claude の実行が途中で止まった | 前回の版のまま | 考えられる原因を並べる（無料のプランに下げている、鍵の期限切れか取り消し、鍵の登録の間違い、利用の上限、一時的な不調）。鍵の発行日は SITE.md の「技術」。「公開が失敗しているので直して。自動修正用の鍵の期限も確かめて」 |
 | Claude が30ターンの上限で止まった | 前回の版のまま | 鍵や利用の上限の問題ではない。「サイトの公開が失敗しているので直して」 |
 | 公開の段階だけの失敗 | 前回の版のまま | Cloudflare の鍵や設定の可能性。「サイトの公開が失敗しているので直して」 |
 | 公開後の確認だけの失敗（deploy でも autofix の公開のあとでも） | 新しい版 | 上の3つの頼み方 |
 
-ラベルは、ビルドの段階の失敗と、自動修正で公開したあとの失敗が `autofix`（開いている間は自動修正を試さない）、Claude を起動しない知らせが `deploy-notice`（開いていても自動修正は止まらない）です。
+ラベルは、ビルドの段階の失敗と、自動修正で公開したあとの失敗が `autofix`（開いている間は自動修正を試さない）、Claude を起動しない知らせが `deploy-notice`（開いていても自動修正は止まらない）、自動修正用の鍵が受け付けられなかった知らせが `autofix-paused`（開いていても自動修正は止まらない。自動修正がまた動いたら自動で閉じる）です。
 
 Claude が調べた原因（autofix が書いた `logs/*_autofix.md`）は、check_text.py で確かめてから、本文の「自動修正の Claude が調べた原因」に入れます（3,000字まで）。範囲の外の修正が要るときも、どのファイルをどう変えるかが Issue に残るので、オーナーが Issue を Claude に見せれば、調べ直さずに直せます。機密情報や AI に向けた命令の疑いがあるときは、本文に入れません。
 
 ## Issue を閉じる人
 
-autofix と deploy-notice の Issue は、Claude が原因を直して公開し直したあとに閉じます。オーナーが「直して」と頼んだ会話の中で、公開後の確認が OK になったことを確かめてから閉じ、オーナーに「◯日の公開の失敗は、◯◯を直して公開し直しました」と一言伝えます。オーナーが自分で閉じてもかまいません。ラベル autofix の Issue（題名「サイトの公開に失敗しました」）は、閉じるまで autofix が動きません。ラベル deploy-notice の Issue（題名「サイトの公開について確認してください」）は、開いていても autofix を止めません。
+autofix と deploy-notice の Issue は、Claude が原因を直して公開し直したあとに閉じます。オーナーが「直して」と頼んだ会話の中で、公開後の確認が OK になったことを確かめてから閉じ、オーナーに「◯日の公開の失敗は、◯◯を直して公開し直しました」と一言伝えます。オーナーが自分で閉じてもかまいません。ラベル autofix の Issue（題名「サイトの公開に失敗しました」）は、閉じるまで autofix が動きません。ラベル deploy-notice の Issue（題名「サイトの公開について確認してください」）は、開いていても autofix を止めません。ラベル autofix-paused の Issue（題名「Claude が使えないため、自動修正が止まっています」）も autofix を止めず、自動修正の Claude が次に動いたときにワークフローが閉じます。Pro に戻した日の作業（site-review の「Pro に戻した日」）では、この Issue に書かれた失敗の公開が直っているかを確かめます。
 
 クラウドの作業環境では `gh issue` と `gh pr` が使えません（GitHub の GraphQL が拒否される。versions.md の「時点つきの事実」）。Issue やプルリクエストの操作は、REST の `gh api` で行います。
 
 下の `{owner}/{repo}` は、gh が作業フォルダの origin から読み取って置き換えます。クラウドの作業環境では origin が中継の住所になっていて、読み取れないことがあります（`none of the git remotes configured for this repository point to a known GitHub host` などと出る）。そのときは、同じ呼び出しの最初に `export GH_REPO=<owner>/<repo>`（SITE.md の「技術」の「リポジトリ」の値）を書きます。gh は、`GH_REPO` があれば `{owner}/{repo}` をその値で置き換えます（`gh api --help`）。
 
 - Issue を閉じる: `gh api -X PATCH 'repos/{owner}/{repo}/issues/<番号>' -f state=closed`
-- 開いている autofix の Issue を探す: `gh api 'repos/{owner}/{repo}/issues?state=open&labels=autofix' --jq '.[].number'`（知らせは `labels=deploy-notice`）
+- 開いている autofix の Issue を探す: `gh api 'repos/{owner}/{repo}/issues?state=open&labels=autofix' --jq '.[].number'`（知らせは `labels=deploy-notice`、鍵が受け付けられなかった知らせは `labels=autofix-paused`）
 - プルリクエストを作る: `gh api 'repos/{owner}/{repo}/pulls' -f title='<題名>' -f head='<ブランチ>' -f base=main -f body='<本文>'`
 - Issue を作る（保守や振り返りでオーナーに確かめたいことを知らせる）: `gh api 'repos/{owner}/{repo}/issues' -f title='<題名>' -f body="$(cat <本文のファイル>)" -f 'labels[]=owner-check'`。本文はファイルに書いて check_text.py で確かめてから渡す。ラベルがまだなければ、先に `gh api 'repos/{owner}/{repo}/labels' -f name=owner-check -f color=0E8A16 -f description='オーナーに確かめたいこと'` で作る（すでにあれば 422 が返るだけなので、そのまま進める）
 - `gh api` も GitHub のツールも使えないときは、Issue の代わりに SITE.md の「オーナーへの確認待ち」に書き、次にオーナーと話すときに伝える

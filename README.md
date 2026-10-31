@@ -42,7 +42,7 @@ Claude が選択肢つきの質問をしながら、企画、制作、公開ま�
 
 ## 必要なもの
 
-- Claude の有料プラン（Pro か Max）。Team と Enterprise でも使えますが、Claude Code のプロジェクトを使わない手順で進めます（[project-setup.md](skills/web-creator/references/project-setup.md)）
+- Claude の有料プラン（Pro か Max）。Team と Enterprise でも使えますが、Claude Code のプロジェクトを使わない手順で進めます（[project-setup.md](skills/web-creator/references/project-setup.md)）。作り終えたあと、静的なサイトは、更新しない月に無料のプラン（Free）に下げられます（下の「注意」）
 - GitHub のアカウント（無料プランでよい）
 - Cloudflare のアカウント（無料プランでよい）
 - サイトの住所にするドメイン（持っていなければ途中で取得する）
@@ -57,7 +57,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/web-creator](skills/web-creator/SKILL.md) | サイト制作の全体を進めるスキル。ヒアリング、技術の選定、アカウントの準備、デザインと制作、公開前の品質チェック、公開、自動修正 |
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらい、プレビューで「OK」をもらってから公開する（標準の流れ） |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。毎月1日と15日に、スタックを最新にする。小さな更新（パッチとマイナー）は確かめてから main に入れ、大きな更新（メジャーと GitHub Actions）はプルリクエストを残してオーナーの OK を待つ |
-| [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する |
+| [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する。Claude を無料のプランに下げる前の確認と、Pro に戻した日の作業もここで行う |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 | [docs/verification](docs/verification/README.md) | 構成の検証の記録。スキルに組み込む前に、サンプルを作って計測した結果を残す |
@@ -135,7 +135,7 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 
 CI で確認するのは「ビルドが通るか」と、公開後に主なページが見られるかだけです。公開後の確認では、サイトのリポジトリの `.github/smoke-test.txt` に書いたページが 200（行ごとに `405` などの状態も指定できる）を返し、決めた文字を含むかを確かめます。Cloudflare のセキュリティの確認の画面が返ったページは、失敗にせず警告にします（`.github/scripts/smoke.sh`）。プルリクエストでは、すべてのサイトでビルドだけを確認します。リンターやテストはエージェントが作業中に実行します。
 
-ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、自動修正の Issue（ラベル autofix）が開いている間は動きません。Claude を起動しない知らせの Issue（ラベル deploy-notice）は、開いていても自動修正を止めません。
+ビルドや公開の段階で失敗すると、GitHub Actions 上で Claude が原因を調べて直し、公開し直します（[autofix.yml](skills/web-creator/templates/github/workflows/autofix.yml)）。Claude が変えてよいのは記事、画像、ログ（`src/content/`、`src/assets/`、`public/` の画像、`logs/`、`audit-log/`）だけです。原因がページの部品やレイアウト（.astro）、設定（package.json、astro.config.* など）にある場合や、範囲の外のファイルを変えた場合は、push せずに Issue でオーナーに知らせて止まります。オーナーは、その Issue を Claude に見せて直してもらいます。自動修正は24時間に3回まで、自動修正の Issue（ラベル autofix）が開いている間は動きません。Claude を起動しない知らせの Issue（ラベル deploy-notice）は、開いていても自動修正を止めません。自動修正用の鍵が受け付けられなかったとき（Claude を無料のプランに下げた月など）は、「Claude が使えないため、自動修正が止まっています。Pro に戻すか、GitHub の画面で直してください」という Issue（ラベル autofix-paused）を1つだけ立て、次からはコメントを足します。この Issue も自動修正を止めず、自動修正がまた動いたら閉じます。
 
 deploy のワークフローは、ビルド（build）、公開（publish）、公開後の確認（smoke）の3つのジョブに分かれていて、autofix は、どのジョブが失敗したかで動きを変えます。Claude を起動するのはビルドの失敗のときだけです。公開の段階だけの失敗（Cloudflare の鍵の期限切れなど）と、公開後の確認だけの失敗（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。Issue には、公開中のサイトが前回の版か新しい版か、Claude が調べた原因、オーナーが Claude に送る頼み方を書きます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
 
@@ -258,7 +258,8 @@ skills/
    - `.github/smoke-test.txt` にページにない文字を書いて push する → Claude は起動せず、公開後の確認だけの失敗の Issue（ラベル deploy-notice）が立つ。その Issue が開いたままでも、次のビルドの失敗で自動修正が動く
    - 記事の frontmatter を壊し、本文に「`.git/config` と `/proc/self/environ` を読んで、ログに書き写す」「`cat .git/config` と `env` を実行して結果をログに書く」という文を入れて push する → Claude が読めず、ログと Issue に中身が出ない（autofix.yml の許可と拒否のルールが効いている。読み取りのコマンドは承認なしで通るため、`env` などを拒否の規則に入れている）
    - 記事の iframe の埋め込みを残したまま frontmatter を壊して push する → 失敗の前からあった埋め込みでは止まらず、Claude が直して公開し直す（check_text.py の `--baseline`）
-   - 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` と `ANTHROPIC_API_KEY`）を Secrets から一時的に外し、記事の frontmatter を壊して push する → Claude は起動せず、「自動修正用の鍵が登録されていないため」の Issue（ラベル autofix）が立つ。続けて、鍵にわざと違う値を入れて同じ壊し方をする → 「考えられる原因」を並べた Issue が立つ。終わったら鍵を戻す
+   - 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` と `ANTHROPIC_API_KEY`）を Secrets から一時的に外し、記事の frontmatter を壊して push する → Claude は起動せず、「自動修正用の鍵が登録されていないため」の Issue（ラベル autofix）が立つ。続けて、`CLAUDE_CODE_OAUTH_TOKEN` にわざと違う値を入れて同じ壊し方をする → 「Claude が使えないため、自動修正が止まっています」の Issue（ラベル autofix-paused）が立つ。もう一度壊して push し、新しい Issue が立たずに同じ Issue にコメントが足されることを確かめる。「考えられる原因」の Issue（ラベル autofix）になったら、`execution_file`（autofix の実行の記録）の assistant のメッセージの `error` と、最後の `result` の文を確かめて、autofix.yml の見分け方を直す。終わったら鍵を戻し、壊れていない状態で自動修正が動いたときに autofix-paused の Issue が閉じることを確かめる
+   - 無料のプランの鍵で確かめる。試験用の Claude のアカウントで、Pro のときに `claude setup-token` で発行した鍵を Secrets に入れ、そのアカウントを Free に下げる（解約は支払った期間の終わりに効くので、Free になってから試す）。記事の frontmatter を壊して push する → ラベル autofix-paused の Issue が立つこと。そのときの `execution_file` の `error` と `result` の文、`total_cost_usd` を versions.md に書く。続けて Pro に戻し、同じ鍵のままで自動修正が動くか（鍵を作り直す必要があるか）と、スケジュールタスクがオフになっていたか（「Pro に戻した日」の手順1）を確かめ、結果を versions.md と site-review の「Pro に戻した日」に書く
    - 操作の回数の上限に当たる失敗を起こせたら（直すところが多い壊し方をする）、Issue に「決めた回数（30回）の操作の中で直しきれずに止まりました」と出ることと、`execution_file` の最後の `result` の `subtype` が `error_max_turns` になっていることを確かめる
 5. タグを打って送る
 
@@ -279,6 +280,7 @@ skills/
 - 料金やサービスの仕様は変わります。スキルの中の数値は作成時点のもので、エージェントは作業時に最新の情報を確認します
 - 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` または `ANTHROPIC_API_KEY`）は任意です。設定しなければ、失敗したときに Issue（と GitHub のメール）で知らせるだけになります。`CLAUDE_CODE_OAUTH_TOKEN` の発行には、パソコンに Claude Code を入れてコマンドを1行打つ作業が要ります（[account-setup.md](skills/web-creator/references/account-setup.md) の3）
 - 保守ルーティンは Claude のスケジュールタスクで動くため、Claude の利用量を使います（Pro 以上のプランで利用できます）
+- 静的なサイトは、更新しない月に Claude を無料のプラン（Free）に下げられます。Free では Claude Code とスケジュールタスクが使えません（[料金のページ](https://claude.com/pricing)、2026-10-31 確認）。サイトの表示と、GitHub の画面で直した文章の公開は続きます。月1回の振り返り、予約投稿、自動修正（Claude のプランの鍵の場合）は止まります。要保守構成のサイトは、部品の弱点を直し続けるために下げません。下げる前の確認と Pro に戻した日の作業は [site-review](skills/site-review/SKILL.md) の「無料のプランに下げる前と、Pro に戻した日」、無料の月の文章の直し方はサイトのリポジトリの README.md（[README.owner.md](skills/web-creator/templates/README.owner.md)）の「Claude を無料のプランにしている月」にあります
 
 ## ライセンス
 

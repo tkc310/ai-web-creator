@@ -48,6 +48,7 @@
 - 独自ドメイン: （ドメイン、つないだ日。まだなら「まだ」）
 - アクセス解析: Cloudflare Web Analytics（有効にした日）/ Google アナリティクス（測定 ID）/ なし（references/analytics.md）
 - 自動修正用の鍵: CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY / 見送り（発行した日。CLAUDE_CODE_OAUTH_TOKEN は有効期限が1年なので、発行から11か月で作り直す。発行した人）
+- Claude のプラン: Pro / Max / 無料の月（YYYY-MM-DD から。戻したら「Pro（YYYY-MM-DD に戻した）」。下げる前と戻した日の手順は site-review の「無料のプランに下げる前と、Pro に戻した日」。要保守構成は下げない）
 - 公開後の確認: `.github/smoke-test.txt`（確かめるページ: ）
 - リポジトリ: github.com/<owner>/<repo>
 

@@ -19,6 +19,12 @@
 # Issue のラベル:
 #   - autofix: ビルドの段階の失敗（Claude が直せなかった、鍵がない、回数の上限など）。開いている間は自動修正を試さない
 #   - deploy-notice: publish だけ、smoke だけの失敗など、Claude を起動しない知らせ。開いていても自動修正は止めない
+#   - autofix-paused: 自動修正用の鍵が受け付けられなかった知らせ（Claude を無料のプランに下げた月、鍵の期限切れなど）。
+#     開いていても自動修正は止めない（Pro に戻ればそのまま動くように）。同じラベルの Issue が開いていれば、新しく立てずにコメントを足す。
+#     自動修正の Claude がまた動いたら、最後のステップで閉じる
+#     見分け方: Claude の実行の記録（execution_file）の assistant のメッセージの error が authentication_failed か
+#     oauth_org_not_allowed のとき、または、結果の文に認証の失敗の文言があり、料金が 0（モデルが一度も答えていない）のとき。
+#     見分けられなかったときは、autofix のラベルで「考えられる原因」を並べる（その先頭にも無料のプランを書いている）
 #
 # 変えてよい範囲（安全を優先して、記事、画像、ログだけ）:
 #   - Claude が変えたファイルを、ビルドより前に AUTOFIX_ALLOWED_PATHS と AUTOFIX_DENIED_PATHS で確かめる
@@ -446,11 +452,13 @@ jobs:
           # 確かめる道具は、作業フォルダのものを使わず、失敗した版のコミットから写して python3 -I で動かす
           checker="$RUNNER_TEMP/check_text.py"
           git show "${FAILED_SHA}:scripts/check_text.py" > "$checker" 2>/dev/null || rm -f "$checker"
-          # Claude の実行が最後にどう終わったか（success、error_max_turns など。読めなければ空）
+          # Claude の実行が最後にどう終わったか（1行目: success、error_max_turns など）と、
+          # 鍵が受け付けられなかったしるしがあるか（2行目: auth）。読めなければ「-」
           stop=""
+          auth=""
           if [ -n "$EXECUTION_FILE" ] && [ -f "$EXECUTION_FILE" ]; then
-            stop=$(python3 -I -c '
-          import json, sys
+            info=$(python3 -I -c '
+          import json, re, sys
           text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
           try:
               items = json.loads(text)
@@ -462,13 +470,44 @@ jobs:
                       items.append(json.loads(line))
                   except ValueError:
                       pass
-          results = [i for i in items if isinstance(i, dict) and i.get("type") == "result"]
-          print(results[-1].get("subtype", "") if results else "")
+          items = [i for i in items if isinstance(i, dict)]
+          results = [i for i in items if i.get("type") == "result"]
+          print((results[-1].get("subtype") or "-") if results else "-")
+          # 認証の失敗のしるし。Agent SDK の assistant のメッセージの error と、結果や error の付いたメッセージの文
+          codes = {"authentication_failed", "oauth_org_not_allowed"}
+          pattern = re.compile(r"Failed to authenticate|authentication_failed|OAuth token (revoked|has expired)|does not have access to Claude|Invalid API key|Invalid authentication credentials|Could not resolve authentication|API Error: 40[13]|Request not allowed|subscription access", re.I)
+          auth = any(i.get("type") == "assistant" and i.get("error") in codes for i in items)
+          texts = []
+          for r in results:
+              texts.append(str(r.get("result") or ""))
+              texts.extend(str(e) for e in (r.get("errors") or []))
+          for i in items:
+              if i.get("type") == "assistant" and i.get("error"):
+                  content = (i.get("message") or {}).get("content") or []
+                  texts.extend(str(c.get("text") or "") for c in content if isinstance(c, dict))
+          cost = results[-1].get("total_cost_usd") if results else None
+          if not auth and not cost and pattern.search(" ".join(texts)):
+              auth = True
+          print("auth" if auth else "-")
           ' "$EXECUTION_FILE" 2>/dev/null || true)
+            stop=$(printf '%s\n' "$info" | sed -n 1p)
+            auth=$(printf '%s\n' "$info" | sed -n 2p)
+            [ "$stop" = "-" ] && stop=""
+            [ "$auth" = "-" ] && auth=""
+          fi
+          # 鍵が受け付けられなかったときは、自動修正を止めない知らせのラベルにする
+          if [ ! -f "$reason" ] && [ "$CLAUDE_OUTCOME" = "failure" ] && [ "$auth" = "auth" ]; then
+            LABEL=autofix-paused
           fi
           {
             if [ -f "$reason" ]; then
               cat "$reason"
+            elif [ "$LABEL" = "autofix-paused" ]; then
+              echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
+              echo "自動修正用の鍵が受け付けられませんでした。Claude が無料のプランなどで使えないため、自動修正は止まっています。Pro に戻すか、GitHub の画面で直してください（直し方は、このリポジトリの README.md の「Claude を無料のプランにしている月」）。"
+              echo ""
+              echo "- Pro に戻したら、Claude に『Claude を Pro に戻しました。止まっていた間の確認と、保守と振り返りをまとめてしてください』と送ってください"
+              echo "- Claude を無料のプランに下げていない（Pro や Max のまま）なら、鍵の期限切れか取り消し、登録の間違いが考えられます（鍵を発行した日は SITE.md の「技術」の「自動修正用の鍵」）。Claude に『自動修正用の鍵が受け付けられていないので、直して』と頼んでください"
             elif [ "$CLAUDE_OUTCOME" = "failure" ] && [ "$stop" = "error_max_turns" ]; then
               echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
               echo "自動修正の Claude が、決めた回数（30回）の操作の中で直しきれずに止まりました。鍵や利用の上限の問題ではありません。"
@@ -477,6 +516,7 @@ jobs:
               echo "ビルドの段階で失敗しました。公開中のサイトは、前回公開した状態のまま表示されています。"
               echo "自動修正の Claude が途中で止まりました。考えられる原因は次のとおりです（どれかは、下の「自動修正の実行」のログで分かります）。"
               echo ""
+              echo "- Claude を無料のプランに下げている（Claude のプランの鍵は、無料のプランでは使えない見込み。Pro に戻すか、GitHub の画面で直す。直し方は README.md の「Claude を無料のプランにしている月」）"
               echo "- 自動修正用の鍵の期限切れか、取り消し（鍵を発行した日は SITE.md の「技術」の「自動修正用の鍵」。Claude のプランの鍵の有効期限は1年）"
               echo "- 鍵の登録の間違い（GitHub の Secrets に貼った値が途中で切れている、別の鍵を貼った、など）"
               echo "- Claude の利用の上限（プランの利用量か、API の月の上限額）"
@@ -517,6 +557,8 @@ jobs:
             echo ""
             if [ "$LABEL" = "autofix" ]; then
               echo "Claude が直したら、この Issue を閉じます（自分で閉じてもかまいません）。開いている間は、自動修正は動きません。"
+            elif [ "$LABEL" = "autofix-paused" ]; then
+              echo "この Issue はお知らせです。開いていても、自動修正は止めません。自動修正の Claude がまた動いたら、自動で閉じます（自分で閉じてもかまいません）。"
             else
               echo "この Issue はお知らせです。開いていても、自動修正は止まりません。Claude が対応したら閉じます（自分で閉じてもかまいません）。"
             fi
@@ -527,6 +569,9 @@ jobs:
           if [ "$LABEL" = "autofix" ]; then
             gh label create autofix --color B60205 --description "自動修正で直せなかった公開の失敗（開いている間は自動修正を試さない）" --force || true
             title="サイトの公開に失敗しました"
+          elif [ "$LABEL" = "autofix-paused" ]; then
+            gh label create autofix-paused --color D4C5F9 --description "Claude が使えないため自動修正が止まっている知らせ（自動修正は止めない）" --force || true
+            title="Claude が使えないため、自動修正が止まっています"
           else
             LABEL=deploy-notice
             gh label create deploy-notice --color FBCA04 --description "公開の段階や公開後の確認の知らせ（自動修正は止めない）" --force || true
@@ -541,3 +586,14 @@ jobs:
               --label "$LABEL" \
               --body-file "$RUNNER_TEMP/issue-body.md"
           fi
+
+      # 自動修正の Claude が動いた（鍵が受け付けられた）ので、「Claude が使えない」知らせを閉じる
+      - name: 止まっていた知らせを閉じる
+        if: ${{ !cancelled() && steps.claude.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          THIS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          for n in $(gh issue list --label autofix-paused --state open --json number --jq '.[].number' 2>/dev/null || true); do
+            gh issue close "$n" --comment "自動修正の Claude がまた動くようになったので、この知らせを閉じます（${THIS_RUN_URL}）。" || true
+          done
