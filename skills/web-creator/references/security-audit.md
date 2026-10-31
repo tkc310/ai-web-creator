@@ -10,7 +10,7 @@
 | 場面 | 行うか |
 |---|---|
 | 公開前（quality-gate.md の健康診断のあと、公開の前） | 必ず行う |
-| 機能の追加・変更（ページの種類を増やす、お問い合わせフォーム、SSR のページ、EmDash の管理画面の権限、外部の埋め込み、GitHub Actions のワークフロー、依存パッケージの追加） | 必ず行う。公開する前に行う |
+| 機能の追加・変更（ページの種類を増やす、お問い合わせフォーム、SSR のページ、外部の埋め込み、GitHub Actions のワークフロー、依存パッケージの追加） | 必ず行う。公開する前に行う |
 | デザインの刷新、ページ構成の変更 | 行う（スクリプトや外部の読み込みが変わるため） |
 | 記事やお知らせの追加・修正、文言や画像の差し替えだけ | 行わない |
 | 保守ルーティンでの依存パッケージの更新 | 行わない（runtime-update の `pnpm audit` で扱う）。更新に合わせてコードを書き換えた場合は、機能の変更として行う |
@@ -20,20 +20,23 @@
 
 ## 入れ方
 
-サイトのリポジトリにはコミットせず、作業のたびに最新版をユーザー単位で入れます（クラウドの作業環境は会話ごとに作り直されるため）。
+サイトのリポジトリにはコミットせず、作業のたびに作業用の一時フォルダに clone し、その SKILL.md を直接読んで手順に従います。クラウドの作業環境は会話ごとに作り直され、会話の途中で `~/.claude/skills/` に入れたスキルが読み込まれるかは環境によって違うためです（Claude Code のプロジェクトのスレッドは、リポジトリの `.claude/skills/` も読まない。versions.md の「時点つきの事実」）。
+
+作業用のフォルダは `/tmp/security-audit-skill-src` に固定します。Bash の呼び出しごとにシェルの変数は消えるので、変数に入れた一時フォルダの名前に頼りません。次のかたまりは、全体を1回の Bash の呼び出しで実行します。
 
 ```bash
-npx -y skills add https://github.com/cloudflare/security-audit-skill --skill security-audit --global --agent claude-code --yes
+set -eu
+rm -rf /tmp/security-audit-skill-src
+git clone --quiet --depth 1 https://github.com/cloudflare/security-audit-skill /tmp/security-audit-skill-src
+git -C /tmp/security-audit-skill-src rev-parse HEAD   # 使った版。実行ログに書く
+ls /tmp/security-audit-skill-src/skills/security-audit/SKILL.md
 ```
 
-`~/.claude/skills/security-audit/` に入ります。入れたあとの会話（またはスキルを読み直したあと）で使えます。npm に届かない場合は、次の方法で入れます。
+1. clone したら、使った版（コミット）を控え、実行ログに書く。前回の監査と同じ版かどうかを比べられるようにするため
+2. `/tmp/security-audit-skill-src/skills/security-audit/SKILL.md` を読み、そこに書かれた手順で監査を進める。参照しているファイルも、同じフォルダの中のものを読む
+3. 前回の監査と版が違うときは、SKILL.md を読んで、前回と使い方が変わっていないかを確かめてから使う
 
-```bash
-git clone --depth 1 https://github.com/cloudflare/security-audit-skill /tmp/security-audit-skill
-mkdir -p ~/.claude/skills && cp -r /tmp/security-audit-skill/skills/security-audit ~/.claude/skills/
-```
-
-入れたスキルは、エージェントと同じ権限で動きます。初めて使うときと、前回の監査から日が空いたときは、SKILL.md を読んで、前回と使い方が変わっていないかを確かめてから使います。
+スキルの仕組みで読み込ませたい場合（会話の途中でもスキルとして呼べる環境）は、`npx -y skills@1.7.4 add https://github.com/cloudflare/security-audit-skill --skill security-audit --global --agent claude-code --yes` でも入れられます。`skills` の版は固定して使い、上げるときは公開から3日以上たった版にします。入れたスキルは、エージェントと同じ権限で動きます。
 
 ## 頼み方
 
@@ -45,7 +48,7 @@ security audit this codebase（このリポジトリ全体のセキュリティ�
 
 - 結果は既定の `~/security-audit-skill/<リポジトリ名>/run-<番号>/` に出させます。リポジトリの中には出しません
 - 同じリポジトリで2回目以降に行うと、前回の結果を使って足りないところを重点的に調べます。同じ会話の中では前回の結果を残しておきます
-- 並列のサブエージェントを多く使い、時間とトークンがかかります。静的なサイトなら短く済みます。オーナーには「公開前の安全確認をしています。10分〜30分ほどかかります」のように伝えます
+- 並列のサブエージェントを多く使い、時間とトークンがかかります。静的なサイトなら短く済みます。始める前に、作業をコミットして push し、SITE.md の「制作の進み具合」を更新してから、オーナーに「公開前の安全確認をします。10分〜30分ほどかかり、Claude の利用量を多めに使います。Pro のプランでは、途中で利用の上限に当たることがあります（止まっても、上限が戻ってから続きから再開できます）。今始めてよいですか？」と聞きます（選択肢: 今始める / 上限が戻る時間に始める）
 - 調べる対象のコード（ビルドやテスト）を動かす確認は、外部への通信を止めた隔離環境でしか行わない決まりになっています。作業環境がその条件を満たさない場合、確かめられなかった候補は「要確認」（needs_validation）として残ります。監査のためにネットワークの許可を広げることはしません
 
 security-rules.md の決まりは、監査の中でも優先します。サブエージェントにも、機密情報が入るファイル（`.env*`、`.dev.vars`、鍵のファイル）を開かないこと、環境変数をまとめて表示しないことを伝えます。

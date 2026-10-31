@@ -4,10 +4,25 @@
 使い方:
   python3 check_text.py ファイル [ファイル ...]
   python3 check_text.py フォルダ          # フォルダの中のテキストファイルをまとめて調べる
-  git diff --cached --name-only --diff-filter=ACM | xargs python3 check_text.py
+  python3 check_text.py . --exclude skills  # skills/ などを除く（フォルダもファイルの指定も。何度でも付けられる）
+  python3 check_text.py --no-markup 下書き.md  # スクリプトや埋め込みのタグを調べない（ログの下書きなど）
+  python3 check_text.py --baseline 前の版のフォルダ src/content/news/a.md  # 前の版から増えた指摘だけを出す
+  git -c core.quotePath=false diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r python3 check_text.py
 
 見つかったら 1 行ずつ「ファイル:行: [種類] 内容」を表示し、終了コード 1 で終える。
 何もなければ終了コード 0。機密情報らしいものは先頭の数文字だけを表示する。
+指定したファイルが見つからない場合と、テキストのはずのファイルを UTF-8 で読めない場合も、
+調べられなかったこととして表示し、終了コード 1 で終える（画像などのバイナリは調べずに飛ばす）。
+日本語のファイル名を git から渡すときは、上の例のように core.quotePath=false と -z を使う。
+
+原稿の中の不審な記述（スクリプト、埋め込み、隠すための CSS など）は、原稿として扱うファイル（.md など）だけで調べる。
+ただし、実行ログと監査ログ（今のフォルダから見て logs/ と audit-log/ の下）は、公開されるページにならず、
+原因の説明に「iframe のタグ」などと書くことがあるので調べない（機密情報、見えない文字、AI への命令の疑いは調べる）。
+--no-markup を付けると、どのファイルでも調べない。
+
+--baseline フォルダ を付けると、調べるファイルと同じ相対パスのファイルがそのフォルダにあるとき、
+その前の版にもあった指摘（種類と内容が同じもの）は出さず、新しく増えた指摘だけを出す。
+もとから埋め込みの動画がある記事を直したときに、止まらないようにするため。前の版がないファイルは、すべてを出す。
 
 これは見落としを減らすための補助で、これだけで安全とは判断しない（references/security-rules.md）。
 """
@@ -20,8 +35,15 @@ TEXT_SUFFIXES = {
     ".yml", ".yaml", ".toml", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".css",
     ".xml", ".svg", ".csv", ".env", ".vars",
 }
+# 中身を調べないファイル（画像、フォント、動画など）。指定されても飛ばす
+BINARY_SUFFIXES = {
+    ".png", ".jpg", ".jpeg", ".webp", ".avif", ".gif", ".ico", ".bmp", ".tif", ".tiff", ".heic",
+    ".pdf", ".woff", ".woff2", ".ttf", ".otf", ".eot", ".mp4", ".webm", ".mov", ".mp3", ".wav",
+    ".zip", ".gz",
+}
 SKIP_DIRS = {".git", "node_modules", "dist", ".astro", ".wrangler", "lighthouse-reports"}
-MARKUP_SUFFIXES = {".md", ".mdx", ".markdown", ".txt", ".csv"}  # 原稿として扱うもの
+MARKUP_SUFFIXES = {".md", ".mdx", ".markdown", ".txt", ".csv", ".json", ".yaml", ".yml"}  # 原稿として扱うもの（記事のデータを含む）
+LOG_DIRS = {"logs", "audit-log"}  # 原稿の中の不審な記述を調べないフォルダ（今のフォルダから見た最初のフォルダ）
 
 # 機密情報の形
 SECRET_PATTERNS = [
@@ -38,6 +60,13 @@ SECRET_PATTERNS = [
 ]
 # 代入の値として許すもの（ひな形の書き方や、環境変数の参照）
 PLACEHOLDER = re.compile(r"^(?:<.*>|\$\{\{.*|\$\{?[A-Z_]+\}?|secrets\.|env\.|process\.env|x{4,}|\*{4,}|your[-_]|example)", re.I)
+
+# 絵文字をつなぐ ZWJ（U+200D。家族や職業の絵文字の中に入る）は、前後が絵文字のときだけ見えない文字に数えない
+EMOJI_ZWJ = re.compile(
+    "(?<=[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F\U0001F3FB-\U0001F3FF])"
+    "\u200D"
+    "(?=[\U0001F000-\U0001FAFF\u2600-\u27BF])"
+)
 
 # 見えない文字
 INVISIBLE = re.compile(r"[​-‏‪-‮⁠-⁤⁦-⁩﻿\U000e0000-\U000e007f]")
@@ -60,7 +89,11 @@ INJECTION_PATTERNS = [
 MARKUP_PATTERNS = [
     ("スクリプト", re.compile(r"(?i)<\s*script\b")),
     ("埋め込み", re.compile(r"(?i)<\s*(?:iframe|object|embed)\b")),
+    ("ページの動きを変えるタグ", re.compile(r"(?i)<\s*(?:meta|base|form|link|style|svg)\b")),
+    ("イベントの属性", re.compile(r"(?i)<\s*[a-z][^>]*?\son[a-z]+\s*=")),
+    ("フォームの送り先の属性", re.compile(r"(?i)\bformaction\s*=")),
     ("javascript: のリンク", re.compile(r"(?i)javascript\s*:")),
+    ("data: の HTML", re.compile(r"(?i)data\s*:\s*text/html")),
     ("隠すための CSS", re.compile(r"(?i)(?:display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0(?:px)?\b|opacity\s*:\s*0(?:\.0+)?\b)")),
 ]
 HTML_COMMENT = re.compile(r"<!--(.*?)-->", re.S)
@@ -74,27 +107,52 @@ def is_text(path: pathlib.Path) -> bool:
     return path.suffix.lower() in TEXT_SUFFIXES or path.name.startswith(".env") or path.name == ".dev.vars"
 
 
-def iter_files(args):
+def is_excluded(path: pathlib.Path, excludes) -> bool:
+    return any(path == e or e in path.parents for e in excludes)
+
+
+def iter_files(args, excludes, problems):
     for arg in args:
         p = pathlib.Path(arg)
         if p.is_dir():
             for f in sorted(p.rglob("*")):
-                if f.is_file() and is_text(f) and not (set(f.parts) & SKIP_DIRS):
+                if (f.is_file() and is_text(f) and not (set(f.parts) & SKIP_DIRS)
+                        and not is_excluded(f.resolve(), excludes)):
                     yield f
         elif p.is_file():
+            if p.suffix.lower() in BINARY_SUFFIXES or is_excluded(p.resolve(), excludes):
+                continue
             yield p
+        else:
+            # 引用符つきのパス（core.quotePath）や、消えたファイルを渡されたとき。黙って通さない
+            problems.append(f"{arg}: [調べられない] ファイルが見つかりません")
 
 
 SELF = pathlib.Path(__file__).name  # このスクリプト自身は、命令の言い回しを含むので調べない
 
 
-def check(path: pathlib.Path):
+def relative(path: pathlib.Path):
+    """今のフォルダから見た相対パス。外にあるときは None"""
+    try:
+        return path.resolve().relative_to(pathlib.Path.cwd().resolve())
+    except ValueError:
+        return None
+
+
+def is_log(path: pathlib.Path) -> bool:
+    rel = relative(path)
+    return rel is not None and len(rel.parts) > 1 and rel.parts[0] in LOG_DIRS
+
+
+def check(path: pathlib.Path, markup: bool = True):
     findings = []
     try:
         text = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        return findings
-    is_manuscript = path.suffix.lower() in MARKUP_SUFFIXES
+    except UnicodeDecodeError:
+        return [(0, "調べられない", "UTF-8 で読めません（文字コードを UTF-8 にするか、テキストでないなら調べる対象から外す）")]
+    except OSError as e:
+        return [(0, "調べられない", f"読めません（{e.__class__.__name__}）")]
+    is_manuscript = markup and path.suffix.lower() in MARKUP_SUFFIXES
     lines = text.splitlines()
 
     for no, line in enumerate(lines, 1):
@@ -104,7 +162,7 @@ def check(path: pathlib.Path):
                 if label == "パスワードやトークンの代入" and PLACEHOLDER.match(value):
                     continue
                 findings.append((no, "機密情報", f"{label}: {mask(value)}"))
-        inv = INVISIBLE.findall(line)
+        inv = INVISIBLE.findall(EMOJI_ZWJ.sub("", line))
         if inv and not (no == 1 and inv == ["﻿"] and line.startswith("﻿")):
             codes = ", ".join(sorted({f"U+{ord(c):04X}" for c in inv}))
             findings.append((no, "見えない文字", codes))
@@ -126,17 +184,67 @@ def check(path: pathlib.Path):
     return findings
 
 
+def without_baseline(findings, base_findings):
+    """前の版にもあった指摘（種類と内容が同じもの）を、数の分だけ取り除く"""
+    left = {}
+    for _, kind, detail in base_findings:
+        left[(kind, detail)] = left.get((kind, detail), 0) + 1
+    out = []
+    for no, kind, detail in findings:
+        if left.get((kind, detail), 0) > 0:
+            left[(kind, detail)] -= 1
+            continue
+        out.append((no, kind, detail))
+    return out
+
+
+def parse_args(argv):
+    paths, excludes = [], []
+    opts = {"markup": True, "baseline": None}
+    it = iter(argv)
+    for a in it:
+        if a == "--no-markup":
+            opts["markup"] = False
+        elif a == "--baseline" or a.startswith("--baseline="):
+            value = a.split("=", 1)[1] if "=" in a else next(it, None)
+            if not value or not pathlib.Path(value).is_dir():
+                raise SystemExit("--baseline のあとに、前の版のファイルを置いたフォルダを書いてください")
+            opts["baseline"] = pathlib.Path(value)
+        elif a == "--exclude":
+            value = next(it, None)
+            if value is None:
+                raise SystemExit("--exclude のあとに、除くフォルダかファイルを書いてください")
+            excludes.append(pathlib.Path(value).resolve())
+        elif a.startswith("--exclude="):
+            excludes.append(pathlib.Path(a.split("=", 1)[1]).resolve())
+        else:
+            paths.append(a)
+    return paths, excludes, opts
+
+
 def main() -> int:
-    if len(sys.argv) < 2:
+    paths, excludes, opts = parse_args(sys.argv[1:])
+    if not paths:
         print(__doc__)
         return 2
     total = 0
-    for f in iter_files(sys.argv[1:]):
+    problems = []
+    for f in iter_files(paths, excludes, problems):
         if f.name == SELF:
             continue
-        for no, kind, detail in check(f):
+        markup = opts["markup"] and not is_log(f)
+        findings = check(f, markup)
+        if opts["baseline"] is not None and findings:
+            rel = relative(f)
+            base = opts["baseline"] / rel if rel is not None else None
+            if base is not None and base.is_file():
+                findings = without_baseline(findings, check(base, markup))
+        for no, kind, detail in findings:
             print(f"{f}:{no}: [{kind}] {detail}")
             total += 1
+    for line in problems:
+        print(line)
+        total += 1
     if total:
         print(f"\n{total} 件見つかりました。1件ずつ内容を見て判断してください（references/security-rules.md）。", file=sys.stderr)
         return 1

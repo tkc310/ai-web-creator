@@ -35,11 +35,13 @@ if [ -n "${HTTPS_PROXY:-}" ]; then
   export NO_PROXY="localhost,127.0.0.1" no_proxy="localhost,127.0.0.1" npm_config_noproxy="localhost,127.0.0.1"
 fi
 
-# pnpm があれば pnpm dlx、なければ npx で最新の Lighthouse を使う
+# Lighthouse の版は固定する（前回と点数を比べやすくするため。上げ方は references/versions.md の「同じ値を書いている場所」）
+LIGHTHOUSE_VERSION="${LIGHTHOUSE_VERSION:-13.6.0}"
+# pnpm があれば pnpm dlx、なければ npx で使う
 if command -v pnpm >/dev/null 2>&1; then
-  LIGHTHOUSE=(pnpm dlx lighthouse@latest)
+  LIGHTHOUSE=(pnpm dlx "lighthouse@${LIGHTHOUSE_VERSION}")
 else
-  LIGHTHOUSE=(npx --yes lighthouse@latest)
+  LIGHTHOUSE=(npx --yes "lighthouse@${LIGHTHOUSE_VERSION}")
 fi
 
 # 計測するページに届くかを先に確かめる。クラウドの作業環境では、外への通信が許可された行き先に限られ、

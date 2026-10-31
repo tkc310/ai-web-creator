@@ -24,13 +24,13 @@
 1. 公開前: ビルドして作業環境の中で配信し、主要ページを測る
 
 ```bash
-bash <スキルの場所>/scripts/run_lighthouse.sh http://localhost:4321/ http://localhost:4321/news/sample/
+bash skills/web-creator/scripts/run_lighthouse.sh http://localhost:4321/ http://localhost:4321/news/sample/
 ```
 
 2. 公開後: 本番のURLで、同じ主要ページをもう一度測る（Cloudflare 経由の配信で数値が変わるため）
 
 ```bash
-bash <スキルの場所>/scripts/run_lighthouse.sh https://<サイトの名前>.<アカウントのサブドメイン>.workers.dev/
+bash skills/web-creator/scripts/run_lighthouse.sh https://<サイトの名前>.<アカウントのサブドメイン>.workers.dev/
 ```
 
 3. デザインやページ構成を変えたとき、外部の埋め込みを足したとき。記事の追加だけのときは測らない
@@ -60,7 +60,7 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 **チャット（Cowork）の場合**（3分くらい）
 
 1. Claude の左下の自分の名前を押し、「設定」を開く
-2. 「機能」を開く
+2. 「機能」（英語の画面では「Capabilities」）を開く
 3. 「外部ネットワークへの通信を許可」の欄で、許可する範囲を「パッケージマネージャーのみ」（Package managers only）にしたまま、追加で許可するドメインの欄にサイトのホストを1行ずつ入れて保存する
 
 **コード（Claude Code）の場合**（3分くらい）
@@ -71,25 +71,30 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 4. 「Allowed domains」にサイトのホストを1行ずつ入れ、「Also include default list of common package managers」にチェックを入れる
 5. 保存する
 
-新しい会話を始める画面からも、メッセージ欄の下の環境の選択から同じ設定を開けます。手順と表示名は、案内の前に Claude Code のドキュメント（https://code.claude.com/docs/en/cloud-environments の Network access）で確認します。
+新しい会話を始める画面からも、メッセージ欄の下の環境の選択から同じ設定を開けます。プロジェクトのスレッドは、Project settings → Environment で選んだ環境で動くので、その環境に同じ変更をします（変更は新しいスレッドから効く。Claude Code のドキュメント「Projects」の Project settings reference、2026-10-30 確認: https://code.claude.com/docs/en/claude-projects ）。手順と表示名は、案内の前に Claude Code のドキュメント（https://code.claude.com/docs/en/cloud-environments の Network access）で確認します。
 
 足すホストは、サイトのホスト（`*.<アカウントのサブドメイン>.workers.dev`、独自ドメインなら `example.co.jp` と `www.example.co.jp`）です。パッケージの配布元（npm）も使うので、既定の許可（パッケージマネージャー）は残します。
 
 - 追加のドメインが効かないという不具合の報告があります（2026年10月時点）。足しても届かない場合だけ、計測のあいだ「すべてのドメイン」にし、終わったら元に戻すよう伝えます。守りが弱くなることも一文で伝えます
 - Team・Enterprise のプランでは、この設定は組織の管理者しか変えられないことがあります。その場合は、管理者に同じ設定を頼んでもらいます
 - 画面の表示名は変わることがあります。オーナーが見つけられないときは、スクリーンショットを貼ってもらって場所を伝えます
-- 公開の前（account-setup.md の Cloudflare の手順）に済ませておくと、計測で止まりません
 
 ## 2. SEO（検索エンジン向け）
 
 - すべてのページに固有の `<title>` と `<meta name="description">` がある
 - `<link rel="canonical">` が本番URLを指している
 - OGP（`og:title`、`og:description`、`og:image`、`og:url`）と `twitter:card` がある。OG画像は 1200×630
-- `sitemap.xml`（Astro は `@astrojs/sitemap` で自動生成、HTML 版は手で作る）
-- `robots.txt` に `Sitemap: https://ドメイン/sitemap-index.xml`（HTML 版は `/sitemap.xml`）を書く
+- `sitemap.xml`（`@astrojs/sitemap` で自動生成。1ページの LP でも入れる）
+- `robots.txt` に `Sitemap: https://ドメイン/sitemap-index.xml` を書く
 - 見出しは h1 が1つ、h2・h3 が順番どおり
 - 引っ越しの場合は、旧URLから新URLへの 301 リダイレクトを `_redirects` に書く（migration.md）
 - 公開後、オーナーの了承を得て Google Search Console にサイトを登録し、サイトマップを送信する。所有権の確認には Cloudflare の DNS に TXT レコードを追加する
+  1. オーナー: 自分の Google アカウントで Search Console を開き（1つのログインを複数の人で使わない。会社のサイトでは、登録のあとに「設定」→「ユーザーと権限」で、もう1人の担当者を自分のアカウントのまま加えてもらう。画面の名前は作業の日に確かめる）、「ドメイン」の種類でサイトのドメインを入れる
+  2. エージェント: 表示された TXT レコードの値を、オーナーにチャットに貼ってもらい（秘密の値ではない）、コネクタで Cloudflare の DNS に追加する
+  3. オーナー: Search Console で「確認」を押す
+  4. オーナー: 「サイトマップ」に `sitemap-index.xml` を入れて送信する
+- 店や事務所のサイトで Google ビジネスプロフィール（Google マップの店の情報）がある場合は、ウェブサイトの欄を新しいサイトの URL にしてもらう。プロフィールの編集はオーナーが行い、エージェントは画面と入れる値を案内する。会社名、住所、電話番号はサイトと同じ表記にする（下の「AIO」）
+- アクセス解析は、独自ドメインをつないだときに Cloudflare Web Analytics を有効にする（analytics.md）
 
 ## 3. AIO（AI検索・AIエージェント向け）
 
@@ -123,7 +128,7 @@ Core Web Vitals の目安は、LCP 2.5秒以内、CLS 0.1以下です。INP は�
 Lighthouse の「測るページ」と同じページを、`scripts/check_mobile_width.py` で 320px、375px、390px の幅で調べます。横スクロール、画面からはみ出した要素、ヘッダーの中の折り返しがないことと、スクリーンショットで見出しの改行位置や重なりがないことを確かめます。作り方の決まりと、NG が出たときの直し方は build.md の「スマホの幅」にあります。
 
 ```bash
-python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321/
+python3 skills/web-creator/scripts/check_mobile_width.py http://localhost:4321/
 ```
 
 Lighthouse のモバイル設定は 412px 前後の幅で測るため、点数が満点でも iPhone SE の幅で崩れていることがあります。デザインやヘッダー、メニューを変えたときは、記事の追加だけの場合を除いて、毎回確かめます。
