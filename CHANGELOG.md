@@ -10,6 +10,7 @@
 - fix(skills): ヒアリングの質問と選んだ答えを、引き継ぎ文の「ヒアリングの答え」に1行ずつ残し、Claude Code の初回に logs/YYYY-MM-DD_hearing.md として保存する。SITE.md には要点だけを置き、「雰囲気」「更新の頻度」「載せてはいけない情報」「オーナーの好み」の欄を足した。掲載してはいけない情報は、公開前のプレビューと記事の更新で照合する。原文は毎回開かない（handoff.md、hearing.md、SITE.md、preview.md、site-content-update、SKILL.md、skills-install.md）
 - fix(skills): 月次の振り返りで、種類「スキル」の未送信の件数と、そのまま送れる Issue の下書き（個人情報を除いた要約）を連絡に添える。送るのはオーナーが「送って」と返したときだけにし、返さなければ送らず、聞き直さない。スケジュールタスクのときは確認待ちに1行残し、伝えたら消す（site-review、run-logs.md）
 - fix(skills): 作業の前に読むログを、今回と同じ種類の新しいログ最大3件にした（なければあるだけ。違う種類の本文は読まない）（run-logs.md、AGENTS.md.tmpl、project-instructions.md、SKILL.md、site-content-update、site-maintenance）
+- fix(skills): プロジェクトの指示と AGENTS.md でログの読み方が違うときは、AGENTS.md に従う、とひな形に1文足した。古い指示が残っていても貼り直しは頼まない（templates/AGENTS.md.tmpl、templates/CLAUDE.md.tmpl、templates/project-instructions.md）
 - fix(skills): 実行ログの「依頼」を、訪問者や第三者の個人情報を除いた要約にした（templates/log.md、run-logs.md）
 - fix(skills): 振り返りで3回以上出た好みや決まりは、SITE.md の「決めたことと理由」か「オーナーの好み」に昇格して項目を閉じる。IMPROVEMENTS.md は未対応を残し、対応済みは振り返りのときに月の要約へ移す。実行ログの90日と、ヒアリングの原文を削除しないことはそのまま（site-review、run-logs.md、templates/IMPROVEMENTS.md）
 

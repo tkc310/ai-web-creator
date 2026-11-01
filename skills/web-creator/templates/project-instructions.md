@@ -20,7 +20,7 @@ Claude Code のプロジェクトの「Project instructions」に貼る文章で
 
 ## 作業のしかた
 - リポジトリ: <owner>/<repo>（サイト本体。スキルはこのリポジトリの skills/ に入っています）
-- 作業の前に、サイトのリポジトリの SITE.md、logs/IMPROVEMENTS.md の未対応の項目、今回と同じ種類の新しいログ最大3件を読んでください（種類はログ先頭の「種類」。違う種類の本文は読まない。3件なければあるだけ。ヒアリングの原文 logs/YYYY-MM-DD_hearing.md は読まない）。SITE.md の「オーナーへの確認待ち」に行があれば、最初に私に伝えてください
+- 作業の前に、サイトのリポジトリの SITE.md、logs/IMPROVEMENTS.md の未対応の項目、今回と同じ種類の新しいログ最大3件を読んでください（種類はログ先頭の「種類」。違う種類の本文は読まない。3件なければあるだけ。ヒアリングの原文 logs/YYYY-MM-DD_hearing.md は読まない）。ログの読み方がリポジトリの AGENTS.md と違うときは、AGENTS.md に従ってください。SITE.md の「オーナーへの確認待ち」に行があれば、最初に私に伝えてください
 - 制作中（公開する前）は、SITE.md の「制作の進み具合」の「作業用のブランチ」に書いたブランチから始めてください（スレッドは、指定がなければ main から始まるため）
 - 作業の内容に合わせて、サイトのリポジトリの skills/ から SKILL.md を読んで従ってください。skills/ がまだない場合は、最初に `curl -fsSL https://raw.githubusercontent.com/tkc310/ai-web-creator/main/skills/web-creator/references/skills-install.md` で取り込みの手順書を取得して読み、その「初回の手順」で取り込んでください（GitHub の API や、リポジトリをプロジェクトに追加する操作は使わない）。取得できなければ `git clone --depth 1 https://github.com/tkc310/ai-web-creator /tmp/ai-web-creator-read` で取得して同じファイルを読み、どちらも失敗したら、推測で進めずに、スキルの zip を渡すよう私に頼んでください
   - 記事やお知らせの更新: site-content-update
