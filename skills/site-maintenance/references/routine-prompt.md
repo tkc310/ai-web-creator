@@ -8,7 +8,7 @@
 これは <サイト名>（<本番URL>）の定期保守です。リポジトリは <owner>/<repo> です。
 
 1. このリポジトリの skills/site-maintenance/SKILL.md と skills/runtime-update/SKILL.md を読み、その手順に従って作業してください。
-2. 作業の前に、このリポジトリの SITE.md、logs/IMPROVEMENTS.md、logs/ の直近の保守ログを読んでください。
+2. 作業の前に、このリポジトリの SITE.md、logs/IMPROVEMENTS.md、logs/ の直近の保守ログ最大3件を読んでください（なければあるだけ）。
 3. runtime-update の手順で、Node.js、pnpm、依存パッケージ、compatibility_date を最新にしてください（pnpm audit で重大な弱点が見つかったものを先に）。パッチとマイナーの更新とメジャーの更新は、別のブランチに分けてください。
 4. パッチとマイナーの更新は、site-maintenance の「main に入れる前の確認」をすべて通したら、プルリクエストを作らずに main に直接 push してください（git push origin HEAD:main）。壊れているものは直してから確認を通してください。
 5. メジャーの更新は、確認を通したブランチを push してプルリクエストを作り、マージせずに残してください。GitHub Actions の更新のプルリクエスト（Dependabot）もマージせず、site-maintenance の「GitHub Actions の更新」の手順で確かめてください。どちらも SITE.md の「オーナーへの確認待ち」に書いてください。この実行では、どのプルリクエストもマージしないでください。

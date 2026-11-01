@@ -30,7 +30,7 @@ GitHub のアカウント、サイト用の非公開リポジトリ、Claude の
 
 プロジェクトに追加できるのは、オーナーの GitHub アカウントで書き込めて、Claude の GitHub アプリを入れたリポジトリだけです。追加するのはサイトのリポジトリ1つだけで、スキルはそのリポジトリの `skills/` に取り込みます（skills-install.md）。プロジェクトに入れたリポジトリには、そのプロジェクトのスレッドから書き込めます。入れていないリポジトリには、GitHub アプリで許可していても書き込めません（account-setup.md の「Claude がリポジトリに書き込むための2つの許可」）。
 
-1. 段階1の Claude が、プロジェクトの指示の下書きを templates/project-instructions.md から作る（ヒアリングの答えと、hearing.md の「作業の環境」の答えを埋める）
+1. 段階1の Claude が、プロジェクトの指示の下書きを templates/project-instructions.md から作る（埋めるのは hearing.md の「作業の環境」の答え。質問と選んだ答えの一覧は、引き継ぎ文の「ヒアリングの答え」に書き、プロジェクトの指示には繰り返さない）
 2. オーナー: claude.ai/code を開き、左のメニューの「Projects」から「New project」を押す
 3. オーナー: 次のとおり入力して「Create project」を押す
    - Name: `<サイト名> のサイト`

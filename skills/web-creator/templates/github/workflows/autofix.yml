@@ -220,7 +220,7 @@ jobs:
                例: 記事の frontmatter の書き間違い、存在しない画像へのリンク、記事の中の閉じ忘れたタグ
             4. logs/ に今日の日付で実行ログを書く（ファイル名は YYYY-MM-DD_autofix.md。書き方は logs/ の新しいログにならい、起動のしかたは「自動修正」、原因、直した内容、再発防止の案を書く）。直せなかったときは、原因と、直すのに必要な変更（どのファイルをどう変えるか）を書く。このログの内容は Issue の本文にも入る。ログには HTML のタグを山かっこのまま書かない（「iframe のタグ」「script のタグ」のように言葉で書く）
             5. 何かを直した場合は、audit-log/YYYY/YYYY-MM-DD.md（日本時間の今の日付と時刻は ${{ steps.prep.outputs.now }}。なければ作る）の末尾に「## HH:MM 自動修正」の見出しで、対象のファイル、直した内容、依頼「自動修正」、確認「自動」を追記する。過去の記録は書き換えない
-            6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す（ファイルがなければ作らない）
+            6. 再発防止の案のうち、次回以降に直す価値があるものを logs/IMPROVEMENTS.md の「未対応」に足す。ファイルがなければ、skills/web-creator/templates/IMPROVEMENTS.md の内容を logs/IMPROVEMENTS.md に書いてから足す（書くのは logs/ だけ。コマンドではコピーしない。テンプレートが読めなければ、実行ログに再発防止の案を書き、IMPROVEMENTS.md は作らない）
 
             変えてよいファイル:
             - src/content/ の記事（.md）とデータ（.json、.yaml、.yml）、src/content/・src/assets/・public/ の画像（jpg、png、webp、avif、gif）、logs/ と audit-log/ の .md だけ

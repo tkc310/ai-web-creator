@@ -48,7 +48,7 @@ web-creator で公開するときに、一度だけ行います。
 
 ### 1. 状況を読む
 
-1. SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の直近の保守ログを読む
+1. SITE.md、logs/IMPROVEMENTS.md の未対応の項目、logs/ の直近の保守ログ最大3件を読む（なければあるだけ。ファイルがなければ web-creator の templates/IMPROVEMENTS.md をコピーしてから読む。上書きしない）
 2. 開いている GitHub Actions の更新のプルリクエスト（Dependabot）を一覧にする（`gh api 'repos/{owner}/{repo}/pulls?state=open' --jq '.[] | select(any(.labels[]; .name == "dependencies")) | "\(.number) \(.title)"'`。クラウドの作業環境では `gh pr` が使えないため、REST の `gh api` を使う。versions.md の「時点つきの事実」。どちらも使えない場合は GitHub のツールで同じ一覧を取る）
 
 ### 2. 更新する

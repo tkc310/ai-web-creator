@@ -2,7 +2,16 @@
 
 ## v2026.11.0（未リリース）
 
-最初のタグ `v2026.11.0` で出す版です。下の日付の見出し（2026-10-30 から 2026-10-31 まで）の変更をまとめて含みます。タグを打つ日に「未リリース」を日付に書き換えます（README の「版の付け方」の手順2）。
+最初のタグ `v2026.11.0` で出す版です。下の日付の見出し（2026-10-30 から 2026-11-01 まで）の変更をまとめて含みます。タグを打つ日に「未リリース」を日付に書き換えます（README の「版の付け方」の手順2）。
+
+### 2026-11-01
+
+- fix(skills): logs/IMPROVEMENTS.md が作られない穴をふさいだ。初回の取り込みで CLAUDE.md・AGENTS.md と一緒に、無ければ templates/IMPROVEMENTS.md から作る。既存サイトのスキル更新、記事の更新、保守、振り返りでも、無ければ作る。自動修正は、無ければテンプレートの内容を logs/ に書いてから足す（許可したパスの外は作らない。テンプレートが読めなければ作らない）（skills-install.md、autofix.yml、run-logs.md、AGENTS.md.tmpl、site-content-update、site-maintenance、site-review）
+- fix(skills): ヒアリングの質問と選んだ答えを、引き継ぎ文の「ヒアリングの答え」に1行ずつ残し、Claude Code の初回に logs/YYYY-MM-DD_hearing.md として保存する。SITE.md には要点だけを置き、「雰囲気」「更新の頻度」「載せてはいけない情報」「オーナーの好み」の欄を足した。掲載してはいけない情報は、公開前のプレビューと記事の更新で照合する。原文は毎回開かない（handoff.md、hearing.md、SITE.md、preview.md、site-content-update、SKILL.md、skills-install.md）
+- fix(skills): 月次の振り返りで、種類「スキル」の未送信の件数と、そのまま送れる Issue の下書き（個人情報を除いた要約）を連絡に添える。送るのはオーナーが「送って」と返したときだけにし、返さなければ送らず、聞き直さない。スケジュールタスクのときは確認待ちに1行残し、伝えたら消す（site-review、run-logs.md）
+- fix(skills): 作業の前に読むログを、今回と同じ種類の新しいログ最大3件にした（なければあるだけ。違う種類の本文は読まない）（run-logs.md、AGENTS.md.tmpl、project-instructions.md、SKILL.md、site-content-update、site-maintenance）
+- fix(skills): 実行ログの「依頼」を、訪問者や第三者の個人情報を除いた要約にした（templates/log.md、run-logs.md）
+- fix(skills): 振り返りで3回以上出た好みや決まりは、SITE.md の「決めたことと理由」か「オーナーの好み」に昇格して項目を閉じる。IMPROVEMENTS.md は未対応を残し、対応済みは振り返りのときに月の要約へ移す。実行ログの90日と、ヒアリングの原文を削除しないことはそのまま（site-review、run-logs.md、templates/IMPROVEMENTS.md）
 
 ### 2026-10-31
 
