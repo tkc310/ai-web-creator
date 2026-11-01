@@ -1,7 +1,9 @@
 # GitHub Actions のバージョン（actions/checkout など）の更新だけを、Dependabot に任せる。
 # 依存パッケージ（pnpm）、pnpm 本体、Node.js、Workers の compatibility_date は、Claude が runtime-update スキルで更新する。
-# （pnpm 11 以降のロックファイルを Dependabot が正しく読めない問題があるため。2026年10月時点）
-# 更新のプルリクエストは、要保守構成は2週間ごとの保守ルーティン、静的なサイトは月1回の振り返りが確認してマージする。
+# （理由は web-creator の references/versions.md の「時点つきの事実」）
+# 更新のプルリクエストは自動ではマージしない。要保守構成は毎月1日と15日の保守ルーティン、静的なサイトは月1回の振り返りが、
+# 変更の要点を確かめてオーナーに伝え、「OK」をもらってからマージする（site-maintenance の「GitHub Actions の更新」）。
+# 公開されたばかりの版を避けるため、公開から7日たってからプルリクエストを作る（cooldown）。
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -9,6 +11,8 @@ updates:
     schedule:
       interval: monthly
       timezone: Asia/Tokyo
+    cooldown:
+      default-days: 7
     labels: [dependencies]
     groups:
       actions:

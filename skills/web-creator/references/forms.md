@@ -1,6 +1,6 @@
 # お問い合わせフォーム
 
-お問い合わせの受け方は、オーナーに3つから選んでもらいます。基本は Google フォームです。サイトと同じ見た目にこだわりたい場合だけ、Cloudflare Email Sending を使って自前で作ります。オーナー向けの説明は docs/forms.md にあります。
+お問い合わせの受け方は、オーナーに4つから選んでもらいます。基本は Google フォームです。サイトと同じ見た目にこだわりたい場合だけ、Cloudflare Email Sending を使って自前で作ります。オーナー向けの説明は docs/forms.md にあります。
 
 ## 選び方
 
@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | A. Google フォームをリンクで開く（おすすめ） | 10分 | Google の見た目 | 無料 | 増えない |
 | B. Google フォームをお問い合わせページに埋め込む | 10分 | サイトの中に Google のフォームが入る | 無料 | 増えない |
-| C. サイトと同じ見た目のフォーム（Cloudflare Email Sending） | 30〜60分。Claude と対話しながら進める | サイトと同じ | 無料の場合と、月5ドルの場合がある | 要保守構成になる |
+| C. サイトと同じ見た目のフォーム（Cloudflare Email Sending） | 30〜60分。Claude と対話しながら進める | サイトと同じ | 無料の場合と、月5ドルの場合がある | 要保守構成になる。更新しない月も Claude を無料のプランに下げられない |
 | D. フォームを置かず、メールアドレスか電話番号を載せる | なし | - | 無料 | 増えない |
 
 - 迷っている場合は A を勧める。B は、ページの表示が少し遅くなることを伝える
@@ -18,12 +18,12 @@
   1. 導入の手順が多い（Cloudflare の設定画面での操作、秘密の鍵の貼り付け、メールの確認）
   2. メール送信の機能（Email Sending）は、執筆時点で Cloudflare のベータ版
   3. 料金は導入時に確かめる。自分宛ての通知だけなら無料とされているが、無料プランで使えない場合は Workers の有料プラン（月5ドル）が必要
-  4. サイトがアクセスのたびに処理する部分を持つので、要保守構成になり、2週間ごとの保守ルーティンを設定する
+  4. サイトがアクセスのたびに処理する部分を持つので、要保守構成になり、毎月1日と15日の保守ルーティンを設定する。部品の弱点を直し続ける必要があるため、更新しない月も Claude を無料のプラン（Free）に下げられない（site-review の「下げる前に確かめること」）
 - formrun、Tally、Resend、Web3Forms などのほかのサービスは、オーナーが名前を挙げた場合だけ扱う（下の「ほかのサービスを頼まれたとき」）
 
 ## A・B. Google フォーム
 
-Google フォームはオーナーの Google アカウントで作ります。会社の共有のアカウントがあれば、そちらを勧めます（担当者が変わっても引き継げるため）。
+Google フォームはオーナーの Google アカウントで作ります。1つのログインを複数の人で使わず、会社のサイトでは、担当者が変わっても引き継げるよう、もう1人の担当者を自分のアカウントのままフォームの共同編集者に加えてもらいます（account-setup.md の「基本方針」）。
 
 ### 使うコネクタ
 
@@ -53,11 +53,7 @@ Google フォームには、Claude の公式のコネクタも、Google 公式�
 ### サイトに入れる
 
 - A: お問い合わせページと、ヘッダー・フッターのお問い合わせのリンク先を、Google フォームの URL にする。別のタブで開くことと、Google のページに移ることを、ボタンの近くに一言書く（例: 「Google フォームが開きます」）
-- B: お問い合わせページにだけ埋め込む。トップページなどほかのページには埋め込まない
-  ```html
-  <iframe src="<埋め込み用の URL>" title="お問い合わせフォーム" width="100%" height="1200" loading="lazy" style="border:0"></iframe>
-  <p><a href="<フォームの URL>">フォームが表示されない場合はこちら</a></p>
-  ```
+- B: お問い合わせページにだけ埋め込む。トップページなどほかのページには埋め込まない。書き方は templates/forms/google-form-embed.html（埋め込みの枠と、表示されないときのリンク）
   - `loading="lazy"` で、ページの表示を待たせない
   - 高さはフォームの長さに合わせて調整し、スマホで内側にスクロールが出すぎないようにする
   - Lighthouse で問い合わせページを計測し、点数が下がった場合は理由をオーナーに伝える（quality-gate.md）
@@ -76,7 +72,7 @@ Google フォームには、Claude の公式のコネクタも、Google 公式�
 
 - ドメインが Cloudflare の DNS を使っている（account-setup.md でネームサーバーを Cloudflare に向けている）。Email Sending はこれが条件
 - 送信用のレコードは `cf-bounce` のサブドメインに入り、ドメインの受信用の MX レコードは変えない。オーナーが今使っているメール（info@ など）はそのまま使える。ただし Email Routing（受信の転送）は有効にしない。有効にすると受信用の MX が置き換わり、今のメールが受け取れなくなる
-- Email Sending は執筆時点でベータ版。手順の前に Cloudflare のドキュメント（Email Service の Get started、料金、ドメインの設定）で最新の状態を確かめ、変わっていたらこのファイルを直してログに残す
+- Email Sending は執筆時点でベータ版。手順の前に Cloudflare のドキュメント（Email Service の Get started、料金、ドメインの設定）で最新の状態を確かめる。変わっていたら、`skills/` は直さずに、このサイトでの扱いを SITE.md の「決めたことと理由」に書き、違いを logs/IMPROVEMENTS.md に種類「スキル」で足す（skills-install.md の「守ること」）
 
 ### 料金の確かめ方
 
@@ -96,9 +92,8 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
 6. エージェント: コネクタで Turnstile のウィジェットを作る。ホスト名に本番のドメインと、確認用の workers.dev のドメインを入れ、モードは Managed にする。サイトキー（公開してよい値）を控える
 7. エージェント: 同じ処理の中で、返ってきたシークレットキーをサイトの Worker の Secret `TURNSTILE_SECRET_KEY` として登録する。処理の結果には登録できたかどうかだけを返し、値をチャット、ログ、リポジトリに出さない（connectors.md の「秘密の値は表に出さない」）。オーナーには、Claude が直接登録して画面には表示していないことを伝える。コネクタが使えない場合は、オーナーが Turnstile の画面でシークレットキーをコピーし、Workers の Settings → Variables and Secrets に貼る
 8. エージェント: templates/forms/ をもとに実装する
-   - Astro: `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは完成済みのページのままにする（stack-selection.md の B-2）
-   - HTML だけのサイト: `html-worker.ts` を `src/worker.ts` に、`contact-handler.ts` を `src/contact-handler.ts` に置く
-   - `wrangler-contact.jsonc` の設定を wrangler.jsonc に足す（`send_email` の接続、`vars`、HTML の場合は `run_worker_first`）
+   - `astro-api-contact.ts` を `src/pages/api/contact.ts` に、`contact-handler.ts` を `src/lib/contact-handler.ts` に置く。`@astrojs/cloudflare` を入れ、ほかのページは静的に出力したままにする（stack-selection.md の「SSR を使う場面」、build.md の「一部のページだけ SSR にする場合」）。1ページの LP でも同じ
+   - `wrangler-contact.jsonc` の設定（`send_email` の接続、送信回数の制限の `ratelimits`、`vars`）を wrangler.jsonc に足す。`SITE_ORIGINS` には、本番、www、確認用の workers.dev の3つを並べる。送信回数の制限（Rate Limiting の接続）が今のプランで使えずに公開が失敗した場合は、`ratelimits` を外して公開し、Turnstile だけで守ることを SITE.md の「決めたことと理由」に書く。回数は Turnstile を通った送信だけを数える（トークンのない送信で本物の問い合わせを止められないようにするため）
    - `contact-form.html` をお問い合わせページに入れ、`/contact/thanks/`（送信完了のページ）と、`?error=` の理由ごとの案内文を作る
 9. エージェント: ローカルで `pnpm run build` を通し、確認用の URL（workers.dev）で公開する。オーナーと一緒にテストで1件送り、通知メールが届くこと、届いたメールに返信すると送信者のアドレス宛てになることを確かめる。迷惑メールのフォルダも見てもらう
 10. エージェント: 隠し項目を埋めた送信、Turnstile なしの送信、ほかのサイトからの送信（Origin が違う）が、メールにならないことを確かめる
@@ -118,10 +113,6 @@ Cloudflare の設定は、Cloudflare の公式の MCP サーバー（connectors.
 | メールが届かない | 迷惑メールのフォルダ、Destination Addresses の確認が済んでいるか、Email Sending の登録の状態、Workers のログのエラーの種類（`E_SENDER_NOT_VERIFIED`、`E_RECIPIENT_NOT_ALLOWED` など）。どれも Cloudflare のコネクタで読み取れる |
 | 送信すると「ロボット確認」のエラーになる | Turnstile のホスト名に、今のドメインが入っているか |
 | 無料プランで送れない | 料金の確かめ方に従い、有料プランにするかをオーナーに聞く |
-
-## EmDash のフォームプラグインは使わない
-
-EmDash の公式のフォームプラグイン（@emdash-cms/plugin-forms）は、公開から日が浅く安定していないため、現時点では使いません（2026年10月時点で v0.2。1日1回のまとめ通知が動かない、添付ファイルの上限が効かない、といった不具合の修正が続いている）。EmDash のサイトでも、A〜C のどれかで作ります。オーナーにプラグインを使いたいと言われたら、この理由を伝えます。site-maintenance の保守のときにプラグインの更新履歴を見て、安定したと判断できたら、このファイルと docs/forms.md を見直す提案を IMPROVEMENTS.md に書きます。
 
 ## ほかのサービスを頼まれたとき
 

@@ -2,7 +2,7 @@
   お問い合わせページのフォームの例（自前の作り方）。Astro ではこの部分を src/pages/contact.astro に入れる。
   <サイトキー> は Turnstile のサイトキー（公開してよい値）。
   送信後は /contact/thanks/ に移る。入力に問題があると /contact/?error=理由 に戻るので、理由ごとの案内文を表示する。
-    required: 必須の項目が空 / too_long: 長すぎる / email: メールアドレスの形 / captcha: ロボット確認 / send: 送信の失敗 / invalid: その他
+    required: 必須の項目が空 / too_long: 長すぎる / email: メールアドレスの形 / captcha: ロボット確認 / busy: 送信が集中している（少し待って送り直す） / send: 送信の失敗 / invalid: その他
 -->
 <form class="contact-form" action="/api/contact" method="post">
   <p><label for="cf-name">お名前（必須）</label>

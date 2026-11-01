@@ -1,0 +1,53 @@
+name: スキルの改善点
+description: うまく動かなかった手順や、分かりにくかった説明を知らせる
+title: "[改善点] "
+labels: [feedback]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        この Issue は誰でも読めます。サイトの URL、会社や人の名前、メールアドレス、パスワード、トークン、ログの全文は書かないでください。
+        サイトのリポジトリの logs/IMPROVEMENTS.md の、種類「スキル」の項目を写す場合も、上のものを除いてから貼ってください。
+  - type: input
+    id: version
+    attributes:
+      label: スキルの版
+      description: サイトのリポジトリの skills/VERSION の tag の行（例 v2026.11.0）。分からなければ「分からない」
+    validations:
+      required: true
+  - type: dropdown
+    id: route
+    attributes:
+      label: 取り込みの経路
+      options:
+        - A（git clone）
+        - C（raw.githubusercontent.com）
+        - B（zip）
+        - 分からない
+    validations:
+      required: true
+  - type: input
+    id: step
+    attributes:
+      label: 止まった手順
+      description: ファイルの名前と見出し（例 skills-install.md の「初回の手順」の3）
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 起きたこと
+      description: 何をしたら、どうなったか。エラーの文は、個人の情報を除いた一部だけ
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: こうなってほしかったこと
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 確認
+      options:
+        - label: サイトの URL、会社や人の名前、メールアドレス、パスワード、トークンを書いていません
+          required: true

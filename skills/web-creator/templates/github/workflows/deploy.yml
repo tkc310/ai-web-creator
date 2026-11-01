@@ -1,5 +1,21 @@
-# main ブランチに変更が入るたびに、ビルドして Cloudflare に公開する。
-# CI で確認するのは「ビルドが通るか」だけにして、失敗しにくくしている。
+# main ブランチに変更が入るたびに、ビルドして Cloudflare に公開し、公開後に主なページを確かめる。
+# CI で確認するのは「ビルドが通るか」と「公開したページが見られるか」だけにして、失敗しにくくしている。
+#
+# ジョブを3つに分けている（build → publish → smoke）。どの段階で失敗したかを、autofix がジョブの名前で見分けるため。
+#   build:   ビルドだけを確かめる。鍵は使わない。ここで失敗したときだけ、autofix は Claude を起動する
+#   publish: もう一度ビルドして Cloudflare に公開する。ここで失敗したときは Cloudflare の鍵や設定の問題なので、
+#            autofix は Claude を起動せずに Issue で知らせる
+#   smoke:   公開後の確認。ここで失敗したときは、新しい版がすでに公開されている。autofix は Claude を起動せずに Issue で知らせる
+# ジョブの名前（build、publish、smoke）は autofix.yml が読むので変えない。ジョブに name: も付けない（付けると名前が変わる）。
+#
+# 公開後の確認（スモークテスト）で見るページと文字は、サイトのリポジトリの .github/smoke-test.txt に書く。
+#   1行に1つ、「URL」「期待する状態（省くと 200）」「そのページに必ず含まれる文字」を空白で区切って書く。# で始まる行は読まない
+#   例: https://example.co.jp/ 株式会社サンプル
+#   例: https://example.co.jp/api/contact 405
+#   確かめる処理は .github/scripts/smoke.sh にある（書き方の詳しい決まりも、そのファイルの先頭に書いてある）
+#
+# 同時実行: autofix と同じグループ（publish）にして、公開が重ならないようにしている。
+# 待っている実行がある間に新しい push が来ると、待っている古い実行は新しいものに置き換わる。
 name: deploy
 
 on:
@@ -11,38 +27,91 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy
+  group: publish
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      # pnpm のバージョンは package.json の packageManager から読む（HTML だけのサイトでは使わない）
+      # pnpm のバージョンは package.json の packageManager から読む
       - name: pnpm を用意する
-        if: hashFiles('package.json') != ''
         uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
-          cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || '' }}
+          cache: pnpm
 
       - name: ビルド
         run: |
-          if [ -f package.json ]; then
-            pnpm install --frozen-lockfile
-            pnpm run build
-          else
-            echo "HTML だけのサイトなのでビルドは不要です"
-          fi
+          pnpm install --frozen-lockfile
+          pnpm run build
 
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: pnpm を用意する
+        uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      # 公開するものは、このジョブの中でビルドし直す（ジョブの間でビルドの出力を受け渡さない）
+      - name: ビルド
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+
+      # wrangler は package.json の devDependencies に入れた版（pnpm-lock.yaml で固定）を使う
       - name: 公開
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+
+  smoke:
+    needs: publish
+    runs-on: ubuntu-latest
+    # 前に成功した deploy があるかを読むため（2回目以降の公開で、確かめたページが0件なら失敗にする）
+    permissions:
+      contents: read
+      actions: read
+    # 1ページにつき、ふだんは最大で約2分。つながらない状態（独自ドメインにつないだ直後など）は、
+    # 1ページで最大8分、すべてのページの合計で最大12分まで待つ。5ページなら、合わせて20分ほどで終わる
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # 主なページが決まった状態（ふだんは 200）を返し、決まった文字を含むかを確かめる。
+      # 中身は .github/scripts/smoke.sh（autofix.yml の「公開後の確認」も同じものを動かす）。
+      # 待ち方: 1ページにつき10秒おきに5回まで。つながらない（000）か 5xx のときは、そのページで SMOKE_WAIT_SECONDS 秒まで、
+      # すべてのページの合計で SMOKE_TOTAL_WAIT_SECONDS 秒まで試し続ける（独自ドメインにつないだ直後のため）。
+      # Cloudflare のセキュリティの確認（cf-mitigated: challenge）で止められたページは、失敗にせず警告にする。
+      - name: 公開後の確認
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SMOKE_WAIT_SECONDS: "480"
+          SMOKE_TOTAL_WAIT_SECONDS: "720"
+        run: |
+          if [ ! -f .github/scripts/smoke.sh ]; then
+            echo "::error::.github/scripts/smoke.sh がありません。skills/web-creator/templates/github/scripts/smoke.sh を .github/scripts/ に置いてください"
+            exit 1
+          fi
+          bash .github/scripts/smoke.sh .github/smoke-test.txt

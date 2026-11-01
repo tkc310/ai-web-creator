@@ -2,11 +2,11 @@
 """ビルドしたページを、Claude のアーティファクトとして公開できる1つの HTML（プレビュー）にまとめる。
 
 使い方:
-  # ビルド結果のファイルから（Astro の SSG、HTML のサイト）
+  # ビルド結果のファイルから（Astro の SSG のページ）
   python3 make_preview.py dist/news/2026-10-holiday/index.html --root dist --out preview.html \
       --label "お知らせ「年末年始の休業」"
 
-  # 起動中のサーバーから（SSR のページ、EmDash。例: pnpm run preview や wrangler dev を起動しておく）
+  # 起動中のサーバーから（SSR のページ。例: pnpm run preview や wrangler dev を起動しておく）
   python3 make_preview.py http://localhost:4321/news/2026-10-holiday/ --out preview.html --label "..."
 
   # 直したい文章や画像を、オーナーが選んでコメントできる形にする（1ページだけ。記事や文章の修正の確認に使う）

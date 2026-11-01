@@ -2,15 +2,15 @@ ai-web-creator 利用許諾（LICENSE）
 
 Copyright (c) 2026 tkc310. All rights reserved.
 
-Proprietary license, not open source. Use is limited to purchasers of the accompanying note article, for building and operating their own (or their organization's) websites with an AI agent. Redistribution and resale are prohibited. Collecting, copying, or using this repository for AI training, fine-tuning, evaluation, dataset creation, RAG indexing, or knowledge bases serving non-purchasers, and crawling or scraping for those purposes, are prohibited. The Japanese text below governs.
+Proprietary license, not open source. Use is limited to purchasers of the accompanying note articles that state they include this license, for building and operating their own (or their organization's) websites with an AI agent. Purchasers may also use it to build and maintain websites for their clients; copies may be kept in a client's private site repository only while the purchaser is working on that site, and must be removed when the purchaser leaves the site unless the client is also a purchaser. Redistribution and resale are prohibited. Collecting, copying, or using this repository for AI training, fine-tuning, evaluation, dataset creation, RAG indexing, or knowledge bases serving non-purchasers, and crawling or scraping for those purposes, are prohibited. The Japanese text below governs.
 
 このリポジトリのスキル、プロンプト、スクリプト、テンプレート、文書（以下「本ソフトウェア」）は、誰でも閲覧できるように公開していますが、オープンソースではありません。利用には、次の条件があります。
 
 ## 1. 利用できる人
 
-本ソフトウェアを利用できるのは、note で販売している解説記事「初心者でもAIに頼むだけ。ホームページの作成も更新も自動化する仕組み（Astro・EmDash）」を購入した人（以下「購入者」）だけです。
+本ソフトウェアを利用できるのは、note で販売している解説記事のうち、本ソフトウェアの利用許諾が付くと記事の中で示しているもの（それらの記事をまとめたマガジンを含みます）を購入した人（以下「購入者」）だけです。
 
-購入者が会社や団体に所属していて、その会社や団体のために使う場合は、その会社や団体の中で使ってかまいません。
+購入者が会社や団体に所属していて、その会社や団体のために使う場合は、その会社や団体の中で使ってかまいません。購入した担当者が異動や退職をしたあとも、その会社や団体の後任の担当者が、同じサイトのために使い続けてかまいません。
 
 ## 2. 利用できる範囲
 
@@ -18,13 +18,17 @@ Proprietary license, not open source. Use is limited to purchasers of the accomp
 
 - 自分、または所属する会社や団体のウェブサイトを、本ソフトウェアを使って制作、公開、更新、保守すること
 - そのために、AI エージェント（Claude など）に本ソフトウェアを読み込ませること
-- そのために、本ソフトウェアのリポジトリを自分の GitHub アカウントにフォークし、フォークを同期し、必要に応じて書き換えること
+- そのために、本ソフトウェアの全部または一部を、自分（または所属する会社や団体）のウェブサイトの非公開のリポジトリに複製し、新しい版に更新し、必要に応じて書き換えること
 
-ほかの人や会社から依頼を受けてウェブサイトを制作、保守する仕事に本ソフトウェアを使う場合は、事前に著作権者に連絡し、許諾を得てください。
+購入者は、ほかの人や会社（以下「お客さま」）から依頼を受けて、お客さまのウェブサイトを制作、公開、更新、保守する仕事にも、本ソフトウェアを使えます。お客さまごとの追加の購入や許諾は要りません。このとき、次のことを守ってください。
+
+- 本ソフトウェアを複製してよいのは、そのサイトの非公開のリポジトリ（お客さまの名義のものを含みます）だけです。複製を置いてよいのは、購入者がそのサイトの制作か保守を続けている間です
+- 購入者がそのサイトから手を離すとき（保守の契約が終わるとき、引き渡して以後は関わらないときなど）は、そのリポジトリから本ソフトウェアの複製（skills/ など）を除いてください。お客さまが自分で購入者になった場合は、除かなくてかまいません
+- お客さまに本ソフトウェアそのものを渡すこと（複製を残したまま引き渡すことを含みます）と、本ソフトウェアを販売することは、3 の禁止事項に当たります
 
 ## 3. 禁止すること
 
-- 本ソフトウェアの全部または一部を、そのまま、または書き換えて、ほかの人に配布、販売、譲渡、貸与すること（購入者でない人にフォークや ZIP を渡すことを含む）
+- 本ソフトウェアの全部または一部を、そのまま、または書き換えて、ほかの人に配布、販売、譲渡、貸与すること（購入者でない人に複製や ZIP を渡すこと、本ソフトウェアの複製を誰でも見られるリポジトリに置くことを含む）
 - 本ソフトウェアをもとにした、または本ソフトウェアと似た目的のスキル、プロンプト集、テンプレート、講座などを作り、配布または販売すること
 - 本ソフトウェアに含まれる著作権の表示や、この利用許諾の文書を取り除くこと
 - 本ソフトウェアの全部または一部を、AI（大規模言語モデルなど）の学習、追加学習、評価、または学習用のデータセットの作成のために収集、複製、利用すること
@@ -33,13 +37,23 @@ Proprietary license, not open source. Use is limited to purchasers of the accomp
 
 購入者が 2 の目的で、自分の使う AI エージェントに本ソフトウェアを読み込ませることは、上の禁止事項に当たりません。
 
-フォークは、上の 2 の目的のためだけに作ってください。GitHub の仕組み上、公開リポジトリのフォークは誰でも作れますが、フォークを作っても、この利用許諾に基づく権利は生じません。
+GitHub の仕組み上、公開リポジトリのフォークは誰でも作れますが、フォークを作っても、この利用許諾に基づく権利は生じません。公開リポジトリのフォークは誰でも見られる状態になるため、購入者も、上の 2 の複製にはフォークを使わないでください。
 
 ## 4. 作ったサイトの扱い
 
 本ソフトウェアを使って作ったウェブサイトのページ、文章、画像、ソースコード、設定、ログは、購入者のものです。著作権者は、それらについて何の権利も主張しません。購入者は、それらを自由に使い、公開し、書き換え、ほかの人に渡すことができます。
 
-本ソフトウェアのテンプレートやスクリプトのうち、サイトのリポジトリに組み込まれたもの（AGENTS.md、GitHub Actions のワークフロー、check_text.py など）は、そのサイトのために自由に使い、書き換えてかまいません。ただし、それらや、スキル、プロンプトそのもの（skills/、prompts/ などのファイル）を切り出して配布することは、3 の禁止事項に当たります。
+本ソフトウェアのテンプレートやスクリプトのうち、サイトのリポジトリに組み込まれたものは、そのサイトのために自由に使い、書き換えてかまいません。サイトのリポジトリをほかの人に渡すときも、そのサイトのために使い続ける形で残してかまいません。組み込まれたものとは、次のものです。
+
+- サイトの直下の AGENTS.md、CLAUDE.md、SITE.md、README.md
+- .github/ の中のもの（ワークフロー、dependabot.yml、smoke-test.txt、scripts/smoke.sh）と、.claude/ の中の設定
+- scripts/check_text.py
+- そのほか、テンプレートをもとにサイトのために作ったファイル（.gitignore、pnpm-workspace.yaml、wrangler.jsonc など）
+
+ただし、それらや、スキル、プロンプトそのものを切り出して配布することは、3 の禁止事項に当たります。サイトのリポジトリをほかの人に渡すときは、そこに複製した本ソフトウェアのうち、次のものを除いてください。渡す相手が購入者の場合は、除かなくてかまいません。
+
+- skills/（中の LICENSE、VERSION を含む）
+- prompts/、このリポジトリの docs/ など、本ソフトウェアのファイルをそのまま写したもの
 
 ## 5. 保証がないこと
 

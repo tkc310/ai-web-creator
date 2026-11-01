@@ -1,11 +1,12 @@
 // お問い合わせフォームの送信を受け、確かめてから、オーナーにメールで知らせる。
-// Cloudflare Workers で動く。Astro では src/pages/api/contact.ts から、
-// HTML だけのサイトでは src/worker.ts から呼ぶ（references/forms.md）。
+// Cloudflare Workers で動く。src/lib/contact-handler.ts に置き、src/pages/api/contact.ts から呼ぶ（references/forms.md）。
 //
 // 守っていること:
-//   - 送信元が自分のサイトか（Origin）、大きさ、必須項目、文字数、メールアドレスの形を確かめる
+//   - 送信元が自分のサイトか（Origin。本番、www、確認用の workers.dev を SITE_ORIGINS に並べる）、大きさ、必須項目、文字数、メールアドレスの形を確かめる
 //   - ロボットが埋める隠し項目（website）が埋まっていたら、成功したふりをして何もしない
-//   - Cloudflare Turnstile のトークンを、サーバーから siteverify で確かめる（ホスト名も確かめる）
+//   - Cloudflare Turnstile のトークンを、サーバーから siteverify で確かめる（ホスト名も確かめる）。確かめられなかったときも送らない
+//   - Turnstile を通ったあとで、送信回数を制限する（Workers の Rate Limiting の接続 CONTACT_LIMITER がある場合。サイト全体で1分に5件まで）。
+//     Turnstile より前で数えると、トークンを持たない POST を繰り返すだけで、本物の問い合わせを止められてしまうため
 //   - メールは本文をテキストだけで送る（HTML を組み立てない）。件名に改行を入れない
 //   - 送信内容はどこにも保存しない。ログにも個人情報を書かない
 
@@ -22,7 +23,11 @@ export interface ContactEnv {
   TURNSTILE_SECRET_KEY: string; // 秘密の鍵。Cloudflare の画面で Secret として登録する
   CONTACT_TO: string; // 通知を受けるアドレス（Cloudflare で確認済みのもの）
   CONTACT_FROM: string; // 送信元。Email Sending に登録したドメインのアドレス（例: form@example.co.jp）
-  SITE_ORIGIN: string; // 例: https://example.co.jp（末尾の / なし）
+  // 許可する送信元。カンマ区切りで、本番、www、確認用の workers.dev を並べる（末尾の / なし）
+  // 例: https://example.co.jp,https://www.example.co.jp,https://example-site.example.workers.dev
+  SITE_ORIGINS: string;
+  // 送信回数の制限（wrangler.jsonc の ratelimits）。ない場合は制限しない
+  CONTACT_LIMITER?: { limit(options: { key: string }): Promise<{ success: boolean }> };
 }
 
 const LIMITS = { name: 100, company: 100, email: 254, phone: 30, message: 5000 } as const;
@@ -30,11 +35,15 @@ const MAX_BYTES = 20_000;
 const EMAIL_RE = /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[^\s@<>()",;:]+$/;
 
 export async function handleContact(request: Request, env: ContactEnv): Promise<Response> {
-  const to = (path: string) => Response.redirect(new URL(path, env.SITE_ORIGIN).toString(), 303);
+  if (request.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
+
+  const origins = env.SITE_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean);
+  const origin = request.headers.get("Origin") ?? "";
+  if (!origins.includes(origin)) return new Response("Forbidden", { status: 403 });
+  // 戻り先は、許可した送信元のうち、送信してきたもの
+  const to = (path: string) => Response.redirect(new URL(path, origin).toString(), 303);
   const fail = (reason: string) => to(`/contact/?error=${reason}`);
 
-  if (request.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
-  if (request.headers.get("Origin") !== env.SITE_ORIGIN) return new Response("Forbidden", { status: 403 });
   if (Number(request.headers.get("Content-Length") ?? "0") > MAX_BYTES) {
     return new Response("Payload Too Large", { status: 413 });
   }
@@ -74,16 +83,28 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
 
   const token = get("cf-turnstile-response");
   if (!token) return fail("captcha");
-  const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body: new URLSearchParams({
-      secret: env.TURNSTILE_SECRET_KEY,
-      response: token,
-      remoteip: request.headers.get("CF-Connecting-IP") ?? "",
-    }),
-  });
-  const result = (await verify.json()) as { success?: boolean; hostname?: string };
-  if (!result.success || result.hostname !== new URL(env.SITE_ORIGIN).hostname) return fail("captcha");
+  let result: { success?: boolean; hostname?: string };
+  try {
+    const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: new URLSearchParams({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: token,
+        remoteip: request.headers.get("CF-Connecting-IP") ?? "",
+      }),
+    });
+    result = (await verify.json()) as { success?: boolean; hostname?: string };
+  } catch {
+    // 確かめられなかったときは送らない（通信の失敗や、想定しない応答）
+    return fail("captcha");
+  }
+  if (!result.success || result.hostname !== new URL(origin).hostname) return fail("captcha");
+
+  // 送信回数の制限。Turnstile を通った送信だけを数える。個人を特定しないよう、サイト全体で数える
+  if (env.CONTACT_LIMITER) {
+    const { success } = await env.CONTACT_LIMITER.limit({ key: "contact" });
+    if (!success) return fail("busy");
+  }
 
   const oneLine = (s: string) => s.replace(/[\r\n\t]+/g, " ").slice(0, 100);
   const text = [

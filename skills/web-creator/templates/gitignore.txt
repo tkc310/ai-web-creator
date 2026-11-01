@@ -9,3 +9,8 @@ mobile-shots/
 .env
 .env.*
 .DS_Store
+.dev.vars
+.dev.vars.*
+# WordPress のエクスポート（WXR）。投稿者やコメントした人の個人情報が入るので、コミットしない
+*.WordPress.*.xml
+wordpress-export*.xml

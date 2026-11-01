@@ -11,6 +11,15 @@
 
 デザインでは、テンプレートのような見た目を避け、業種と対象者に合う書体、色、余白を選びます。
 
+### 利用の上限で止まっても続けられるようにする
+
+制作は長い作業で、Pro のプランでは途中で Claude の利用の上限に当たることがあります。止まっても続きから再開できるように、次のことを守ります。
+
+- 作業のまとまり（3案を見せた、案が決まった、ページを1つ作った、仕上げた、品質チェックをした、監査をした）が終わるたびに、作業用のブランチにコミットして push する
+- 同じときに、SITE.md の「制作の進み具合」の表を更新する（終わったこと、次にすること、オーナーに確かめ中のこと）
+- 上限に当たって止まったら、止まった理由と、上限が戻るおよその時刻をオーナーに一文で伝え、再開のひと言（SKILL.md の「オーナーとの話し方」）を添える
+- 時間とトークンを多く使う作業（全ページの仕上げ、セキュリティ監査）の前は、始めてよいかを先に聞く（security-audit.md の「頼み方」）
+
 ## frontend-design スキルでのブラッシュアップ
 
 デザインの判断（案づくりと仕上げ）には、Anthropic の frontend-design スキルを使います。AI が作るサイトにありがちな、どこかで見たような見た目を避けるためです。
@@ -51,15 +60,27 @@
 - タップする部分は 44×44px 以上にする
 - 固定の幅（`width: 400px` など）は使わず、`max-width` と `%`、`min()` を使う
 
-確かめ方:
+確かめ方（準備は下の「確かめる前の準備」）:
 
 ```bash
-python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321/ http://localhost:4321/news/sample/
+python3 skills/web-creator/scripts/check_mobile_width.py http://localhost:4321/ http://localhost:4321/news/sample/
 ```
 
 320px、375px、390px の3つの幅で、横スクロール、画面からはみ出した要素、ヘッダーの中の折り返しを調べ、幅ごとのスクリーンショットを `mobile-shots/` に保存します。問題があれば NG と原因の要素を表示します。最後にスクリーンショットを目で見て、見出しの改行位置や重なりがないかを確かめます。ロゴとメニューを2段に分けるなど、意図して2段にしたヘッダーは NG と出ても問題ありません。
 
 確かめるページは、Lighthouse で測るページ（quality-gate.md の「測るページ」）と同じにします。`mobile-shots/` はリポジトリに入れません（templates/gitignore.txt）。
+
+### 確かめる前の準備
+
+check_mobile_width.py、make_preview.py（URL を渡す場合）、run_lighthouse.sh は、ビルドしたサイトを作業環境の中で配信してから使います。
+
+```bash
+pnpm run build
+pnpm astro preview --host 127.0.0.1 --port 4321 &   # 終わったら kill %1 で止める
+python3 -c "import playwright" 2>/dev/null || { pip install playwright && python3 -m playwright install chromium; }
+```
+
+Chromium がすでに入っている作業環境では、`python3 -m playwright install chromium` の代わりに、その場所を `CHROME_PATH` で渡します（run_lighthouse.sh と同じ）。
 
 ## 共通の作り方
 
@@ -73,32 +94,74 @@ python3 <スキルの場所>/scripts/check_mobile_width.py http://localhost:4321
 
 ## 使うツールとバージョン
 
-作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（runtime-update スキルの「最新版の調べ方」）。
+作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（基準は versions.md、調べ方は runtime-update スキルの「最新版の調べ方」）。
 
 - Node.js: 最新の LTS 版（作業する日に、状態が LTS の版のうち一番新しいもの）。`.node-version` に書く（templates/node-version.txt）。Current と奇数番は使わない（runtime-update の Node.js の基準）
 - pnpm: 最新版。`package.json` の `packageManager` に書く（templates/package-json-fields.md）
 - 依存パッケージ: 最新版。`pnpm create astro@latest`、`pnpm add <パッケージ>@latest` で入れる。npm と yarn は使わない
-- pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から1日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
+- pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から3日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
 - GitHub Actions: templates/github/ のワークフローと dependabot.yml（GitHub Actions の更新だけ）を、すべてのサイトに置く
 
-HTML だけのサイト（A）は package.json を置かないので、pnpm と依存パッケージはありません。フォームを自前で作る場合など、Workers のコードを持つときだけ package.json を置きます。
+## 作り始め（どのページの形でも同じ）
 
-## A. HTML / CSS / JavaScript
+1ページの LP も含めて、すべて Astro のプロジェクトとして作ります。あとからページや記事を足すときも、同じリポジトリに足すだけで済みます。
 
-```
-public/
-  index.html
-  assets/ (css, images)
-  robots.txt, sitemap.xml, llms.txt, favicon
-wrangler.jsonc  … assets.directory は "./public"
-```
+1. 空のテンプレート（minimal）で、作業用の一時フォルダにプロジェクトを作り、サイトのリポジトリに写す。依存パッケージはまだ入れない（`--no-install`）。サイトのリポジトリには skills/、AGENTS.md、CLAUDE.md などがすでにあり、空でないフォルダでは作成のツールが質問で止まるため、別の場所で作る。`cp --update=none` は同じ名前のファイルを上書きしないので、skills/、AGENTS.md、CLAUDE.md、README.md は消えない（`cp -n` は coreutils の版によって、飛ばしたファイルがあると終了コード1を返すので使わない）
 
-## B. Astro
+   ```bash
+   tmp="$(mktemp -d)"
+   pnpm create astro@latest "$tmp/site" --template minimal --no-install --no-git --skip-houston --yes
+   cp -R --update=none "$tmp/site/." .
+   rm -rf "$tmp"
+   ```
+
+   テンプレートを取りに行けずに止まったとき（作業環境から GitHub のファイルを取得できないとき）は、`package.json`（templates/package-json-fields.md の scripts）、`astro.config.mjs`（`defineConfig({})` だけ）、`src/pages/index.astro` を手で作る。`astro` は手順3で入れる。サンプルのページや部品は残さない
+2. `pnpm install` の前に、pnpm と Node.js の設定を置く。templates/ から `.node-version`、`pnpm-workspace.yaml`（公開から3日たっていない版を入れない設定と、インストール時のスクリプトの許可）、`package.json` の項目（`packageManager`、`engines`。templates/package-json-fields.md）を置く。先に入れると、この設定なしで依存パッケージが入り、pnpm-lock.yaml を作り直すことになるため
+3. 依存パッケージを入れる。`pnpm install` はここで1回だけ行う（手で作った場合は、続けて `pnpm add astro@latest`）。続けて `pnpm add -D wrangler@latest` で wrangler を入れる。公開のワークフロー（wrangler-action）は、入っている版を使うので、公開に使う版が pnpm-lock.yaml で固定され、runtime-update で更新できる（入れないと、公開のたびにその時点の wrangler を入れて動く）。`pnpm astro add sitemap --yes` で `@astrojs/sitemap` を入れ、`astro.config.mjs` の `site` に本番の URL（決まっていなければ workers.dev の URL）を書く
+
+   ```bash
+   pnpm install
+   pnpm add -D wrangler@latest
+   pnpm astro add sitemap --yes
+   ```
+
+4. templates/ から、`.gitignore`、`wrangler.jsonc`（このページの下の例）、GitHub Actions のワークフローと `.github/scripts/smoke.sh` を置く（deploy-and-autofix.md の「初回の設定」）
+5. `src/layouts/Base.astro` に、head（タイトル、description、OGP、canonical、JSON-LD）をまとめる
+6. `src/pages/404.astro` を作る（`wrangler.jsonc` の `not_found_handling: "404-page"` で使う）
+7. `public/` に robots.txt、llms.txt、favicon、OG 画像を置く
+8. `pnpm run build` を通し、`dist/` にページができることを確かめる
+9. 作業用のブランチ（`claude/` で始まる名前。プロジェクトのスレッドでは、スレッドのブランチ）にコミットして push する。ブランチの名前は SITE.md の「制作の進み具合」の「作業用のブランチ」に書く。サイトの中身は、初めての公開（deploy-and-autofix.md）まで main に入れない。ただし、skills/、scripts/check_text.py、SITE.md、AGENTS.md、CLAUDE.md は、取り込みのときに main にも入れる（skills-install.md の初回の手順の8。プロジェクトのスレッドは、新しく始まるたびに main から始まるため）
+
+## ページの形ごとの構成
+
+### 1ページの LP
 
 ```
 src/
-  pages/        … index.astro, about.astro, news/[slug].astro など
+  pages/
+    index.astro   … ページはこの1枚。セクションを順に並べる
+    404.astro
+  layouts/
+    Base.astro    … head、OGP、JSON-LD をまとめる
+  components/     … セクションごとの部品（Hero.astro、Features.astro、Contact.astro など）
+  styles/         … 全体の CSS
+public/            … robots.txt、llms.txt、favicon、og 画像、images/
+astro.config.mjs   … site に本番 URL、@astrojs/sitemap を追加
+wrangler.jsonc     … assets.directory は "./dist"
+```
+
+- 文章はセクションの部品の中に書く。お知らせなどの記事がないので、Content Collections は使わない
+- ページ内のリンク（`#features` など）でセクションに移動できるようにし、ヘッダーのメニューもページ内リンクにする
+- お問い合わせは、ヒアリングで選んだ方法で作る（forms.md）。サイトと同じ見た目のフォームを選んだ場合だけ、下の「一部のページだけ SSR にする場合」を行う
+- あとでお知らせやページを足す場合は、下の「複数ページ・記事あり」の構成にそのまま広げる
+
+### 複数ページ・記事あり
+
+```
+src/
+  pages/        … index.astro, about.astro, news/index.astro, news/[slug].astro など
   layouts/      … Base.astro（head、OGP、JSON-LD をまとめる）
+  components/
   content/      … news/*.md, blog/*.md
   content.config.ts … 記事の frontmatter の型（title, date, description, image, draft）
 public/          … robots.txt, llms.txt, favicon, og 画像
@@ -109,13 +172,13 @@ wrangler.jsonc   … assets.directory は "./dist"
 - 記事一覧、記事ページ、タグ一覧は Content Collections から生成する
 - `draft: true` の記事はビルドに含めない
 - llms.txt はビルド時に記事一覧から生成するページ（`src/pages/llms.txt.ts`）にしてもよい
-- アダプターは入れない（B-1）。全ページがビルド時に HTML になり、`dist/` を静的アセットとして配信する
+- アダプターは入れない（SSG のみ）。全ページがビルド時に HTML になり、`dist/` を静的アセットとして配信する
 
-### 一部のページだけ SSR にする場合（B-2）
+## 一部のページだけ SSR にする場合
 
 stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行います。
 
-1. `pnpm astro add cloudflare` でアダプターを追加する
+1. `pnpm astro add cloudflare --yes` でアダプターを追加する
 2. SSR にするファイルだけに `export const prerender = false` を書く。ほかのページはそのまま SSG で出力される
 3. 使わない機能は無効にする。セッションを使わないなら `session: false`。画像の変換は Cloudflare Images を使わず、ビルド時に変換する設定（`imageService: 'compile'`）にする（課金や設定の増加を避けるため）
 4. `wrangler.jsonc` はアダプターのドキュメントに従う。Astro 6 以降は `main` に `@astrojs/cloudflare/entrypoints/server` を指定し、静的アセットの設定はアダプターが行う
@@ -123,7 +186,7 @@ stack-selection.md の「SSR を使う場面」に当てはまる場合だけ行
 6. site-maintenance スキルの「要保守構成の初期設定」を行う
 
 ```js
-// astro.config.mjs（B-2 の例）
+// astro.config.mjs（一部 SSR の例）
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
@@ -146,11 +209,7 @@ export async function POST({ request }) {
 
 設定の名前はアダプターのバージョンで変わることがあるため、作業時に Astro の公式ドキュメントで確認します。
 
-## C. EmDash
-
-EmDash の公式ドキュメントに従ってセットアップします。テンプレートを選び、Cloudflare 上に Workers、D1、R2 を作成します。作成時は課金の有無をオーナーに確認します。テーマのデザインは B と同じ方針で作ります。
-
-## wrangler.jsonc の例（A・B-1 共通）
+## wrangler.jsonc の例（SSG のみ）
 
 ```jsonc
 {
@@ -165,4 +224,4 @@ EmDash の公式ドキュメントに従ってセットアップします。テ�
 
 `compatibility_date` は作成した日付にします。
 
-リポジトリの直下に `.node-version`（templates/node-version.txt をコピー）を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。
+リポジトリの直下に `.node-version` を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。templates/node-version.txt は埋めて使うひな形で、数字は入っていません。作業する日の最新の LTS 版のメジャー番号を runtime-update スキルの「最新版の調べ方」で調べ、数字だけを書きます（例: `printf '26\n' > .node-version`）。`<` が残ったままだと、GitHub Actions が Node.js を用意できずに失敗します。
