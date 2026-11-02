@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2026.11.1（未リリース）
+
+### 2026-11-02
+
+- chore(skills): サイトと配布元で使う Node.js を 26.13.0（LTS Lithium、2026-10-28）に揃えた。`.node-version` と `engines.node`（`>=`）に完全な版を書き、メジャー番号だけを書く手順をやめた（node-version.txt、package-json-fields.md、versions.md、build.md、deploy-and-autofix.md、runtime-update、配布元の .node-version）
+
 ## v2026.11.0（2026-11-01）
 
 最初のタグ `v2026.11.0` で出す版です。下の日付の見出し（2026-10-30 から 2026-11-01 まで）の変更をまとめて含みます。

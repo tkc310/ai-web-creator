@@ -25,7 +25,7 @@ effort: medium
 
 | 対象 | ファイル |
 |---|---|
-| Node.js のメジャーバージョン | `.node-version`（GitHub Actions は `node-version-file` でこれを読む）、`package.json` の `engines.node` |
+| Node.js | `.node-version`（完全な版。GitHub Actions は `node-version-file` でこれを読む）、`package.json` の `engines.node`（`>=` に同じ版） |
 | pnpm のバージョン | `package.json` の `packageManager`（GitHub Actions の pnpm/action-setup はこれを読む） |
 | 依存パッケージ（公開に使う wrangler を含む。devDependencies に入っていなければ `pnpm add -D wrangler@latest` で足す） | `package.json`、`pnpm-lock.yaml` |
 | pnpm の設定 | `pnpm-workspace.yaml`（`minimumReleaseAge`、`allowBuilds`） |
@@ -61,8 +61,8 @@ effort: medium
 
 ### 手順
 
-1. 上の基準で、上げる先のメジャーバージョンを決める
-2. ブランチ `claude/runtime-node-<バージョン>` を作り、`.node-version` と `engines.node` を書き換える
+1. 上の基準で、上げる先のメジャーバージョンを決める。`.node-version` に書くのは、そのメジャーの最新リリースの完全な版（major.minor.patch。今の版の記録は versions.md）
+2. ブランチ `claude/runtime-node-<バージョン>` を作り、`.node-version` にその完全な版を書き、`engines.node` を `>=` とその版にする（web-creator の templates/package-json-fields.md の書き方）
 3. そのバージョンの Node.js で `pnpm install` と `pnpm run build` を実行する
 4. メジャーの更新として扱う。ブランチを push してプルリクエストを作り、check ワークフローが通ったことを確かめる。マージは上の「main に入れるかの決め方」のとおり、オーナーの「OK」のあとに行う（無人の実行では残す）
 
