@@ -96,7 +96,7 @@ Chromium がすでに入っている作業環境では、`python3 -m playwright 
 
 作り始めるときに、すべて最新版で始めます。版の番号は作業する日に調べ、記憶にある番号を使いません（基準は versions.md、調べ方は runtime-update スキルの「最新版の調べ方」）。
 
-- Node.js: 最新の LTS 版（作業する日に、状態が LTS の版のうち一番新しいもの）。`.node-version` に書く（templates/node-version.txt）。Current と奇数番は使わない（runtime-update の Node.js の基準）
+- Node.js: 最新の LTS の完全な版（versions.md。Current と奇数番は使わない）。`.node-version` は templates/node-version.txt を、中身を書き換えずに置く（runtime-update の Node.js の基準）
 - pnpm: 最新版。`package.json` の `packageManager` に書く（templates/package-json-fields.md）
 - 依存パッケージ: 最新版。`pnpm create astro@latest`、`pnpm add <パッケージ>@latest` で入れる。npm と yarn は使わない
 - pnpm の設定: templates/pnpm-workspace.yaml を置く（公開から3日たっていない版は入れない、インストール時のスクリプトは許可したものだけ）
@@ -224,4 +224,4 @@ export async function POST({ request }) {
 
 `compatibility_date` は作成した日付にします。
 
-リポジトリの直下に `.node-version` を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。templates/node-version.txt は埋めて使うひな形で、数字は入っていません。作業する日の最新の LTS 版のメジャー番号を runtime-update スキルの「最新版の調べ方」で調べ、数字だけを書きます（例: `printf '26\n' > .node-version`）。`<` が残ったままだと、GitHub Actions が Node.js を用意できずに失敗します。
+リポジトリの直下に `.node-version` を置きます。GitHub Actions はこのファイルの Node.js のバージョンを使います。templates/node-version.txt を、中身を書き換えずに `.node-version` として置きます（完全な版。版の番号は versions.md）。メジャー番号だけにすると、パッチが揃いません。

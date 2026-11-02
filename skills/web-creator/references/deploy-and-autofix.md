@@ -27,7 +27,7 @@ deploy と autofix は同じ同時実行のグループ（`publish`）で動く�
    - templates/github/smoke-test.txt → `.github/smoke-test.txt`（下の「公開後の確認」。`<...>` を埋める）
    - templates/github/scripts/smoke.sh → `.github/scripts/smoke.sh`（公開後の確認の処理。deploy と autofix の両方が動かす。ワークフローのファイルではないので、`.github/workflows/` の push が拒否される場合も、ふつうに push できる）
    - templates/gitignore.txt → `.gitignore`
-   - templates/node-version.txt → `.node-version`（Node.js のバージョン。ひな形なので、runtime-update スキルの基準で調べた、作業する日の最新の LTS 版のメジャー番号だけを書く）
+   - templates/node-version.txt → `.node-version`（Node.js の完全な版。ひな形に版が入っているので、書き換えずに置く。版の番号は versions.md）
    - templates/claude/settings.json → `.claude/settings.json`、templates/claude/agents/site-builder.md → `.claude/agents/site-builder.md`（使うモデルの設定。versions.md）
    - 要保守構成（一部のページを SSR にする場合）は、site-maintenance スキルの「要保守構成の初期設定」も行う
    - `.github/workflows/` のファイルの push が拒否されたら、下の「ワークフローのファイルを push できないとき」に進む
