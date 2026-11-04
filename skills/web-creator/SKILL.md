@@ -156,7 +156,7 @@ EC や予約が一部だけ該当する場合（例: 会社サイトに予約の
 - デザイン: frontend-design スキルでブラッシュアップしてある（references/build.md）
 - sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP がそろっている
 - 構造化データは、ページに実際に表示している内容だけを書く
-- セキュリティ: Cloudflare の security-audit スキルでリポジトリ全体を監査し、確定した脆弱性をすべて直してある。機能を追加・変更したときも、公開前に同じ監査をする（references/security-audit.md）
+- セキュリティ: Cloudflare の security-audit スキルでリポジトリ全体を監査し、確定した脆弱性をすべて直してある。直し方は、表示や公開、CI を止めないもの（references/security-audit.md の「直し方の決まり」）。機能を追加・変更したときも、公開前に同じ監査をする（references/security-audit.md）
 - Lighthouse は、エージェントのクラウドの作業環境で、主要ページ（ページの種類ごとに代表1つ、多くて5ページ）だけを測る。本番のサイトに届かないときは、オーナーにサイトのホストを許可に足してもらう。設定の画面はチャット（Cowork）とコード（Claude Code）で違うため、どちらで作業しているかを確かめてから案内を分ける（references/quality-gate.md）
 
 基準に届かない項目がある場合は、直せるものを直してから、残った理由をオーナーに一文で伝えます（例: 「埋め込みのGoogleマップが重く、パフォーマンスは92です。地図を画像＋リンクに変えると98になります。変えますか？」）。

@@ -112,7 +112,9 @@ Cloudflare や Google のサービスの設定は、できるかぎり Claude �
 
 ### 公開前と機能の変更時にセキュリティ監査をする
 
-公開前と、機能を追加・変更したとき（フォーム、ページの種類、SSR のページ、会員やコメントの機能、外部の埋め込みなど）に、Cloudflare が公開しているスキル [security-audit](https://github.com/cloudflare/security-audit-skill)（MIT ライセンス）でサイトのリポジトリ全体を監査し、確定した脆弱性を直してから公開します。記事の追加や文言の修正だけなら行いません。報告書はリポジトリにコミットせず、件数と直した内容だけを記録します（[security-audit.md](skills/web-creator/references/security-audit.md)）。
+公開前と、機能を追加・変更したとき（フォーム、ページの種類、SSR のページ、会員やコメントの機能、外部の埋め込みなど）に、Cloudflare が公開しているスキル [security-audit](https://github.com/cloudflare/security-audit-skill)（MIT ライセンス）でサイトのリポジトリ全体を監査し、確定した脆弱性を直してから公開します。記事の追加や文言の修正だけなら行いません。静的なページだけのサイトは短い進め方（`quick`）で頼み、時間と利用量を抑えます。
+
+直し方は、指摘された箇所だけを直す最小の変更にします。厳しい CSP（表示や埋め込み、計測が止まる）、CI への脆弱性の検査の追加（記事の更新の公開まで止まる）、ワークフローの全面的な書き換え、依存パッケージの一斉更新、Cloudflare のダッシュボードの設定変更のように、公開や作業を止めやすい提案は採用せず、別の直し方を探して、見送ったことをログに残します。報告書はリポジトリにコミットせず、件数と直した内容だけを記録します（[security-audit.md](skills/web-creator/references/security-audit.md)）。
 
 ### 変更は監査ログに残す
 
