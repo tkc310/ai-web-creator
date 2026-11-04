@@ -2,6 +2,10 @@
 
 ## v2026.11.1（未リリース）
 
+### 2026-11-04
+
+- feat(skills): セキュリティ監査に「直し方の決まり（公開と作業を止めない）」を足した。指摘された箇所だけを直す最小の変更を採用し、厳しい CSP、CI への脆弱性の検査の追加、ワークフローの全面的な書き換え、依存パッケージの一斉更新、Cloudflare のダッシュボードの設定変更、機能を外す変更は採用しない（機能を外すときはオーナーが判断）。表示や公開に影響しない hardening だけを任意で入れる。静的なページだけのサイトは `quick`、フォームや SSR があるサイトは `standard` で頼み、見送った提案の件数と理由をログに残す（security-audit.md、quality-gate.md、SKILL.md、audit-log.md、templates/audit-log.md、docs/how-to-use.md、README.md）
+
 ### 2026-11-02
 
 - chore(skills): サイトと配布元で使う Node.js を 26.13.0（LTS Lithium、2026-10-28）に揃えた。`.node-version` と `engines.node`（`>=`）に完全な版を書き、メジャー番号だけを書く手順をやめた（node-version.txt、package-json-fields.md、versions.md、build.md、deploy-and-autofix.md、runtime-update、配布元の .node-version）
