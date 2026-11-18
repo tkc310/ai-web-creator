@@ -287,6 +287,7 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 - タグの名前は `vYYYY.MM.N`。YYYY.MM はタグを打つ年月、N はその月の通し番号で 0 から始める（例: `v2026.11.0`、`v2026.11.1`）
 - main には、タグを打つ版だけを入れる。作業はブランチで行い、CHANGELOG.md に書いてからプルリクエストで main に入れ、すぐにタグを打つ。段階1のチャットは main を読むので、main とタグの版がずれないようにするため。例外は、下の手順2（版の見出しの日付と `MANIFEST.txt`）と、手順3と4で見つかった直しで、どれもタグを打つ前に作者のパソコンから main に直接入れる
 - サイトのリポジトリは、タグが1つでもあれば、タグのない main の変更を取り込まない
+- タグとリリースは、GitHub の画面の Actions → release → Run workflow（[release.yml](.github/workflows/release.yml)）で、打つタグを入れて作れる。手順2のあとに動かすと、版の見出しと MANIFEST.txt と check_skills.py を確かめてから、手順5の注釈つきのタグと手順7の zip とリリースを作る。パソコンが使えないときは、こちらを使う。パソコンから打つときは次のとおり
 - タグは作者のパソコンから push する。Claude Code のクラウドのセッションでは、GitHub の中継（プロキシ）がタグの push を拒否する（「the proxy rejects branch deletions and pushes of anything other than a branch, such as a tag」。出典: https://code.claude.com/docs/en/cloud-environments 、2026-10-30 確認）。リリースの作成と zip の添付も、同じパソコンで行う。エージェントはタグを打たず、main にもマージしない
 - タグが1つもない間は、サイトのリポジトリは main の最新のコミットを取り込み、`skills/VERSION` に `tag: none` とそのコミットを書いて固定する。今の作り方になる前の古い main（`skills/web-creator/references/skills-install.md` がない版）は取り込まずに止まる
 - タグを打つ前に、ファイルの一覧 `MANIFEST.txt`（`# tag:` の行と、`LICENSE` と `skills/` のファイルごとの SHA-256）を作って main に入れる。clone できない作業環境で、Claude が raw.githubusercontent.com から1つずつ取り、一覧と合うかを確かめるのに使う（skills-install.md の「C の raw.githubusercontent.com から取り込むとき」）。作り方は下の手順2
