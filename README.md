@@ -16,6 +16,8 @@
 [![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/features/actions)
 ![日本語](https://img.shields.io/badge/lang-日本語-blue)
 
+このスキルが役に立ったら、リポジトリに ⭐ Star をいただけると励みになります。
+
 [クイックスタート](#クイックスタート) ・ [特徴](#特徴) ・ [ドキュメント](#ドキュメント) ・ [スキルの構成](#スキルの構成) ・ [フィードバック](#フィードバック) ・ [ライセンス](#ライセンス)
 
 </div>
@@ -261,6 +263,8 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 ## フィードバック
 
 うまく動かなかった手順や、分かりにくかった説明は、note の窓口か、このリポジトリの Issue（書式「スキルの改善点」）で教えてください。送るかどうかは任意です。Issue は誰でも読めるので、サイトの URL や個人情報は書かないでください。サイトのリポジトリで Claude が見つけた改善点は、logs/IMPROVEMENTS.md に残っています（送り方は [run-logs.md](skills/web-creator/references/run-logs.md) の「スキルの改善点を配布元に送る（任意）」）。
+
+このスキルが役に立ったら、リポジトリに Star をいただけると励みになります（任意です。付けなくても使い方は何も変わりません）。スキルも、初めての公開が終わってオーナーが満足しているときに1回だけ、同じお願いを伝えます。
 
 いただいた意見をもとに改善した記録は [docs/logs/](docs/logs/README.md) に残しています。
 
