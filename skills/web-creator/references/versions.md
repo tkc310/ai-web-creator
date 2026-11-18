@@ -63,6 +63,16 @@ templates/github/workflows/ のワークフローは、次の版を使ってい�
 
 新しいメジャー版が出ていたら、このリポジトリのテンプレートとこの表を同じコミットで直します。
 
+## 同梱しているスキル
+
+`skills/` には、作者が別のリポジトリで公開しているスキルを写して同梱しています。サイトのリポジトリには、skills-install.md の取り込みで一緒に入ります。`skills/` の中は直接直さず、新しい版を写して差し替えます（配布元の README の「版の付け方」の「同梱しているスキルの更新」）。
+
+| スキル | 取り込み元 | 版 | コミット | 写した日 |
+|---|---|---|---|---|
+| design-nexus | https://github.com/tkc310/design-nexus の `node scripts/build.mjs` が作る `dist/claude/design-nexus/`（スキルと、流行の手法のデータベース `design-trends/`） | 0.10.0 | a0f7b849ff1b9621120cc383f5ba50f3ef38b6d2 | 2026-11-18 |
+
+design-nexus のチェックのスクリプトは Node.js 26.13.0 以上で動きます（サイトで使う Node.js の版と同じ。上の「Node.js、pnpm、依存パッケージ」）。
+
 ## 時点つきの事実
 
 変わる可能性がある事実です。確かめた日を添え、古くなっていたら調べ直して直します。
@@ -83,7 +93,7 @@ templates/github/workflows/ のワークフローは、次の版を使ってい�
 - Claude の GitHub アプリ経由では、`.github/workflows/` のファイルを足す push が拒否される、という報告がある（未確認。GitHub では、アプリがワークフローのファイルを変えるには workflows の権限が要る）。拒否されたときの手順は deploy-and-autofix.md の「ワークフローのファイルを push できないとき」。作者が配布元の README の「版の付け方」の手順3で確かめ、結果をここに書く。2026-10-30 に、Claude Code のクラウドのセッションから、配布元のリポジトリに `.github/workflows/` のファイルを新しく足す push は通った（サイトのリポジトリとプロジェクトのスレッドで同じかは未確認）
 - Cloudflare の API の MCP サーバー（`https://mcp.cloudflare.com/mcp`）は、接続のときに許可する権限（OAuth のスコープ）を選べる。足りない権限が要る操作では、サーバーがその権限を求め、クライアントが追加の許可を聞く（step-up authorization）。Claude のコネクタでこの追加の許可が出るかは未確認なので、出なければコネクタをつなぎ直して権限を足すか、オーナーがダッシュボードで操作する（connectors.md の「権限の選び方」。Cloudflare の Changelog、2026-08-22 と 2026-10-19、2026-10-30 確認: https://developers.cloudflare.com/changelog/post/2026-08-22-wrangler-mcp-optional-oauth-scopes/ 、https://developers.cloudflare.com/changelog/post/2026-10-19-cloudflare-mcp-step-up/ ）
 - `wrangler.jsonc` に `routes`（独自ドメイン）を足し、`workers_dev` を書いていない場合は、次の公開から workers.dev の URL が使えなくなる（Cloudflare のドキュメント「workers.dev」、2026-10-30 確認）。独自ドメインをつなぐコミットで、`.github/smoke-test.txt` の URL も本番のドメインに直す
-- クラウドの作業環境では、公開リポジトリのコミットされたファイルが raw.githubusercontent.com から届き、この行き先は既定の Trusted の一覧に入っている（「Committed files from public repositories arrive through raw.githubusercontent.com」）。一方、セッションにつないでいない公開リポジトリを `git clone` できるかは文書に書かれていない（未確認）。そのため、スキルの取り込みは clone（A）が失敗したら raw（C）、それも失敗したら zip（B）の順にしている（skills-install.md。Claude Code のドキュメント「Configure cloud environments」、2026-10-30 確認: https://code.claude.com/docs/en/cloud-environments ）。どの経路が通るかは、作者が配布元の README の「版の付け方」の手順3で確かめ、結果をここに書く
+- クラウドの作業環境では、公開リポジトリのコミットされたファイルが raw.githubusercontent.com から届き、この行き先は既定の Trusted の一覧に入っている（「Committed files from public repositories arrive through raw.githubusercontent.com」）。一方、セッションにつないでいない公開リポジトリを `git clone` できるかは文書に書かれていない（未確認）。そのため、スキルの取り込みは clone（A）が失敗したら raw（C）、それも失敗したら zip（B）の順にしている（skills-install.md。Claude Code のドキュメント「Configure cloud environments」、2026-10-30 確認: https://code.claude.com/docs/en/cloud-environments ）。どの経路が通るかは、作者が配布元の README の「版の付け方」の手順3で確かめ、結果をここに書く。2026-11-18 に、Claude Code のプロジェクトのスレッドから、つないでいない公開リポジトリ（tkc310/design-nexus）の `git clone --depth 1` は通った（サイトのリポジトリのスレッドで同じかは未確認）
 - スケジュールタスク（ルーティン）の実行は auto mode で始まり、権限のモードは選べない。起動したときのプロンプトは、承認や同意の代わりにならない。ほかに指示がなければ `claude/` で始まるブランチに push し、プロンプトで別のブランチを指示できる。コミットとプルリクエストはユーザーの GitHub の名前で作られる（Claude Code のドキュメント「Scheduled tasks」、2026-10-30 確認: https://code.claude.com/docs/en/routines ）。auto mode では、人が承認していないプルリクエストのマージ、force push、`git reset --hard` と `git clean -fd`、本番への公開は既定で止められ、既定のブランチを含むブランチへの push は通る。止められた操作が3回続くか、合わせて20回になると、実行が止まって人を待つ（「Permission modes」、2026-10-30 確認: https://code.claude.com/docs/en/permission-modes ）。そのため、無人の保守ではプルリクエストをマージせず、パッチとマイナーの更新だけを確かめてから main に push する（site-maintenance）
 - Claude Code では、読み取りだけのコマンド（`ls`、`cat`、`grep`、`find`、`head` など）は承認なしで通る。Read の拒否の規則は、ファイルの名前を引数に書いたコマンド（`cat`、`head`、`tail`、`sed`、`tee`）には効くが、名前を書かない `grep -r` や、ファイルを自分で開くスクリプトには効かない（「Configure permissions」、2026-10-30 確認: https://code.claude.com/docs/en/permissions ）。autofix.yml では、`env` や `printenv` などを `--disallowedTools` で断っている。claude-code-action の中で `cat .git/config` と `env` が通らないことは、使い捨てのリポジトリで確かめる（未確認）
 - Claude Agent SDK の最後の結果のメッセージは、操作の回数の上限に当たったとき `subtype` が `error_max_turns` になる。claude-code-action は、実行の記録のファイルを `execution_file` の出力で渡す。autofix.yml の Issue の文は、これを読んで書き分けている（Agent SDK のドキュメント「How the agent loop works」の Handle the result と、claude-code-action の action.yml、2026-10-30 確認: https://code.claude.com/docs/en/agent-sdk/agent-loop 、https://github.com/anthropics/claude-code-action ）。記録のファイルの形が変わっていないかは、作者が手順4で確かめる

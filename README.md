@@ -1,21 +1,45 @@
+<div align="center">
+
 # ai-web-creator
 
-制作会社に頼んでいた規模のウェブサイト（LP、コーポレートサイト、ブログ、メディア）を、AIエージェントの Claude に任せて作り、公開し、運用し続けるためのスキルとプロンプトです。
+**Claude と話すだけで、制作会社に頼んでいた規模のウェブサイトを作り、公開し、運用し続けるためのスキルとプロンプト**
 
-ITに詳しくない人が、Claude と対話するだけで、安全でデザインのよいサイトを持てるようにすることを目指しています。
+[![check-skills](https://img.shields.io/github/actions/workflow/status/tkc310/ai-web-creator/check-skills.yml?branch=main&label=check-skills&logo=githubactions&logoColor=white)](https://github.com/tkc310/ai-web-creator/actions/workflows/check-skills.yml)
+[![Release](https://img.shields.io/github/v/release/tkc310/ai-web-creator?label=release)](https://github.com/tkc310/ai-web-creator/releases)
+[![Last commit](https://img.shields.io/github/last-commit/tkc310/ai-web-creator)](https://github.com/tkc310/ai-web-creator/commits/main)
+[![Issues](https://img.shields.io/github/issues/tkc310/ai-web-creator)](https://github.com/tkc310/ai-web-creator/issues)
+[![License: Proprietary](https://img.shields.io/badge/license-proprietary-lightgrey)](LICENSE)
 
-このリポジトリは誰でも読めますが、オープンソースではありません。使えるのは、note で販売している解説記事のうち、このスキルの利用許諾が付くと記事の中で示しているもの（記事をまとめたマガジンを含む）を購入した方だけです。条件は [LICENSE](LICENSE) と、このページの「ライセンス」を見てください。
+[![Claude](https://img.shields.io/badge/agent-Claude-D97757?logo=claude&logoColor=white)](https://claude.ai/)
+[![Astro](https://img.shields.io/badge/site-Astro-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
+[![Cloudflare Workers](https://img.shields.io/badge/hosting-Cloudflare_Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/features/actions)
+![日本語](https://img.shields.io/badge/lang-日本語-blue)
 
-## はじめての方へ
+[クイックスタート](#クイックスタート) ・ [特徴](#特徴) ・ [ドキュメント](#ドキュメント) ・ [スキルの構成](#スキルの構成) ・ [フィードバック](#フィードバック) ・ [ライセンス](#ライセンス)
 
-- [Claude のアカウント登録ガイド](docs/claude-account.md): アカウントの作り方、有料プラン、最初にしておく設定、GitHub とのつなぎ方
-- [スキルとプロンプトの使い方](docs/how-to-use.md): 相談から制作、公開、運用までの進め方
-- [お問い合わせフォームの作り方](docs/forms.md): Google フォーム（リンク・埋め込み）と、サイトと同じ見た目のフォーム（Cloudflare Email Sending）の導入方法。ほかのサービスの紹介と注意点
-- [Cursor や ChatGPT で使う](docs/other-agents.md): Claude 以外のエージェントでスキルを読み込む方法と、Claude にしかない機能の置き換え
+</div>
 
-## 使い方
+---
 
-Claude（有料プラン）のチャットに次の文章を送ります。
+制作会社に頼んでいた規模のウェブサイト（LP、コーポレートサイト、ブログ、メディア）を、AIエージェントの Claude に任せて作り、公開し、運用し続けるためのスキルとプロンプトです。ITに詳しくない人が、Claude と対話するだけで、安全でデザインのよいサイトを持てるようにすることを目指しています。
+
+> [!IMPORTANT]
+> このリポジトリは誰でも読めますが、オープンソースではありません。使えるのは、note で販売している解説記事のうち、このスキルの利用許諾が付くと記事の中で示しているもの（記事をまとめたマガジンを含む）を購入した方だけです。条件は [LICENSE](LICENSE) と、このページの「[ライセンス](#ライセンス)」を見てください。
+
+## 特徴
+
+- **対話だけで完結**: 選択肢つきの質問に答えるだけで、企画、デザイン、制作、公開まで進む。技術の名前を選ぶ必要はない
+- **公開後も話しかけるだけ**: お知らせやブログは要点を送るだけで、下書き、校正、プレビュー、公開まで Claude が行う。管理画面はない
+- **デプロイが失敗しにくく、失敗しても自動で直る**: CI はビルドと公開後の確認だけ。記事の更新で失敗したら GitHub Actions 上の Claude が直して公開し直す
+- **公開前に品質を測る**: Lighthouse（モバイル）でパフォーマンス95以上、ほかは100が目標。sitemap.xml、llms.txt、JSON-LD、OGP で SEO と AIO を整える
+- **安全を前提にした作り**: 機密情報を読まず、原稿や Web に紛れた指示に従わない。公開前と機能の変更時にセキュリティ監査をする
+- **持ち主はオーナー**: GitHub と Cloudflare のアカウントはすべてオーナーの名義。エージェントや制作者に依存しない
+- **改善ループつき**: 実行ログ、監査ログ、改善メモを残し、月1回の振り返りでスキルとサイトを良くしていく
+
+## クイックスタート
+
+Claude（有料プラン）のチャットに次の文章を送ります。必要なものは下の「[必要なもの](#必要なもの)」を見てください。
 
 ```
 https://github.com/tkc310/ai-web-creator にあるスキル（skills フォルダ）を読み込んで、
@@ -27,19 +51,6 @@ https://github.com/tkc310/ai-web-creator にあるスキル（skills フォル�
 
 Claude が選択肢つきの質問をしながら、企画、制作、公開まで進めます。公開後は管理画面を開く必要がなく、お知らせやブログは要点を箇条書きで送るだけで、Claude が下書きと校正をして公開します。記事のあるサイトでは、公開後に Claude と一緒に1本目の記事を追加して、原稿を Claude ドキュメントに書く → プレビューで確かめる → OK と返すと公開される、という流れを一度体験できます。公開前の変更は、Claude のアーティファクトで HTML のプレビューを見せてから公開します。直したいところは、チャットで伝えます（Team と Enterprise では、プレビューの上で文章や画像を選んでコメントもできます）。GitHub や Cloudflare のアカウントの作り方や設定のしかたも、Claude が対話しながら教えます。制作に入るときは Claude Code（claude.ai/code）に移ります。Claude Code に移ると、Claude がこのリポジトリのスキルの最新の版を、サイトのリポジトリの skills/ フォルダに取り込みます。このリポジトリのフォーク（写し）は作りません。詳しくは [スキルとプロンプトの使い方](docs/how-to-use.md) を参照してください。公開後の更新や質問も、Claude に話しかけるだけで済みます。ほかの頼み方は [prompts/README.md](prompts/README.md) にあります。
 
-## 使うモデル
-
-使うモデルと、考える深さ（effort）の使い分けは [versions.md](skills/web-creator/references/versions.md) にまとめています。計画とデザインは effort high、構築（制作、更新、保守、自動修正）は effort medium です。設定はスキルの frontmatter、サブエージェントの定義（templates/claude/agents/site-builder.md）、サイトのリポジトリの `.claude/settings.json`、自動修正ワークフローの引数で行い、どこに同じ値を書いているかも versions.md に一覧にしています。
-
-## 対応しないもの
-
-会社や店の紹介サイト、LP、ブログ、記事が千本台までのメディアのような「情報を見せるサイト」が対象です。次のものには対応していません。その場合も、制作会社に渡す見本や仕様書づくりには使えます。
-
-- 記事が数千本を超えるメディア
-- 受託制作で、公開後の投稿をお客さまが管理画面から行うサイト（このスキルで作るサイトには管理画面がなく、更新は Claude に頼みます）
-- 訪問者が登録する会員機能、訪問者が書き込むコメント機能
-- ネットショップ（EC）や決済、予約システムのような業務の仕組み
-
 ## 必要なもの
 
 - Claude の有料プラン（Pro か Max）。Team と Enterprise でも使えますが、Claude Code のプロジェクトを使わない手順で進めます（[project-setup.md](skills/web-creator/references/project-setup.md)）。作り終えたあと、静的なサイトは、更新しない月に無料のプラン（Free）に下げられます（下の「注意」）
@@ -50,6 +61,26 @@ Claude が選択肢つきの質問をしながら、企画、制作、公開ま�
 
 GitHub と Cloudflare のアカウントは、作業の途中で Claude が作成を案内します。どちらも1人1つのログインで使い、会社のサイトでは GitHub のリポジトリを会社の Organization に置きます（GitHub の規約では、1つのログインを複数の人で使えないため。[account-setup.md](skills/web-creator/references/account-setup.md)）。自動修正用の鍵は任意で、設定しなくても公開できます（下の「注意」）。アクセス数は、独自ドメインをつないだときに Cloudflare Web Analytics（無料、Cookie を使わない）で数え始めます（[analytics.md](skills/web-creator/references/analytics.md)）。
 
+## 対応しないもの
+
+会社や店の紹介サイト、LP、ブログ、記事が千本台までのメディアのような「情報を見せるサイト」が対象です。次のものには対応していません。その場合も、制作会社に渡す見本や仕様書づくりには使えます。
+
+- 記事が数千本を超えるメディア
+- 受託制作で、公開後の投稿をお客さまが管理画面から行うサイト（このスキルで作るサイトには管理画面がなく、更新は Claude に頼みます）
+- 訪問者が登録する会員機能、訪問者が書き込むコメント機能
+- ネットショップ（EC）や決済、予約システムのような業務の仕組み
+
+## ドキュメント
+
+- [Claude のアカウント登録ガイド](docs/claude-account.md): アカウントの作り方、有料プラン、最初にしておく設定、GitHub とのつなぎ方
+- [スキルとプロンプトの使い方](docs/how-to-use.md): 相談から制作、公開、運用までの進め方
+- [お問い合わせフォームの作り方](docs/forms.md): Google フォーム（リンク・埋め込み）と、サイトと同じ見た目のフォーム（Cloudflare Email Sending）の導入方法。ほかのサービスの紹介と注意点
+- [Cursor や ChatGPT で使う](docs/other-agents.md): Claude 以外のエージェントでスキルを読み込む方法と、Claude にしかない機能の置き換え
+
+## 使うモデル
+
+使うモデルと、考える深さ（effort）の使い分けは [versions.md](skills/web-creator/references/versions.md) にまとめています。計画とデザインは effort high、構築（制作、更新、保守、自動修正）は effort medium です。設定はスキルの frontmatter、サブエージェントの定義（templates/claude/agents/site-builder.md）、サイトのリポジトリの `.claude/settings.json`、自動修正ワークフローの引数で行い、どこに同じ値を書いているかも versions.md に一覧にしています。
+
 ## 中身
 
 | フォルダ | 内容 |
@@ -58,10 +89,59 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらい、プレビューで「OK」をもらってから公開する（標準の流れ） |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。毎月1日と15日に、スタックを最新にする。小さな更新（パッチとマイナー）は確かめてから main に入れ、大きな更新（メジャーと GitHub Actions）はプルリクエストを残してオーナーの OK を待つ |
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する。Claude を無料のプランに下げる前の確認と、Pro に戻した日の作業もここで行う |
+| [skills/design-nexus](skills/design-nexus/SKILL.md) | デザインのスキル（同梱）。3案とトークン計画で方向性を決め、DESIGN.md で見た目をそろえ、lint とレンダーチェックで確かめる。配布元は [tkc310/design-nexus](https://github.com/tkc310/design-nexus)。ここでは直さず、新しい版を写して差し替える |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 | [docs/verification](docs/verification/README.md) | 構成の検証の記録。スキルに組み込む前に、サンプルを作って計測した結果を残す |
 | [.github](.github/workflows/check-skills.yml) | このリポジトリ自身の確かめ（Markdown の bash の構文、YAML、check_text.py、MANIFEST.txt、古い構成の記述が戻っていないか）と、改善点を送る Issue の書式。サイトのリポジトリには写さない |
+
+## スキルの構成
+
+```
+skills/
+├── web-creator/
+│   ├── SKILL.md                 … 進め方の全体とオーナーとの話し方
+│   ├── references/              … ステップごとの詳細（必要なときに読む）
+│   │   ├── hearing.md
+│   │   ├── stack-selection.md   … すべて Astro。対象外の判定、静的か一部 SSR か
+│   │   ├── versions.md          … モデルとバージョンの基準（ほかのファイルはここを参照する）
+│   │   ├── skills-install.md    … スキルをサイトのリポジトリの skills/ に取り込む・更新する
+│   │   ├── account-setup.md
+│   │   ├── connectors.md        … Cloudflare や Google の操作に使うコネクタ（MCP）
+│   │   ├── project-setup.md     … サイトごとの Claude のプロジェクト
+│   │   ├── build.md
+│   │   ├── quality-gate.md
+│   │   ├── deploy-and-autofix.md … 公開、公開後の確認、自動修正（変えてよい範囲と回数の上限）
+│   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
+│   │   ├── analytics.md         … アクセス解析（Cloudflare Web Analytics）
+│   │   ├── migration.md         … WordPress や STUDIO からの引っ越し
+│   │   ├── client-handoff.md    … 受託制作で、お客さまにサイトを引き渡すとき（skills/ を除く手順）
+│   │   ├── preview.md
+│   │   ├── article-tutorial.md  … 公開後に、オーナーと1本目の記事を追加するチュートリアル
+│   │   ├── run-logs.md          … 実行ログと改善ループ
+│   │   ├── audit-log.md         … 監査ログ
+│   │   ├── security-audit.md    … 公開前と機能の変更時のセキュリティ監査
+│   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
+│   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
+│   └── templates/               … SITE.md、AGENTS.md.tmpl と CLAUDE.md.tmpl（サイトの直下に置くときに .tmpl を外す）、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt と scripts/smoke.sh（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
+├── site-content-update/
+│   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
+│   ├── scripts/                 … optimize_images.py（写真のメタ情報の削除と軽量化）
+│   └── templates/               … article-draft.md（Claude ドキュメントの原稿のひな形）
+├── site-maintenance/
+│   ├── SKILL.md
+│   └── references/              … ルーティンの作り方とプロンプト
+├── site-review/
+│   └── SKILL.md                 … 振り返りと、古いログの要約・削除
+├── runtime-update/
+│   └── SKILL.md
+└── design-nexus/                … デザインのスキル（tkc310/design-nexus から同梱。直接は直さない）
+    ├── SKILL.md                 … 案づくり、トークン、検証、講評の進め方
+    ├── references/              … 方向性、クラフト、チェックの一覧、講評、和文組版など
+    ├── scripts/                 … lint.mjs、render-check.mjs、tokens-check.mjs（Node.js だけで動く）
+    ├── templates/               … DESIGN.md のひな形
+    └── design-trends/           … 流行の手法のデータベース（オーナーが求めたときだけ読む）
+```
 
 ## 設計の方針
 
@@ -141,9 +221,9 @@ CI で確認するのは「ビルドが通るか」と、公開後に主なペ�
 
 deploy のワークフローは、ビルド（build）、公開（publish）、公開後の確認（smoke）の3つのジョブに分かれていて、autofix は、どのジョブが失敗したかで動きを変えます。Claude を起動するのはビルドの失敗のときだけです。公開の段階だけの失敗（Cloudflare の鍵の期限切れなど）と、公開後の確認だけの失敗（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。Issue には、公開中のサイトが前回の版か新しい版か、Claude が調べた原因、オーナーが Claude に送る頼み方を書きます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
 
-### デザインは frontend-design スキルで仕上げ、iPhone SE の幅まで確かめる
+### デザインは design-nexus スキルで決めて仕上げ、iPhone SE の幅まで確かめる
 
-デザイン案づくりと、全ページができたあとの仕上げには、Anthropic の frontend-design スキルを使います。書体、色、余白、細部を見直し、テンプレートのような見た目を避けます。スキルは claude.ai のアカウントで有効にしておくと、チャットでも Claude Code のクラウドの会話でも読み込まれます。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
+デザイン案づくりから仕上げまでを、同梱の [design-nexus](https://github.com/tkc310/design-nexus) スキル（[skills/design-nexus](skills/design-nexus/SKILL.md)）で行います。主題に根ざした3案からオーナーに選んでもらい、色と書体のトークンを DESIGN.md にまとめてページ間の見た目をそろえ、lint とレンダーチェックでアクセシビリティの最低ラインを確かめてから、講評で仕上げます。テンプレートのような見た目を避けるためです。スキル一式と一緒にサイトのリポジトリに取り込まれるので、オーナーがスキルを有効にする操作は要りません。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
 
 ### 公開前に品質を測る
 
@@ -161,47 +241,40 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 
 エージェントが動くたびに（オーナーの依頼、自動修正、保守、振り返り）、サイトのリポジトリの logs/ に実行ログを1つ書きます。次回以降に直す価値がある点は logs/IMPROVEMENTS.md にまとめ、次の作業の前に読みます。月に1回の振り返り（[site-review](skills/site-review/SKILL.md)）で改善点を整理し、保管期間（既定90日）を過ぎたログは月ごとに要約して削除します。スキル側の改善点も、サイトの logs/IMPROVEMENTS.md に種類「スキル」で残すところまでが標準です。配布元に送るのは任意で、送る場合はオーナーの了承を得て、個人情報を除いてから、note の窓口かこのリポジトリの Issue に送ります（[run-logs.md](skills/web-creator/references/run-logs.md)）。
 
-## スキルの構成
+## 注意
 
-```
-skills/
-├── web-creator/
-│   ├── SKILL.md                 … 進め方の全体とオーナーとの話し方
-│   ├── references/              … ステップごとの詳細（必要なときに読む）
-│   │   ├── hearing.md
-│   │   ├── stack-selection.md   … すべて Astro。対象外の判定、静的か一部 SSR か
-│   │   ├── versions.md          … モデルとバージョンの基準（ほかのファイルはここを参照する）
-│   │   ├── skills-install.md    … スキルをサイトのリポジトリの skills/ に取り込む・更新する
-│   │   ├── account-setup.md
-│   │   ├── connectors.md        … Cloudflare や Google の操作に使うコネクタ（MCP）
-│   │   ├── project-setup.md     … サイトごとの Claude のプロジェクト
-│   │   ├── build.md
-│   │   ├── quality-gate.md
-│   │   ├── deploy-and-autofix.md … 公開、公開後の確認、自動修正（変えてよい範囲と回数の上限）
-│   │   ├── forms.md             … お問い合わせフォーム（Google フォーム / Cloudflare Email Sending）
-│   │   ├── analytics.md         … アクセス解析（Cloudflare Web Analytics）
-│   │   ├── migration.md         … WordPress や STUDIO からの引っ越し
-│   │   ├── client-handoff.md    … 受託制作で、お客さまにサイトを引き渡すとき（skills/ を除く手順）
-│   │   ├── preview.md
-│   │   ├── article-tutorial.md  … 公開後に、オーナーと1本目の記事を追加するチュートリアル
-│   │   ├── run-logs.md          … 実行ログと改善ループ
-│   │   ├── audit-log.md         … 監査ログ
-│   │   ├── security-audit.md    … 公開前と機能の変更時のセキュリティ監査
-│   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
-│   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
-│   └── templates/               … SITE.md、AGENTS.md.tmpl と CLAUDE.md.tmpl（サイトの直下に置くときに .tmpl を外す）、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt と scripts/smoke.sh（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
-├── site-content-update/
-│   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
-│   ├── scripts/                 … optimize_images.py（写真のメタ情報の削除と軽量化）
-│   └── templates/               … article-draft.md（Claude ドキュメントの原稿のひな形）
-├── site-maintenance/
-│   ├── SKILL.md
-│   └── references/              … ルーティンの作り方とプロンプト
-├── site-review/
-│   └── SKILL.md                 … 振り返りと、古いログの要約・削除
-└── runtime-update/
-    └── SKILL.md
-```
+- 料金やサービスの仕様は変わります。スキルの中の数値は作成時点のもので、エージェントは作業時に最新の情報を確認します
+- 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` または `ANTHROPIC_API_KEY`）は任意です。設定しなければ、失敗したときに Issue（と GitHub のメール）で知らせるだけになります。`CLAUDE_CODE_OAUTH_TOKEN` の発行には、パソコンに Claude Code を入れてコマンドを1行打つ作業が要ります（[account-setup.md](skills/web-creator/references/account-setup.md) の3）
+- 保守ルーティンは Claude のスケジュールタスクで動くため、Claude の利用量を使います（Pro 以上のプランで利用できます）
+- 静的なサイトは、更新しない月に Claude を無料のプラン（Free）に下げられます。Free では Claude Code とスケジュールタスクが使えません（[料金のページ](https://claude.com/pricing)、2026-10-31 確認）。サイトの表示と、GitHub の画面で直した文章の公開は続きます。月1回の振り返り、予約投稿、自動修正（Claude のプランの鍵の場合）は止まります。要保守構成のサイトは、部品の弱点を直し続けるために下げません。下げる前の確認と Pro に戻した日の作業は [site-review](skills/site-review/SKILL.md) の「無料のプランに下げる前と、Pro に戻した日」、無料の月の文章の直し方はサイトのリポジトリの README.md（[README.owner.md](skills/web-creator/templates/README.owner.md)）の「Claude を無料のプランにしている月」にあります
+
+## コントリビュート
+
+不具合の報告や改善の提案を歓迎します。ライセンスの都合で、プルリクエストでのコードの持ち込みは受け付けていません。
+
+- 不具合や分かりにくい説明: [Issue](https://github.com/tkc310/ai-web-creator/issues/new/choose)（書式「スキルの改善点」）か note の窓口で教えてください。詳しくは下の「[フィードバック](#フィードバック)」
+- 変更の履歴: [CHANGELOG.md](CHANGELOG.md)
+- 改善の記録: [docs/logs/](docs/logs/README.md)
+- リポジトリを直すエージェントの決まり: [AGENTS.md](AGENTS.md)
+- 版の付け方とリリースの手順: このページの「[版の付け方（作者向け）](#版の付け方作者向け)」
+
+## フィードバック
+
+うまく動かなかった手順や、分かりにくかった説明は、note の窓口か、このリポジトリの Issue（書式「スキルの改善点」）で教えてください。送るかどうかは任意です。Issue は誰でも読めるので、サイトの URL や個人情報は書かないでください。サイトのリポジトリで Claude が見つけた改善点は、logs/IMPROVEMENTS.md に残っています（送り方は [run-logs.md](skills/web-creator/references/run-logs.md) の「スキルの改善点を配布元に送る（任意）」）。
+
+いただいた意見をもとに改善した記録は [docs/logs/](docs/logs/README.md) に残しています。
+
+## ライセンス
+
+[LICENSE](LICENSE) の条件で使えます。要点は次のとおりです。
+
+- 使えるのは、note で販売している解説記事のうち、利用許諾が付くと記事の中で示しているもの（マガジンを含む）の購入者だけです。購入者が会社や団体のために使う場合は、その会社や団体の中で使えます。担当者が代わっても、後任の担当者が同じサイトのために使い続けられます
+- 自分や自社のサイトの制作、公開、更新、保守に使えます。そのために、スキルをサイトの非公開のリポジトリに写し、新しい版に更新できます
+- ほかの人から依頼を受けて、お客さまのサイトを作る仕事や保守にも使えます。お客さまごとの追加の購入は要りません。お客さまのサイトの非公開のリポジトリに skills/ を置けるのは、制作か保守を続けている間です。手を離すときは、お客さま自身が購入者でなければ skills/ を除きます（スキルの再配布にあたるため。手順は [client-handoff.md](skills/web-creator/references/client-handoff.md)）
+- スキルやプロンプトの配布、販売、購入者でない人への受け渡し、似たものを作って配ることはできません
+- AI の学習や学習用データセット、RAG の索引、購入者以外への回答に使う知識ベースへの取り込みと、そのためのクローリングは禁止しています。購入者が自分の AI エージェントに読み込ませるのは問題ありません
+- スキルで作ったサイトのページ、文章、コード、ログは、購入者のものです。自由に使えます。サイトのリポジトリをほかの人に渡すときは、skills/ を除いてください（相手も購入者なら除かなくてかまいません）
+- 保証はありません
 
 ## 版の付け方（作者向け）
 
@@ -275,29 +348,18 @@ skills/
 7. 上の zip を作り、リリースに添付する
 8. 手順3と4で確かめた結果を、skills/web-creator/references/versions.md の「時点つきの事実」の「未確認」の行に、確かめた日と一緒に書く。直した版は次のタグで出す
 
+### 同梱しているスキルの更新
+
+`skills/design-nexus/` は、[tkc310/design-nexus](https://github.com/tkc310/design-nexus) を写したものです。直接は直さず、配布元で直してから、作業ブランチで次のように差し替えます。写したら、[versions.md](skills/web-creator/references/versions.md) の「同梱しているスキル」の版、コミット、写した日を直し、CHANGELOG.md に書きます。
+
+```bash
+src="$(mktemp -d)"
+git clone --quiet --depth 1 https://github.com/tkc310/design-nexus "$src/design-nexus"
+node "$src/design-nexus/scripts/build.mjs"
+rm -rf skills/design-nexus
+cp -R "$src/design-nexus/dist/claude/design-nexus" skills/design-nexus
+printf '%s %s\n' "$(cat "$src/design-nexus/VERSION")" "$(git -C "$src/design-nexus" rev-parse HEAD)"
+rm -rf "$src"
+```
+
 スキルの更新は期間を区切らずに続けます。止めるときは、3か月前にこの README と note で知らせます。
-
-## 注意
-
-- 料金やサービスの仕様は変わります。スキルの中の数値は作成時点のもので、エージェントは作業時に最新の情報を確認します
-- 自動修正用の鍵（`CLAUDE_CODE_OAUTH_TOKEN` または `ANTHROPIC_API_KEY`）は任意です。設定しなければ、失敗したときに Issue（と GitHub のメール）で知らせるだけになります。`CLAUDE_CODE_OAUTH_TOKEN` の発行には、パソコンに Claude Code を入れてコマンドを1行打つ作業が要ります（[account-setup.md](skills/web-creator/references/account-setup.md) の3）
-- 保守ルーティンは Claude のスケジュールタスクで動くため、Claude の利用量を使います（Pro 以上のプランで利用できます）
-- 静的なサイトは、更新しない月に Claude を無料のプラン（Free）に下げられます。Free では Claude Code とスケジュールタスクが使えません（[料金のページ](https://claude.com/pricing)、2026-10-31 確認）。サイトの表示と、GitHub の画面で直した文章の公開は続きます。月1回の振り返り、予約投稿、自動修正（Claude のプランの鍵の場合）は止まります。要保守構成のサイトは、部品の弱点を直し続けるために下げません。下げる前の確認と Pro に戻した日の作業は [site-review](skills/site-review/SKILL.md) の「無料のプランに下げる前と、Pro に戻した日」、無料の月の文章の直し方はサイトのリポジトリの README.md（[README.owner.md](skills/web-creator/templates/README.owner.md)）の「Claude を無料のプランにしている月」にあります
-
-## ライセンス
-
-[LICENSE](LICENSE) の条件で使えます。要点は次のとおりです。
-
-- 使えるのは、note で販売している解説記事のうち、利用許諾が付くと記事の中で示しているもの（マガジンを含む）の購入者だけです。購入者が会社や団体のために使う場合は、その会社や団体の中で使えます。担当者が代わっても、後任の担当者が同じサイトのために使い続けられます
-- 自分や自社のサイトの制作、公開、更新、保守に使えます。そのために、スキルをサイトの非公開のリポジトリに写し、新しい版に更新できます
-- ほかの人から依頼を受けて、お客さまのサイトを作る仕事や保守にも使えます。お客さまごとの追加の購入は要りません。お客さまのサイトの非公開のリポジトリに skills/ を置けるのは、制作か保守を続けている間です。手を離すときは、お客さま自身が購入者でなければ skills/ を除きます（スキルの再配布にあたるため。手順は [client-handoff.md](skills/web-creator/references/client-handoff.md)）
-- スキルやプロンプトの配布、販売、購入者でない人への受け渡し、似たものを作って配ることはできません
-- AI の学習や学習用データセット、RAG の索引、購入者以外への回答に使う知識ベースへの取り込みと、そのためのクローリングは禁止しています。購入者が自分の AI エージェントに読み込ませるのは問題ありません
-- スキルで作ったサイトのページ、文章、コード、ログは、購入者のものです。自由に使えます。サイトのリポジトリをほかの人に渡すときは、skills/ を除いてください（相手も購入者なら除かなくてかまいません）
-- 保証はありません
-
-## フィードバック
-
-うまく動かなかった手順や、分かりにくかった説明は、note の窓口か、このリポジトリの Issue（書式「スキルの改善点」）で教えてください。送るかどうかは任意です。Issue は誰でも読めるので、サイトの URL や個人情報は書かないでください。サイトのリポジトリで Claude が見つけた改善点は、logs/IMPROVEMENTS.md に残っています（送り方は [run-logs.md](skills/web-creator/references/run-logs.md) の「スキルの改善点を配布元に送る（任意）」）。
-
-いただいた意見をもとに改善した記録は [docs/logs/](docs/logs/README.md) に残しています。

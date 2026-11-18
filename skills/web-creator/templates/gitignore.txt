@@ -5,6 +5,7 @@ dist/
 .wrangler/
 lighthouse-reports/
 mobile-shots/
+.design-nexus/
 .autofix-failed.log
 .env
 .env.*
