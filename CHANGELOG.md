@@ -4,6 +4,7 @@
 
 ### 2026-11-18
 
+- feat(skills): デザインの段階を、frontend-design から design-nexus スキルに切り替えた。tkc310/design-nexus 0.10.0 を skills/design-nexus に同梱し、取り込みで一緒に入るので、オーナーがスキルを有効にする操作が要らなくなった。3案とトークン計画で方向性を決め、選んだ案を DESIGN.md にまとめ、lint とレンダーチェックと講評で仕上げる。ヒアリングの答えとこのスキルの基準を design-nexus の依頼として渡し、優先する（build.md、versions.md、SKILL.md、templates/gitignore.txt、templates/claude/agents/site-builder.md、docs/other-agents.md、AGENTS.md、README.md）
 - docs: README をオープンソースのリポジトリのような構成にした。状態のバッジ（check-skills、リリース、最後のコミット、Issue、ライセンス）と技術のバッジ、「特徴」「コントリビュート」を足し、見出しを並べ替えた。「版の付け方（作者向け）」は名前を変えずに最後へ移した（README.md）
 
 ### 2026-11-04

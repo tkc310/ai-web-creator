@@ -89,6 +89,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらい、プレビューで「OK」をもらってから公開する（標準の流れ） |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。毎月1日と15日に、スタックを最新にする。小さな更新（パッチとマイナー）は確かめてから main に入れ、大きな更新（メジャーと GitHub Actions）はプルリクエストを残してオーナーの OK を待つ |
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する。Claude を無料のプランに下げる前の確認と、Pro に戻した日の作業もここで行う |
+| [skills/design-nexus](skills/design-nexus/SKILL.md) | デザインのスキル（同梱）。3案とトークン計画で方向性を決め、DESIGN.md で見た目をそろえ、lint とレンダーチェックで確かめる。配布元は [tkc310/design-nexus](https://github.com/tkc310/design-nexus)。ここでは直さず、新しい版を写して差し替える |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 | [docs/verification](docs/verification/README.md) | 構成の検証の記録。スキルに組み込む前に、サンプルを作って計測した結果を残す |
@@ -132,8 +133,14 @@ skills/
 │   └── references/              … ルーティンの作り方とプロンプト
 ├── site-review/
 │   └── SKILL.md                 … 振り返りと、古いログの要約・削除
-└── runtime-update/
-    └── SKILL.md
+├── runtime-update/
+│   └── SKILL.md
+└── design-nexus/                … デザインのスキル（tkc310/design-nexus から同梱。直接は直さない）
+    ├── SKILL.md                 … 案づくり、トークン、検証、講評の進め方
+    ├── references/              … 方向性、クラフト、チェックの一覧、講評、和文組版など
+    ├── scripts/                 … lint.mjs、render-check.mjs、tokens-check.mjs（Node.js だけで動く）
+    ├── templates/               … DESIGN.md のひな形
+    └── design-trends/           … 流行の手法のデータベース（オーナーが求めたときだけ読む）
 ```
 
 ## 設計の方針
@@ -214,9 +221,9 @@ CI で確認するのは「ビルドが通るか」と、公開後に主なペ�
 
 deploy のワークフローは、ビルド（build）、公開（publish）、公開後の確認（smoke）の3つのジョブに分かれていて、autofix は、どのジョブが失敗したかで動きを変えます。Claude を起動するのはビルドの失敗のときだけです。公開の段階だけの失敗（Cloudflare の鍵の期限切れなど）と、公開後の確認だけの失敗（サイトは新しい版で公開されている）は、Claude を動かさずに Issue で知らせます。Issue には、公開中のサイトが前回の版か新しい版か、Claude が調べた原因、オーナーが Claude に送る頼み方を書きます。戻すときは Claude に頼みます（[deploy-and-autofix.md](skills/web-creator/references/deploy-and-autofix.md) の「表示がおかしいときに戻す」）。ビルドや公開の段階で失敗した場合は、Cloudflare 上の前回のサイトがそのまま表示されます。自動修正用の鍵を設定していないサイトでは、Claude は動かず、Issue で知らせるだけです。
 
-### デザインは frontend-design スキルで仕上げ、iPhone SE の幅まで確かめる
+### デザインは design-nexus スキルで決めて仕上げ、iPhone SE の幅まで確かめる
 
-デザイン案づくりと、全ページができたあとの仕上げには、Anthropic の frontend-design スキルを使います。書体、色、余白、細部を見直し、テンプレートのような見た目を避けます。スキルは claude.ai のアカウントで有効にしておくと、チャットでも Claude Code のクラウドの会話でも読み込まれます。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
+デザイン案づくりから仕上げまでを、同梱の [design-nexus](https://github.com/tkc310/design-nexus) スキル（[skills/design-nexus](skills/design-nexus/SKILL.md)）で行います。主題に根ざした3案からオーナーに選んでもらい、色と書体のトークンを DESIGN.md にまとめてページ間の見た目をそろえ、lint とレンダーチェックでアクセシビリティの最低ラインを確かめてから、講評で仕上げます。テンプレートのような見た目を避けるためです。スキル一式と一緒にサイトのリポジトリに取り込まれるので、オーナーがスキルを有効にする操作は要りません。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
 
 ### 公開前に品質を測る
 
@@ -340,5 +347,19 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 6. `git ls-remote --tags https://github.com/tkc310/ai-web-creator` で、タグが見えることを確かめる
 7. 上の zip を作り、リリースに添付する
 8. 手順3と4で確かめた結果を、skills/web-creator/references/versions.md の「時点つきの事実」の「未確認」の行に、確かめた日と一緒に書く。直した版は次のタグで出す
+
+### 同梱しているスキルの更新
+
+`skills/design-nexus/` は、[tkc310/design-nexus](https://github.com/tkc310/design-nexus) を写したものです。直接は直さず、配布元で直してから、作業ブランチで次のように差し替えます。写したら、[versions.md](skills/web-creator/references/versions.md) の「同梱しているスキル」の版、コミット、写した日を直し、CHANGELOG.md に書きます。
+
+```bash
+src="$(mktemp -d)"
+git clone --quiet --depth 1 https://github.com/tkc310/design-nexus "$src/design-nexus"
+node "$src/design-nexus/scripts/build.mjs"
+rm -rf skills/design-nexus
+cp -R "$src/design-nexus/dist/claude/design-nexus" skills/design-nexus
+printf '%s %s\n' "$(cat "$src/design-nexus/VERSION")" "$(git -C "$src/design-nexus" rev-parse HEAD)"
+rm -rf "$src"
+```
 
 スキルの更新は期間を区切らずに続けます。止めるときは、3か月前にこの README と note で知らせます。

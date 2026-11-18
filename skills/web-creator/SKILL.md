@@ -34,7 +34,7 @@ EC や予約が一部だけ該当する場合（例: 会社サイトに予約の
 1. ヒアリング      … 何のためのサイトかを聞く（references/hearing.md）
 2. 技術の選定      … すべて Astro。対象外かどうか、静的か一部 SSR か、ページの形を決める（references/stack-selection.md）
 3. アカウント準備  … 人がやる操作だけを任せる（references/account-setup.md）
-4. デザインと制作  … 3案を見せて選んでもらい、作り、frontend-design スキルで仕上げる（references/build.md、お問い合わせフォームは references/forms.md）
+4. デザインと制作  … design-nexus スキルで3案を見せて選んでもらい、DESIGN.md にまとめて作り、チェックと講評で仕上げる（references/build.md、お問い合わせフォームは references/forms.md）
 5. 公開前の健康診断 … Lighthouse と SEO・AIO（references/quality-gate.md）、セキュリティ監査（references/security-audit.md）
 6. 公開            … GitHub → Cloudflare（references/deploy-and-autofix.md）
 7. 記事の追加体験  … 記事のあるサイトだけ。オーナーと1本目の記事を追加する（references/article-tutorial.md）
@@ -153,7 +153,7 @@ EC や予約が一部だけ該当する場合（例: 会社サイトに予約の
 
 - Lighthouse（モバイル）: パフォーマンス 95以上、ユーザー補助・おすすめの方法・SEO は 100
 - スマホの表示: iPhone SE の幅（375px）と 320px で、横スクロール、はみ出し、ヘッダーやボタンの折り返しがない（scripts/check_mobile_width.py。references/build.md の「スマホの幅」）
-- デザイン: frontend-design スキルでブラッシュアップしてある（references/build.md）
+- デザイン: design-nexus スキルの lint とレンダーチェックで Floor の指摘がなく、講評のあとの仕上げが済んでいる。DESIGN.md が実際のコードと合っている（references/build.md）
 - sitemap.xml、robots.txt、llms.txt、構造化データ（JSON-LD）、OGP がそろっている
 - 構造化データは、ページに実際に表示している内容だけを書く
 - セキュリティ: Cloudflare の security-audit スキルでリポジトリ全体を監査し、確定した脆弱性をすべて直してある。直し方は、表示や公開、CI を止めないもの（references/security-audit.md の「直し方の決まり」）。機能を追加・変更したときも、公開前に同じ監査をする（references/security-audit.md）
