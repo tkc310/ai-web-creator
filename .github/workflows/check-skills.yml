@@ -4,7 +4,7 @@
 #   - YAML が読める。シェルのスクリプトが bash -n を通り、Python のスクリプトがコンパイルできる
 #   - check_text.py で、機密情報と AI に向けた命令の疑いがない（説明の文に例のタグがあるので、--no-markup を付ける）
 #   - EmDash を標準にしていた古い版の記述が、スキルとプロンプトに戻っていない
-#   - タグと、MANIFEST.txt を置いたあとの main では、MANIFEST.txt が LICENSE と skills/ のファイルと一致する（README の「版の付け方」の手順2）
+#   - タグと、MANIFEST.txt を置いたあとの main では、MANIFEST.txt が LICENSE と skills/ のファイルと一致する（README.ja.md の「版の付け方（作者向け）」の手順2）
 name: check-skills
 
 on:

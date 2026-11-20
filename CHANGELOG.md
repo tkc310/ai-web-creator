@@ -5,6 +5,7 @@
 ### 2026-11-20
 
 - refactor(skills): design-nexus を配布元に同梱するのをやめ、tkc310/design-nexus を参照する形にした。使う版は skills/web-creator/references/external-skills.txt に書き、サイトに取り込むときに scripts/fetch_external_skills.sh が決めたコミットを取得して skills/design-nexus に置く（取得したコミットが合わなければ置かない。取れなければ置かずに進む）。リリースの zip には同じ版を入れる。版の上げ方は README の「参照しているスキルの更新」（skills-install.md、build.md、versions.md、release.yml、README.md、AGENTS.md、docs/other-agents.md）
+- docs: README の既定を英語にし、日本語、简体中文、繁體中文、한국어に切り替えられるようにした。これまでの README.md は README.ja.md に移し、日本語版と LICENSE を正とする。「版の付け方（作者向け）」は日本語版にだけ置き、ほかの言語版からはそこへ案内する（README.md、README.ja.md、README.zh-CN.md、README.zh-TW.md、README.ko.md、AGENTS.md、check_skills.py、check-skills.yml、release.yml）
 
 ## v2026.11.1（2026-11-18）
 

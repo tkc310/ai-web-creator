@@ -69,8 +69,8 @@ for f in tracked("*.yml", "*.yaml"):
 
 # 4. 古い構成の記述
 OLD = re.compile(r"(?i)emdash")
-for f in tracked("skills/*", "prompts/*", "AGENTS.md", "README.md", "docs/how-to-use.md",
-                 "docs/claude-account.md", "docs/forms.md", "docs/other-agents.md"):
+for f in tracked("skills/*", "prompts/*", "AGENTS.md", "README.md", "README.ja.md", "README.zh-CN.md",
+                 "README.zh-TW.md", "README.ko.md", "docs/how-to-use.md", "docs/claude-account.md", "docs/forms.md", "docs/other-agents.md"):
     if f.suffix in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
         continue
     for n, line in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
@@ -81,7 +81,7 @@ for f in tracked("skills/*", "prompts/*", "AGENTS.md", "README.md", "docs/how-to
 if "--manifest" in sys.argv[1:]:
     manifest = ROOT / "MANIFEST.txt"
     if not manifest.is_file():
-        problems.append("MANIFEST.txt がありません（README の「版の付け方」の手順2）")
+        problems.append("MANIFEST.txt がありません（README.ja.md の「版の付け方（作者向け）」の手順2）")
     else:
         listed = {}
         for line in manifest.read_text(encoding="utf-8").splitlines():
