@@ -29,11 +29,11 @@ design-nexus は、作者が公開しているデザインのスキル（https:/
 
 ### 使えるようにする
 
-design-nexus は、このスキル一式の `skills/design-nexus/` に同梱しています。skills-install.md の手順で `skills/` を取り込めば一緒に入るので、オーナーが claude.ai のアカウントで有効にしたり、パソコンに入れたりする操作は要りません。デザインに入るときに `skills/design-nexus/SKILL.md` を読み、そこに書かれた `references/`、`scripts/`、`templates/` は `skills/design-nexus/` からの道のりとして読みます。
+design-nexus は、配布元に同梱せず、作者のリポジトリ（https://github.com/tkc310/design-nexus ）を参照しています。skills-install.md の初回の手順の3で、`skills/web-creator/references/external-skills.txt` に決めた版を取得して `skills/design-nexus/` に置くので、オーナーが claude.ai のアカウントで有効にしたり、パソコンに入れたりする操作は要りません。デザインに入るときに `skills/design-nexus/SKILL.md` を読み、そこに書かれた `references/`、`scripts/`、`templates/` は `skills/design-nexus/` からの道のりとして読みます。
 
-- `skills/design-nexus/` がない（古い版を取り込んだ）ときは、skills-install.md の「新しい版への更新」で新しい版に差し替えてから始める。差し替えられないときは、待たずに進め、下の「仕上げで見るところ」を自分で確かめて、使えなかったことを実行ログに書く
+- `skills/design-nexus/` がないとき（古い版を取り込んだ、取り込みのときに取得できなかった）は、`bash skills/web-creator/scripts/fetch_external_skills.sh ./skills` をもう一度試す。置けたら `skills/VERSION` の最後に、skills-install.md の初回の手順の3と同じ行を足してコミットする。古い版で `external-skills.txt` がなければ、skills-install.md の「新しい版への更新」で新しい版に差し替えてから始める。差し替えられないときは、待たずに進め、下の「仕上げで見るところ」を自分で確かめて、使えなかったことを実行ログに書く
 - frontend-design などほかのデザインのスキルは、design-nexus と同時に読み込まない（design-nexus の「Order of authority」。決まりがぶつかって、見た目がそろわなくなるため）
-- `skills/design-nexus/` の中は直さない。直したいことは、サイトの決まりなら DESIGN.md に、スキルの改善点なら logs/IMPROVEMENTS.md（種類「スキル」）に書く
+- `skills/design-nexus/` の中は直さない（次の取り込みで、決めた版に戻る）。直したいことは、サイトの決まりなら DESIGN.md に、スキルの改善点なら logs/IMPROVEMENTS.md（種類「スキル」）に書く
 
 ### このスキルとの決まりの合わせ方
 

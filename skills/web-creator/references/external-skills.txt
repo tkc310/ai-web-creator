@@ -1,0 +1,4 @@
+# 取り込むときに、配布元とは別のリポジトリから写すスキルの一覧（scripts/fetch_external_skills.sh が読む）
+# 1行に1つ: <名前> <リポジトリの URL> <タグ（なければ none）> <コミット（40文字）>
+# 版を上げるときは、配布元の README の「参照しているスキルの更新」に従い、この行だけを書き換える
+design-nexus https://github.com/tkc310/design-nexus none a0f7b849ff1b9621120cc383f5ba50f3ef38b6d2
