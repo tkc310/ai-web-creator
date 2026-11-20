@@ -7,15 +7,26 @@
 **Claude와 대화하는 것만으로, 예전에는 웹 제작 회사에 맡기던 규모의 웹사이트를 만들고 공개하고 계속 운영하기 위한 스킬과 프롬프트**
 
 [![check-skills](https://img.shields.io/github/actions/workflow/status/tkc310/ai-web-creator/check-skills.yml?branch=main&label=check-skills&logo=githubactions&logoColor=white)](https://github.com/tkc310/ai-web-creator/actions/workflows/check-skills.yml)
-[![Release](https://img.shields.io/github/v/release/tkc310/ai-web-creator?label=release)](https://github.com/tkc310/ai-web-creator/releases)
+[![Release](https://img.shields.io/github/v/release/tkc310/ai-web-creator?label=release&logo=github)](https://github.com/tkc310/ai-web-creator/releases/latest)
+[![Release date](https://img.shields.io/github/release-date/tkc310/ai-web-creator?label=released)](https://github.com/tkc310/ai-web-creator/releases)
 [![Last commit](https://img.shields.io/github/last-commit/tkc310/ai-web-creator)](https://github.com/tkc310/ai-web-creator/commits/main)
-[![Issues](https://img.shields.io/github/issues/tkc310/ai-web-creator)](https://github.com/tkc310/ai-web-creator/issues)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/tkc310/ai-web-creator)](https://github.com/tkc310/ai-web-creator/pulse)
 [![License: Proprietary](https://img.shields.io/badge/license-proprietary-lightgrey)](LICENSE)
 
+[![GitHub stars](https://img.shields.io/github/stars/tkc310/ai-web-creator?style=flat&logo=github&label=stars)](https://github.com/tkc310/ai-web-creator/stargazers)
+[![Issues](https://img.shields.io/github/issues/tkc310/ai-web-creator?logo=github)](https://github.com/tkc310/ai-web-creator/issues)
+[![Pull requests](https://img.shields.io/github/issues-pr/tkc310/ai-web-creator?logo=github)](https://github.com/tkc310/ai-web-creator/pulls)
+![README languages](https://img.shields.io/badge/README-EN%20%7C%20JA%20%7C%20ZH--CN%20%7C%20ZH--TW%20%7C%20KO-informational)
+
 [![Claude](https://img.shields.io/badge/agent-Claude-D97757?logo=claude&logoColor=white)](https://claude.ai/)
+[![Agent Skills](https://img.shields.io/badge/format-Agent_Skills-D97757?logo=anthropic&logoColor=white)](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
+[![design-nexus](https://img.shields.io/badge/design-design--nexus-6E56CF?logo=github&logoColor=white)](https://github.com/tkc310/design-nexus)
 [![Astro](https://img.shields.io/badge/site-Astro-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
 [![Cloudflare Workers](https://img.shields.io/badge/hosting-Cloudflare_Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/features/actions)
+[![Node.js LTS](https://img.shields.io/badge/runtime-Node.js_LTS-5FA04E?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/package-pnpm-F69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![Lighthouse](https://img.shields.io/badge/quality-Lighthouse-F44B21?logo=lighthouse&logoColor=white)](https://developer.chrome.com/docs/lighthouse)
 
 이 스킬이 도움이 되었다면 저장소에 ⭐ Star를 눌러 주시면 큰 힘이 됩니다.
 
