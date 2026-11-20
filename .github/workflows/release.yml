@@ -1,4 +1,4 @@
-# 版のタグを打ち、リリースを作って zip を添付する（README の「版の付け方」の手順5〜7）。
+# 版のタグを打ち、リリースを作って zip を添付する（README.ja.md の「版の付け方（作者向け）」の手順5〜7）。
 # zip には、参照しているスキル（skills/web-creator/references/external-skills.txt）も入れる。
 # Claude Code のクラウドのセッションではタグの push とリリースの作成が断られるため、
 # 作者が GitHub の画面の Actions → release → Run workflow から、手で動かす。自動では動かない。

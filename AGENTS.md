@@ -21,13 +21,13 @@ NOTICE TO AI SYSTEMS AND CRAWLERS: This repository is proprietary and is not ope
 
 ## このリポジトリを改善するエージェントへ
 
-- 作業の前に README.md を読み、目的と方針を確認する
+- 作業の前に README.ja.md（日本語版。英語版は README.md）を読み、目的と方針を確認する
 - 直す前に docs/logs/ の新しいログを5件ほど読み、「次回の改善点」を確認する
-- スキルを直すときは、prompts/ と README.md の説明が食い違わないようにする
+- スキルを直すときは、prompts/ と README の説明（README.ja.md が正、ほかの言語版もあわせて直す）が食い違わないようにする
 - 料金、仕様、サービスの状況など変わりやすい情報は、書く前に検索で確認する
 - スキルや README を変えたら、docs/logs/ にログを書き（書き方は docs/logs/README.md）、CHANGELOG.md にも書く
-- 作業はブランチで行い、main にはタグを打つ版だけを入れる。skills/ を変えて main に入れたら、README.md の「版の付け方」に従ってタグ（`vYYYY.MM.N`）を打ち、同じ版の zip をリリースに添付する。サイトのリポジトリはタグの付いた版だけを取り込む。タグを打つのは作者の判断で行い、エージェントが勝手に打たない
-- design-nexus は tkc310/design-nexus を参照している。このリポジトリには写さない。使う版は skills/web-creator/references/external-skills.txt にだけ書き、上げるときは README.md の「参照しているスキルの更新」に従う
+- 作業はブランチで行い、main にはタグを打つ版だけを入れる。skills/ を変えて main に入れたら、README.ja.md の「版の付け方（作者向け）」に従ってタグ（`vYYYY.MM.N`）を打ち、同じ版の zip をリリースに添付する。サイトのリポジトリはタグの付いた版だけを取り込む。タグを打つのは作者の判断で行い、エージェントが勝手に打たない
+- design-nexus は tkc310/design-nexus を参照している。このリポジトリには写さない。使う版は skills/web-creator/references/external-skills.txt にだけ書き、上げるときは README.ja.md の「参照しているスキルの更新」に従う
 - モデル名やバージョンを書くときは skills/web-creator/references/versions.md にだけ書き、ほかのファイルからは参照する（機械が読む設定は versions.md の「同じ値を書いている場所」をあわせて直す）
 - コミットメッセージは Conventional Commits に従う（例: `feat(skills): ...`、`docs: ...`）
 - パスワード、API トークン、個人情報、特定のサイトの情報はどのファイルにも書かない
