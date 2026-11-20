@@ -1,4 +1,5 @@
 # 版のタグを打ち、リリースを作って zip を添付する（README の「版の付け方」の手順5〜7）。
+# zip には、参照しているスキル（skills/web-creator/references/external-skills.txt）も入れる。
 # Claude Code のクラウドのセッションではタグの push とリリースの作成が断られるため、
 # 作者が GitHub の画面の Actions → release → Run workflow から、手で動かす。自動では動かない。
 # 動かす前に、CHANGELOG.md の版の見出しの日付と MANIFEST.txt を main に入れておく（手順2）。
@@ -65,6 +66,8 @@ jobs:
           set -euo pipefail
           out="$(mktemp -d)"
           git archive --format=tar "$TAG" skills LICENSE CHANGELOG.md | tar -x -C "$out"
+          # 参照しているスキル（design-nexus）を、その版の external-skills.txt のコミットで zip に入れる（clone できない作業環境の B の経路のため）
+          bash "$out/skills/web-creator/scripts/fetch_external_skills.sh" "$out/skills"
           printf 'source: https://github.com/%s\ntag: %s\ncommit: %s\n' "$GITHUB_REPOSITORY" "$TAG" "$(git rev-list -n 1 "$TAG")" > "$out/VERSION"
           (cd "$out" && zip -qr "ai-web-creator-$TAG.zip" skills LICENSE CHANGELOG.md VERSION)
           sed -n "/^## $TAG/,/^## /p" CHANGELOG.md | sed '$d' > "$out/notes.md"

@@ -91,7 +91,7 @@ GitHub と Cloudflare のアカウントは、作業の途中で Claude が作�
 | [skills/site-content-update](skills/site-content-update/SKILL.md) | 公開後の記事・お知らせの更新。チャット、Google ドキュメント、Claude ドキュメントから原稿を読み取って公開する。原稿の置き場所の指定がなければ Claude ドキュメントに原稿を書いてもらい、プレビューで「OK」をもらってから公開する（標準の流れ） |
 | [skills/site-maintenance](skills/site-maintenance/SKILL.md) | 要保守構成のサイトの定期保守。毎月1日と15日に、スタックを最新にする。小さな更新（パッチとマイナー）は確かめてから main に入れ、大きな更新（メジャーと GitHub Actions）はプルリクエストを残してオーナーの OK を待つ |
 | [skills/site-review](skills/site-review/SKILL.md) | 実行ログの振り返り。改善点を整理して直し、古いログを月ごとに要約して削除する。Claude を無料のプランに下げる前の確認と、Pro に戻した日の作業もここで行う |
-| [skills/design-nexus](skills/design-nexus/SKILL.md) | デザインのスキル（同梱）。3案とトークン計画で方向性を決め、DESIGN.md で見た目をそろえ、lint とレンダーチェックで確かめる。配布元は [tkc310/design-nexus](https://github.com/tkc310/design-nexus)。ここでは直さず、新しい版を写して差し替える |
+| [tkc310/design-nexus](https://github.com/tkc310/design-nexus)（参照） | デザインのスキル。3案とトークン計画で方向性を決め、DESIGN.md で見た目をそろえ、lint とレンダーチェックで確かめる。このリポジトリには置かず、取り込みのときに [external-skills.txt](skills/web-creator/references/external-skills.txt) の版をサイトの skills/design-nexus に取得する |
 | [skills/runtime-update](skills/runtime-update/SKILL.md) | Node.js（最新の LTS 版）、pnpm、依存パッケージを最新版に、Workers の compatibility_date を新しく保つ |
 | [prompts](prompts/README.md) | サイトのオーナーがコピーして使うプロンプト集 |
 | [docs/verification](docs/verification/README.md) | 構成の検証の記録。スキルに組み込む前に、サンプルを作って計測した結果を残す |
@@ -107,6 +107,7 @@ skills/
 │   │   ├── hearing.md
 │   │   ├── stack-selection.md   … すべて Astro。対象外の判定、静的か一部 SSR か
 │   │   ├── versions.md          … モデルとバージョンの基準（ほかのファイルはここを参照する）
+│   │   ├── external-skills.txt  … 参照しているスキル（design-nexus）の版
 │   │   ├── skills-install.md    … スキルをサイトのリポジトリの skills/ に取り込む・更新する
 │   │   ├── account-setup.md
 │   │   ├── connectors.md        … Cloudflare や Google の操作に使うコネクタ（MCP）
@@ -124,7 +125,7 @@ skills/
 │   │   ├── audit-log.md         … 監査ログ
 │   │   ├── security-audit.md    … 公開前と機能の変更時のセキュリティ監査
 │   │   └── security-rules.md    … 安全のための決まり（全スキル共通）
-│   ├── scripts/                 … run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
+│   ├── scripts/                 … fetch_external_skills.sh（design-nexus の取得）、run_lighthouse.sh、check_mobile_width.py（iPhone SE の幅の確認）、make_preview.py、check_text.py（機密情報と汚染のチェック）
 │   └── templates/               … SITE.md、AGENTS.md.tmpl と CLAUDE.md.tmpl（サイトの直下に置くときに .tmpl を外す）、プロジェクトの指示、引き継ぎ文（handoff.md）、ログ、IMPROVEMENTS.md、ワークフロー、smoke-test.txt と scripts/smoke.sh（公開後の確認）、dependabot.yml（GitHub Actions だけ）、pnpm-workspace.yaml、llms.txt、JSON-LD、フォーム（forms/）など
 ├── site-content-update/
 │   ├── SKILL.md                 … 記事・お知らせの追加の標準の流れ
@@ -137,12 +138,7 @@ skills/
 │   └── SKILL.md                 … 振り返りと、古いログの要約・削除
 ├── runtime-update/
 │   └── SKILL.md
-└── design-nexus/                … デザインのスキル（tkc310/design-nexus から同梱。直接は直さない）
-    ├── SKILL.md                 … 案づくり、トークン、検証、講評の進め方
-    ├── references/              … 方向性、クラフト、チェックの一覧、講評、和文組版など
-    ├── scripts/                 … lint.mjs、render-check.mjs、tokens-check.mjs（Node.js だけで動く）
-    ├── templates/               … DESIGN.md のひな形
-    └── design-trends/           … 流行の手法のデータベース（オーナーが求めたときだけ読む）
+└── （design-nexus/）            … デザインのスキル。このリポジトリには置かず、サイトに取り込むときに tkc310/design-nexus から取得する
 ```
 
 ## 設計の方針
@@ -225,7 +221,7 @@ deploy のワークフローは、ビルド（build）、公開（publish）、�
 
 ### デザインは design-nexus スキルで決めて仕上げ、iPhone SE の幅まで確かめる
 
-デザイン案づくりから仕上げまでを、同梱の [design-nexus](https://github.com/tkc310/design-nexus) スキル（[skills/design-nexus](skills/design-nexus/SKILL.md)）で行います。主題に根ざした3案からオーナーに選んでもらい、色と書体のトークンを DESIGN.md にまとめてページ間の見た目をそろえ、lint とレンダーチェックでアクセシビリティの最低ラインを確かめてから、講評で仕上げます。テンプレートのような見た目を避けるためです。スキル一式と一緒にサイトのリポジトリに取り込まれるので、オーナーがスキルを有効にする操作は要りません。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
+デザイン案づくりから仕上げまでを、作者が公開している [design-nexus](https://github.com/tkc310/design-nexus) スキルで行います。主題に根ざした3案からオーナーに選んでもらい、色と書体のトークンを DESIGN.md にまとめてページ間の見た目をそろえ、lint とレンダーチェックでアクセシビリティの最低ラインを確かめてから、講評で仕上げます。テンプレートのような見た目を避けるためです。このリポジトリには写さず、サイトにスキルを取り込むときに、決めた版（[external-skills.txt](skills/web-creator/references/external-skills.txt)）を取得してサイトの skills/design-nexus に置くので、オーナーがスキルを有効にする操作は要りません。スマホの表示は、一般的な iPhone の幅だけでなく、iPhone SE の幅（375px）と 320px でも、横スクロール、はみ出し、ヘッダーやボタンの折り返しがないことを [check_mobile_width.py](skills/web-creator/scripts/check_mobile_width.py) とスクリーンショットで確かめます（[build.md](skills/web-creator/references/build.md)）。
 
 ### 公開前に品質を測る
 
@@ -291,12 +287,13 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 - タグは作者のパソコンから push する。Claude Code のクラウドのセッションでは、GitHub の中継（プロキシ）がタグの push を拒否する（「the proxy rejects branch deletions and pushes of anything other than a branch, such as a tag」。出典: https://code.claude.com/docs/en/cloud-environments 、2026-10-30 確認）。リリースの作成と zip の添付も、同じパソコンで行う。エージェントはタグを打たず、main にもマージしない
 - タグが1つもない間は、サイトのリポジトリは main の最新のコミットを取り込み、`skills/VERSION` に `tag: none` とそのコミットを書いて固定する。今の作り方になる前の古い main（`skills/web-creator/references/skills-install.md` がない版）は取り込まずに止まる
 - タグを打つ前に、ファイルの一覧 `MANIFEST.txt`（`# tag:` の行と、`LICENSE` と `skills/` のファイルごとの SHA-256）を作って main に入れる。clone できない作業環境で、Claude が raw.githubusercontent.com から1つずつ取り、一覧と合うかを確かめるのに使う（skills-install.md の「C の raw.githubusercontent.com から取り込むとき」）。作り方は下の手順2
-- タグを打つたびに、同じ版の `skills/`、`LICENSE`、`CHANGELOG.md`、`VERSION`（source、tag、commit の3行）を入れた zip（`ai-web-creator-<タグ>.zip`）を作り、GitHub のリリースに添付する。clone も raw も通らない作業環境で、オーナーがダウンロードしてチャットに添付する（skills-install.md の「B の zip から取り込むとき」。チャットに添付できないときは、GitHub の画面でサイトのリポジトリの別のブランチに置いてもらう）。配布元を非公開にする場合は、同じ zip を解説記事に添付する。zip の作り方を変えたら skills-install.md も直す。`gh release create` を使うので、作者のパソコンに GitHub CLI（gh）を入れ、`gh auth login` でログインしておく
+- タグを打つたびに、同じ版の `skills/`（参照しているスキルの design-nexus を含む）、`LICENSE`、`CHANGELOG.md`、`VERSION`（source、tag、commit の3行）を入れた zip（`ai-web-creator-<タグ>.zip`）を作り、GitHub のリリースに添付する。clone も raw も通らない作業環境で、オーナーがダウンロードしてチャットに添付する（skills-install.md の「B の zip から取り込むとき」。チャットに添付できないときは、GitHub の画面でサイトのリポジトリの別のブランチに置いてもらう）。配布元を非公開にする場合は、同じ zip を解説記事に添付する。zip の作り方を変えたら skills-install.md も直す。`gh release create` を使うので、作者のパソコンに GitHub CLI（gh）を入れ、`gh auth login` でログインしておく
 
   ```bash
   tag=v2026.11.0
   out="$(mktemp -d)"
   git archive --format=tar "$tag" skills LICENSE CHANGELOG.md | tar -x -C "$out"
+  bash "$out/skills/web-creator/scripts/fetch_external_skills.sh" "$out/skills"   # 参照しているスキル（design-nexus）も入れる
   printf 'source: https://github.com/tkc310/ai-web-creator\ntag: %s\ncommit: %s\n' "$tag" "$(git rev-list -n 1 "$tag")" > "$out/VERSION"
   (cd "$out" && zip -qr "ai-web-creator-$tag.zip" skills LICENSE CHANGELOG.md VERSION)
   gh release create "$tag" "$out/ai-web-creator-$tag.zip" --title "$tag" --notes-file <(sed -n "/^## $tag/,/^## /p" CHANGELOG.md | sed '$d')
@@ -353,18 +350,15 @@ Lighthouse（モバイル）で、パフォーマンス95以上、ユーザー�
 7. 上の zip を作り、リリースに添付する
 8. 手順3と4で確かめた結果を、skills/web-creator/references/versions.md の「時点つきの事実」の「未確認」の行に、確かめた日と一緒に書く。直した版は次のタグで出す
 
-### 同梱しているスキルの更新
+### 参照しているスキルの更新
 
-`skills/design-nexus/` は、[tkc310/design-nexus](https://github.com/tkc310/design-nexus) を写したものです。直接は直さず、配布元で直してから、作業ブランチで次のように差し替えます。写したら、[versions.md](skills/web-creator/references/versions.md) の「同梱しているスキル」の版、コミット、写した日を直し、CHANGELOG.md に書きます。
+design-nexus は [tkc310/design-nexus](https://github.com/tkc310/design-nexus) を参照していて、このリポジトリには写しません。使う版は [external-skills.txt](skills/web-creator/references/external-skills.txt) にだけ書きます。版を上げるときは、作業ブランチで次のように最新のコミットを調べ、その行の3つめ（タグ、なければ `none`）と4つめ（40文字のコミット）を書き換え、取得できることを確かめます。あわせて [versions.md](skills/web-creator/references/versions.md) の「参照しているスキル」の表と CHANGELOG.md を直します。次のタグから、サイトに届きます。
 
 ```bash
-src="$(mktemp -d)"
-git clone --quiet --depth 1 https://github.com/tkc310/design-nexus "$src/design-nexus"
-node "$src/design-nexus/scripts/build.mjs"
-rm -rf skills/design-nexus
-cp -R "$src/design-nexus/dist/claude/design-nexus" skills/design-nexus
-printf '%s %s\n' "$(cat "$src/design-nexus/VERSION")" "$(git -C "$src/design-nexus" rev-parse HEAD)"
-rm -rf "$src"
+git ls-remote https://github.com/tkc310/design-nexus HEAD 'refs/tags/*'
+tmp="$(mktemp -d)"
+bash skills/web-creator/scripts/fetch_external_skills.sh "$tmp" && cat "$tmp/design-nexus/SOURCE"
+rm -rf "$tmp"
 ```
 
 スキルの更新は期間を区切らずに続けます。止めるときは、3か月前にこの README と note で知らせます。

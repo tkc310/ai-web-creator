@@ -63,15 +63,17 @@ templates/github/workflows/ のワークフローは、次の版を使ってい�
 
 新しいメジャー版が出ていたら、このリポジトリのテンプレートとこの表を同じコミットで直します。
 
-## 同梱しているスキル
+## 参照しているスキル
 
-`skills/` には、作者が別のリポジトリで公開しているスキルを写して同梱しています。サイトのリポジトリには、skills-install.md の取り込みで一緒に入ります。`skills/` の中は直接直さず、新しい版を写して差し替えます（配布元の README の「版の付け方」の「同梱しているスキルの更新」）。
+作者が別のリポジトリで公開しているスキルは、配布元に写さずに参照し、サイトのリポジトリに取り込むときに取得します。版は `references/external-skills.txt` にだけ書き（機械が読む）、ここには理由と確かめた日を書きます。上げ方は配布元の README の「参照しているスキルの更新」にあります。
 
-| スキル | 取り込み元 | 版 | コミット | 写した日 |
+| スキル | リポジトリ | タグ | コミット | 決めた日 |
 |---|---|---|---|---|
-| design-nexus | https://github.com/tkc310/design-nexus の `node scripts/build.mjs` が作る `dist/claude/design-nexus/`（スキルと、流行の手法のデータベース `design-trends/`） | 0.10.0 | a0f7b849ff1b9621120cc383f5ba50f3ef38b6d2 | 2026-11-18 |
+| design-nexus | https://github.com/tkc310/design-nexus | なし（タグがまだない） | a0f7b849ff1b9621120cc383f5ba50f3ef38b6d2（0.10.0） | 2026-11-18 |
 
-design-nexus のチェックのスクリプトは Node.js 26.13.0 以上で動きます（サイトで使う Node.js の版と同じ。上の「Node.js、pnpm、依存パッケージ」）。
+- 取得は `scripts/fetch_external_skills.sh` で、決めたコミットを `git fetch --depth 1` で取り、コミットが合うことを確かめてから、`skills/<名前>/` と、スキルが読むデータ（design-nexus の `docs/design-trends/` を `design-trends/` に）を置き、`SOURCE` に版を書く。design-nexus の `scripts/build.mjs` が Claude Code 向けに作るものと同じ中身になる（2026-11-20 確認）
+- design-nexus のチェックのスクリプトは Node.js 26.13.0 以上で動く（サイトで使う Node.js の版と同じ。上の「Node.js、pnpm、依存パッケージ」）
+- design-nexus にタグが付いたら、コミットの代わりにタグで固定する（一覧の3つめの欄にタグ、4つめにそのタグのコミット）
 
 ## 時点つきの事実
 

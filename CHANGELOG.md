@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v2026.11.2（未リリース）
+
+### 2026-11-20
+
+- refactor(skills): design-nexus を配布元に同梱するのをやめ、tkc310/design-nexus を参照する形にした。使う版は skills/web-creator/references/external-skills.txt に書き、サイトに取り込むときに scripts/fetch_external_skills.sh が決めたコミットを取得して skills/design-nexus に置く（取得したコミットが合わなければ置かない。取れなければ置かずに進む）。リリースの zip には同じ版を入れる。版の上げ方は README の「参照しているスキルの更新」（skills-install.md、build.md、versions.md、release.yml、README.md、AGENTS.md、docs/other-agents.md）
+
 ## v2026.11.1（2026-11-18）
 
 ### 2026-11-18
